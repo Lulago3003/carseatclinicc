@@ -15,6 +15,10 @@
 
   const CATS = [["sillas", "Silla de carro"], ["bases", "Base"], ["accesorios", "Accesorio"]];
 
+  // Acceso rápido por código (solo ver). Se guarda mientras dure la pestaña.
+  const LOCAL_KEY = "csc_local_admin";
+  let localAdmin = sessionStorage.getItem(LOCAL_KEY) === "1";
+
   /* ---------- Arranque ---------- */
   DB.init();
   if (!DB.ready) {
@@ -32,6 +36,7 @@
 
   // Decide si mostrar login o el panel según la sesión y si es admin
   async function gate() {
+    if (localAdmin) { showPanel(); return; }
     const user = await DB.getUser();
     if (!user) { showGate("login"); return; }
     const profile = await DB.getProfile();
@@ -60,8 +65,18 @@
 
   async function showPanel() {
     $("#gate").hidden = true; $("#panel").hidden = false; $("#logoutBtn").style.display = "inline-flex";
+    showModeBanner();
     await renderProducts();
     await renderOrders();
+  }
+
+  function showModeBanner() {
+    let b = document.getElementById("modeBanner");
+    if (!b) { b = document.createElement("div"); b.id = "modeBanner"; b.className = "admin__banner"; $("#panel").prepend(b); }
+    if (localAdmin) {
+      b.style.display = "block";
+      b.innerHTML = "👁️ <strong>Modo código (solo ver).</strong> Para <strong>guardar</strong> cambios y ver pedidos, cierra sesión e inicia con tu correo de administrador.";
+    } else { b.style.display = "none"; }
   }
 
   /* ---------- Login ---------- */
@@ -74,7 +89,24 @@
     await gate();
   });
   $("#googleBtn").addEventListener("click", () => DB.signInGoogle());
-  $("#logoutBtn").addEventListener("click", async () => { await DB.signOut(); await gate(); });
+  $("#logoutBtn").addEventListener("click", async () => {
+    localAdmin = false; sessionStorage.removeItem(LOCAL_KEY);
+    await DB.signOut(); await gate();
+  });
+
+  // Acceso rápido por código (usuario/clave de CONFIG.adminCode)
+  $("#codeForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const err = $("#codeError"); err.textContent = "";
+    const d = Object.fromEntries(new FormData(e.target).entries());
+    const ac = CONFIG.adminCode || {};
+    if ((d.usuario || "").trim() === ac.usuario && (d.clave || "") === ac.clave) {
+      localAdmin = true; sessionStorage.setItem(LOCAL_KEY, "1");
+      gate();
+    } else {
+      err.textContent = "Usuario o clave incorrectos.";
+    }
+  });
 
   /* ---------- Pestañas ---------- */
   $$(".tab").forEach((t) => t.addEventListener("click", () => {
@@ -144,12 +176,12 @@
       const p = readCard(card);
       if (!p.nombre) { toast("Ponle un nombre al producto"); return; }
       try { await DB.saveProduct(p); toast("Guardado ✓"); await renderProducts(); }
-      catch (err) { toast("Error: " + (err.message || "no se pudo guardar")); }
+      catch (err) { toast(localAdmin ? "Modo código: inicia sesión con tu correo para guardar." : "Error: " + (err.message || "no se pudo guardar")); }
     }
     if (e.target.closest("[data-del]")) {
       if (!confirm("¿Eliminar este producto? No se puede deshacer.")) return;
       try { await DB.deleteProduct(card.dataset.id); toast("Eliminado"); card.remove(); }
-      catch (err) { toast("Error al eliminar"); }
+      catch (err) { toast(localAdmin ? "Modo código: inicia sesión con tu correo para eliminar." : "Error al eliminar"); }
     }
   });
 

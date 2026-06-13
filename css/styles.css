@@ -359,6 +359,7 @@ body.admin { background: var(--bg-alt); }
 .admin__card-actions { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
 .admin__card-actions .inline { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 600; }
 .admin__card-actions .inline select { margin: 0; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 10px; }
+.admin__banner { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 12px 16px; border-radius: 12px; font-size: .9rem; margin-bottom: 18px; }
 .order-head { display: flex; justify-content: space-between; align-items: center; }
 .order-head b { font-family: "Poppins"; color: var(--brand-dark); font-size: 1.1rem; }
 @media (max-width: 720px) { .admin__card-grid { grid-template-columns: 1fr 1fr; } .admin__card-grid .col-2, .admin__card-grid .col-3 { grid-column: 1 / -1; } }

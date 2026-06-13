@@ -44,6 +44,15 @@
             <button class="btn btn--primary btn--block" type="submit">Ingresar</button>
             <p class="auth-error" id="loginError"></p>
           </form>
+
+          <div class="auth-divider"><span>o con código de administrador</span></div>
+          <form id="codeForm">
+            <label>Usuario <input name="usuario" placeholder="admin" autocomplete="off" /></label>
+            <label>Clave <input name="clave" type="password" placeholder="admin" autocomplete="off" /></label>
+            <button class="btn btn--ghost btn--block" type="submit">Entrar con código</button>
+            <p class="auth-error" id="codeError"></p>
+            <p class="muted" style="font-size:.78rem;margin-top:8px">Modo rápido para ver el panel. Para <strong>guardar</strong> cambios, inicia sesión con tu correo.</p>
+          </form>
         </div>
       </div>
     </section>

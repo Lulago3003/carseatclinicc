@@ -39,6 +39,12 @@ const CONFIG = {
      administradora automáticamente (puede editar productos, stock y pedidos).
      Puedes agregar más separados por coma. */
   adminEmails: ["luislassogonzalez@gmail.com"],
+
+  /* --- Acceso rápido por código (solo para ENTRAR y VER el panel) ---
+     Útil para revisar el panel sin iniciar sesión. OJO: no es seguro
+     (la clave queda visible en el código). Para GUARDAR cambios de verdad
+     hay que iniciar sesión con un correo de adminEmails. */
+  adminCode: { usuario: "admin", clave: "admin" },
 };
 
 /* =====================================================================
