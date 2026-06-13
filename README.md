@@ -1,120 +1,116 @@
 # 🪑 Car Seat Clinic Panamá — Tienda web
 
-Tienda web lista para usar: productos con carrito, servicios, sección "Nosotros" y contacto.
-Está hecha en HTML/CSS/JavaScript puro — **no necesitas instalar nada**.
+Tienda online con **catálogo**, **carrito**, **login (correo y Google)**, **base de datos**,
+**control de stock** y un **panel de administración** para editar todo sin tocar código.
+
+- Frontend: HTML/CSS/JS (se publica gratis en GitHub Pages / Netlify)
+- Backend: [Supabase](https://supabase.com) (base de datos + login) — plan gratis
 
 ---
 
-## 🚀 Cómo verla
+## 🧭 ¿Qué hace cada cosa?
 
-1. Abre la carpeta `carseatclinicc`.
-2. Haz **doble clic** en `index.html`. Se abre en tu navegador. ¡Listo!
+| Necesitas… | Dónde se hace |
+|---|---|
+| Cambiar WhatsApp, correo, horario, colores | `js/data.js` y `css/styles.css` |
+| Agregar / editar productos y **stock** | **Panel admin** (`admin.html`) — fácil, con formularios |
+| Ver pedidos y cambiar su estado | **Panel admin** → pestaña Pedidos |
+| Que los clientes inicien sesión y compren | Se activa al conectar Supabase (abajo) |
 
-> Consejo: para editar los archivos usa el **Bloc de notas** o, mejor, descarga gratis
-> [Visual Studio Code](https://code.visualstudio.com/).
-
----
-
-## ✏️ Lo único que tienes que editar: `js/data.js`
-
-Abre el archivo **`js/data.js`**. Ahí cambias todo lo importante. Edita solo el texto
-entre comillas `" "` y **no borres** las comas ni las llaves `{ }`.
-
-### 1) Datos del negocio y contacto
-En la sección `CONFIG` cambia:
-- `whatsapp` → tu número con código de país, **sin** signos. Panamá = `507`. Ej: `"50761234567"`
-- `email`, `instagram`, `ubicacion`, `horario`.
-
-### 2) Tus productos
-En `PRODUCTOS`, cada producto es un bloque como este:
-
-```js
-{
-  id: "p1",                       // déjalo único (p1, p2, p3...)
-  nombre: "Silla para bebé",
-  categoria: "sillas",            // "sillas", "bases" o "accesorios"
-  precio: 189,
-  antes: 0,                       // precio anterior tachado (0 = sin oferta)
-  badge: "Más vendido",           // etiqueta (deja "" si no quieres)
-  imagen: "",                     // ver abajo cómo poner fotos
-  descripcion: "Texto del producto...",
-}
-```
-
-- Para **añadir** un producto: copia un bloque completo `{ ... },` y pégalo, cambiando el `id`.
-- Para **quitar** uno: borra su bloque entero (incluida la coma final).
-
-### 3) Tus servicios
-Igual que arriba, pero en la lista `SERVICIOS`. `precio: 0` muestra "Sin costo".
+> Sin conectar Supabase, la tienda funciona en **modo demo**: se ve con productos de
+> ejemplo y los pedidos van por WhatsApp, pero **el login y el stock real no funcionan**.
+> Para activarlo todo, sigue los pasos siguientes (una sola vez).
 
 ---
 
-## 🖼️ Cómo poner fotos a los productos
+## ✅ PASO 1 — Crear la base de datos (Supabase)
 
-Si dejas `imagen: ""`, se muestra un dibujo automático bonito. Para usar tus fotos reales:
+1. Entra a **[supabase.com](https://supabase.com)** → **Start your project** → crea cuenta (gratis).
+2. **New project**: ponle un nombre (ej. `carseatclinic`), crea una contraseña y elige región. Espera ~1 min.
+3. En el menú izquierdo entra a **SQL Editor → New query**.
+4. Abre el archivo **`supabase-setup.sql`** de este proyecto, **copia todo** y pégalo. Presiona **Run**.
+   ✔️ Eso crea las tablas, la seguridad, el stock y los productos de ejemplo.
 
-**Opción A — fotos en la carpeta:**
-1. Crea una carpeta llamada `assets` dentro de `carseatclinicc`.
-2. Copia tus fotos ahí (ej. `silla-bebe.jpg`).
-3. En el producto pon: `imagen: "assets/silla-bebe.jpg"`
+## ✅ PASO 2 — Conectar la web con Supabase
 
-**Opción B — foto desde internet:** pega el enlace directo de la imagen:
-`imagen: "https://...//foto.jpg"`
-
-> Tip: usa fotos cuadradas o tipo 4:3 para que se vean parejas.
-
----
-
-## 💳 Activar el pago con tarjeta (PayPal)
-
-La tienda ya tiene carrito y checkout listos. Para cobrar con tarjeta en línea:
-
-1. Crea una cuenta **de empresa** en [paypal.com](https://www.paypal.com).
-2. Entra a [developer.paypal.com](https://developer.paypal.com) → **Apps & Credentials** → modo **Live**.
-3. Copia tu **Client ID** y pégalo en `js/data.js`:
+1. En Supabase, menú **⚙️ Project Settings → API**.
+2. Copia el **Project URL** y la clave **anon public**.
+3. Pégalos en **`js/data.js`**:
    ```js
-   paypalClientId: "PEGA_AQUI_TU_CLIENT_ID",
+   supabaseUrl: "https://xxxxx.supabase.co",
+   supabaseAnonKey: "eyJhbGci...(clave larga)...",
    ```
-4. Guarda. ¡El botón de PayPal aparecerá solo en el checkout!
+4. Guarda. ¡Listo, ya hay base de datos y login por correo! 🎉
 
-Mientras no pongas el Client ID, el checkout permite confirmar el pedido por **WhatsApp**
-(te llega el detalle del pedido y los datos del cliente), así la tienda funciona desde ya.
+## ✅ PASO 3 — Hacerte administradora
+
+1. Abre la tienda, clic en **Ingresar → Regístrate** y crea tu cuenta con tu correo.
+2. Vuelve a Supabase → **SQL Editor** y ejecuta (cambia el correo por el tuyo):
+   ```sql
+   update profiles set is_admin = true where email = 'TU_CORREO@gmail.com';
+   ```
+3. Recarga la tienda. Aparecerá el botón **⚙️ Administrar**. Desde ahí editas productos y stock. 💪
+
+## ✅ PASO 4 (opcional) — Activar "Iniciar con Google"
+
+1. En Supabase: **Authentication → Providers → Google → Enable**.
+2. Te pedirá un **Client ID** y **Client Secret**. Para obtenerlos:
+   - Entra a **[console.cloud.google.com](https://console.cloud.google.com)** → crea un proyecto.
+   - **APIs y servicios → Pantalla de consentimiento OAuth** → tipo **Externo** → llena lo básico.
+   - **Credenciales → Crear credenciales → ID de cliente OAuth → Aplicación web**.
+   - En **URIs de redireccionamiento autorizados** pega la URL que te muestra Supabase
+     (algo como `https://xxxxx.supabase.co/auth/v1/callback`).
+   - Copia el **Client ID** y **Client Secret** y pégalos en Supabase. Guarda.
+3. En Supabase: **Authentication → URL Configuration** → en **Site URL** y **Redirect URLs**
+   agrega la dirección de tu tienda publicada, ej:
+   `https://lulago3003.github.io/carseatclinicc/`
+4. ¡Listo! El botón **Continuar con Google** ya funcionará.
 
 ---
 
-## 🌐 Cómo publicarla en internet (gratis)
+## 🖼️ Fotos de productos
 
-La forma más fácil:
+En el panel admin, campo **Imagen**, puedes poner:
+- Una URL de internet (enlace directo a la foto), **o**
+- `assets/mi-foto.jpg` (crea una carpeta `assets` y sube ahí tus fotos).
 
-1. Entra a [netlify.com](https://www.netlify.com) y crea una cuenta gratis.
-2. Ve a **"Add new site" → "Deploy manually"**.
-3. **Arrastra la carpeta `carseatclinicc`** completa a la página.
-4. En segundos te dan un enlace público (ej. `carseatclinic.netlify.app`).
-5. Pon ese enlace en tu bio de Instagram. 🎉
+Si lo dejas vacío, se muestra un dibujo automático.
 
-> Más adelante puedes comprar un dominio propio (ej. `carseatclinic.com`) y conectarlo.
+## 💳 Pago con tarjeta (PayPal, opcional)
 
----
+En `js/data.js` pega tu `paypalClientId` (de [developer.paypal.com](https://developer.paypal.com)).
+Mientras esté vacío, el cobro se coordina por WhatsApp.
 
-## 🎨 ¿Quieres cambiar colores?
+## 🎨 Cambiar colores
 
-En `css/styles.css`, arriba del todo (`:root`), cambia los colores:
-- `--brand` = color principal (teal)
-- `--accent` = color de acento (naranja/coral)
+En `css/styles.css` (arriba, en `:root`): `--brand` (principal) y `--accent` (acento).
 
 ---
 
-## Estructura de archivos
+## 🌐 Publicar / actualizar
+
+Ya está en GitHub. Para subir cambios:
+```bash
+git add .
+git commit -m "Cambios en la tienda"
+git push
+```
+La web publicada se actualiza sola. (En GitHub: Settings → Pages, si no estuviera activo.)
+
+## 📁 Archivos
 
 ```
 carseatclinicc/
-├── index.html        → la página (no necesitas tocarla)
-├── README.md         → este archivo
-├── css/
-│   └── styles.css    → diseño y colores
+├── index.html          → la tienda
+├── admin.html          → panel de administración
+├── supabase-setup.sql  → ⭐ se pega una vez en Supabase
+├── README.md           → esta guía
+├── css/styles.css      → diseño y colores
 └── js/
-    ├── data.js       → ⭐ AQUÍ editas productos, servicios y contacto
-    └── store.js      → funcionamiento del carrito (no tocar)
+    ├── data.js         → ⭐ ajustes (WhatsApp, claves de Supabase, PayPal)
+    ├── supabase.js     → conexión con la base de datos (no tocar)
+    ├── store.js        → tienda (no tocar)
+    └── admin.js        → panel admin (no tocar)
 ```
 
-¿Dudas? Cualquier cosa que quieras cambiar, pídelo y lo ajustamos. 💛
+¿Dudas? Pídeme lo que quieras cambiar y lo ajustamos. 💛

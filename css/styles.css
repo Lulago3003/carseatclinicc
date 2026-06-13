@@ -290,6 +290,80 @@ input:focus, textarea:focus { outline: none; border-color: var(--brand); }
 }
 .toast.is-open { transform: translateX(-50%) translateY(0); }
 
+/* ---------- Cuenta / Login ---------- */
+.account-btn {
+  display: inline-flex; align-items: center; gap: 7px; background: #fff; border: 1.5px solid var(--line);
+  color: var(--brand-dark); font-weight: 600; font-size: .88rem; padding: 9px 14px; border-radius: 12px; cursor: pointer; transition: .15s;
+}
+.account-btn:hover { border-color: var(--brand); background: var(--brand-soft); }
+.account-btn svg { flex-shrink: 0; }
+
+.nav__admin { color: var(--accent-dark) !important; font-weight: 700 !important; }
+
+.account-menu {
+  position: fixed; top: 70px; right: 22px; z-index: 75; background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: var(--shadow-lg); padding: 8px; min-width: 220px; display: flex; flex-direction: column;
+}
+.account-menu[hidden] { display: none; }
+.account-menu__head { padding: 10px 12px; font-size: .82rem; color: var(--muted); border-bottom: 1px solid var(--line); margin-bottom: 6px; word-break: break-all; }
+.account-menu a { padding: 11px 12px; border-radius: 10px; font-size: .92rem; font-weight: 500; color: var(--ink); }
+.account-menu a:hover { background: var(--bg-alt); }
+
+.btn--google { background: #fff; color: #3c4043; border: 1.5px solid var(--line); font-weight: 600; }
+.btn--google:hover { background: #f7f9f9; border-color: #c9d6d6; }
+
+.modal__box--sm { max-width: 420px; }
+.auth-divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .82rem; margin: 18px 0; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.auth-form label { margin-bottom: 14px; }
+.auth-error { color: var(--accent-dark); font-size: .85rem; min-height: 1em; margin-top: 4px; }
+.auth-switch { text-align: center; font-size: .9rem; color: var(--muted); margin-top: 16px; }
+.auth-switch a { color: var(--brand-dark); font-weight: 700; }
+
+.order-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.order-row b { font-family: "Poppins"; color: var(--brand-dark); }
+.order-status { display: inline-block; background: var(--brand-soft); color: var(--brand-dark); font-size: .72rem; font-weight: 700; padding: 2px 9px; border-radius: 999px; text-transform: capitalize; }
+
+/* ---------- Stock en tarjetas ---------- */
+.card__stock { font-size: .78rem; font-weight: 700; }
+.card__stock--low { color: var(--accent-dark); }
+.card__stock--out { color: var(--muted); }
+.card--out { opacity: .72; }
+.card--out .card__media { filter: grayscale(.4); }
+.card__add[disabled] { background: #cdd9d9; cursor: not-allowed; transform: none; }
+
+/* ---------- Panel de administración ---------- */
+body.admin { background: var(--bg-alt); }
+.admin__main { padding: 40px 22px 80px; }
+.muted { color: var(--muted); font-size: .92rem; }
+.admin__gate { display: grid; place-items: center; min-height: 60vh; }
+.admin__card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-sm); margin-bottom: 18px; }
+.admin__card--center { max-width: 420px; width: 100%; text-align: center; }
+.admin__card--center h2 { margin-bottom: 8px; }
+.admin__card--center form, .admin__card--center .btn--google { text-align: left; }
+.admin__card--center code { display: inline-block; background: var(--bg-alt); padding: 3px 7px; border-radius: 6px; font-size: .82rem; margin-top: 6px; word-break: break-all; }
+.admin__bar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 18px 0 6px; flex-wrap: wrap; }
+.admin__bar h2 { font-size: 1.5rem; }
+.admin__list { margin-top: 18px; }
+.admin__tabs { display: flex; gap: 10px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.tab { background: none; border: none; padding: 14px 16px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; font-size: .96rem; }
+.tab.is-active { color: var(--brand-dark); border-bottom-color: var(--brand); }
+.tab-panel[hidden] { display: none; }
+.admin__card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.admin__card-grid .col-2 { grid-column: span 2; }
+.admin__card-grid .col-3 { grid-column: 1 / -1; }
+.admin__card-grid label { margin-bottom: 0; }
+.admin__card-grid select { width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: .95rem; background: #fff; }
+.admin__card-grid .check { display: flex; align-items: center; gap: 8px; align-self: end; font-weight: 600; }
+.admin__card-grid .check input { width: auto; margin: 0; }
+.admin__card-actions { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
+.admin__card-actions .inline { display: flex; align-items: center; gap: 8px; margin: 0; font-weight: 600; }
+.admin__card-actions .inline select { margin: 0; padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 10px; }
+.order-head { display: flex; justify-content: space-between; align-items: center; }
+.order-head b { font-family: "Poppins"; color: var(--brand-dark); font-size: 1.1rem; }
+@media (max-width: 720px) { .admin__card-grid { grid-template-columns: 1fr 1fr; } .admin__card-grid .col-2, .admin__card-grid .col-3 { grid-column: 1 / -1; } }
+@media (max-width: 460px) { .admin__card-grid { grid-template-columns: 1fr; } }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 980px) {
   .grid, .services { grid-template-columns: repeat(2, 1fr); }
