@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Car Seat Clinic Panamá — Sillas de carro y seguridad infantil</title>
+  <meta name="description" content="Tienda de sillas de carro para bebé, bases ISOFIX, accesorios y servicios de instalación y revisión de seguridad en Panamá." />
+
+  <!-- Favicon (ícono de la pestaña) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪑</text></svg>" />
+
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="#inicio" class="brand" aria-label="Car Seat Clinic Panamá">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6h6l1 7H8z"/><path d="M8 13l-2 6"/><path d="M16 13l2 6"/><path d="M9 6c0-2 .5-3 3-3"/>
+          </svg>
+        </span>
+        <span class="brand__text">
+          <strong>Car Seat Clinic</strong>
+          <small>Panamá</small>
+        </span>
+      </a>
+
+      <nav class="nav" id="nav">
+        <a href="#productos">Productos</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#nosotros">Nosotros</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+
+      <div class="header__actions">
+        <button class="cart-btn" id="openCart" aria-label="Abrir carrito">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span class="cart-btn__count" id="cartCount">0</span>
+        </button>
+        <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="inicio">
+    <div class="container hero__inner">
+      <div class="hero__text">
+        <span class="pill">★ Seguridad certificada para tu bebé</span>
+        <h1>La silla correcta, instalada de la forma correcta.</h1>
+        <p>Sillas de carro, bases ISOFIX y accesorios para cada etapa — más instalación profesional y revisión de seguridad. Todo en un solo lugar, aquí en Panamá.</p>
+        <div class="hero__cta">
+          <a href="#productos" class="btn btn--primary">Ver productos</a>
+          <a href="#servicios" class="btn btn--ghost">Nuestros servicios</a>
+        </div>
+        <ul class="hero__trust">
+          <li><strong>+500</strong> familias protegidas</li>
+          <li><strong>Envíos</strong> a todo Panamá</li>
+          <li><strong>Asesoría</strong> sin costo</li>
+        </ul>
+      </div>
+      <div class="hero__art" aria-hidden="true">
+        <div class="hero__card hero__card--1">🪑</div>
+        <div class="hero__card hero__card--2">🛡️</div>
+        <div class="hero__card hero__card--3">👶</div>
+        <div class="hero__blob"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FRANJA DE CONFIANZA ===================== -->
+  <section class="features">
+    <div class="container features__grid">
+      <div class="feature"><span>🛡️</span><div><strong>Instalación certificada</strong><p>Técnicos capacitados en seguridad infantil.</p></div></div>
+      <div class="feature"><span>🚚</span><div><strong>Envío a todo el país</strong><p>Recibe tu silla donde estés.</p></div></div>
+      <div class="feature"><span>✅</span><div><strong>Productos garantizados</strong><p>Marcas con normas internacionales.</p></div></div>
+      <div class="feature"><span>💬</span><div><strong>Asesoría real</strong><p>Te ayudamos a elegir la silla ideal.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== PRODUCTOS ===================== -->
+  <section class="section" id="productos">
+    <div class="container">
+      <div class="section__head">
+        <h2>Nuestros productos</h2>
+        <p>Sillas, bases y accesorios pensados para proteger a tu pequeño en cada viaje.</p>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="chip is-active" data-cat="todos">Todos</button>
+        <button class="chip" data-cat="sillas">Sillas de carro</button>
+        <button class="chip" data-cat="bases">Bases</button>
+        <button class="chip" data-cat="accesorios">Accesorios</button>
+      </div>
+
+      <div class="grid" id="productGrid"><!-- productos generados por JS --></div>
+    </div>
+  </section>
+
+  <!-- ===================== SERVICIOS ===================== -->
+  <section class="section section--alt" id="servicios">
+    <div class="container">
+      <div class="section__head">
+        <h2>Servicios</h2>
+        <p>No solo vendemos: te acompañamos para que la silla cumpla su función.</p>
+      </div>
+      <div class="services" id="serviceGrid"><!-- servicios generados por JS --></div>
+    </div>
+  </section>
+
+  <!-- ===================== NOSOTROS ===================== -->
+  <section class="section" id="nosotros">
+    <div class="container about">
+      <div class="about__art" aria-hidden="true">
+        <div class="about__circle">👶</div>
+      </div>
+      <div class="about__text">
+        <h2>Sobre Car Seat Clinic</h2>
+        <p>Nacimos con una misión simple pero vital: que ningún niño viaje sin la protección que merece. En Panamá, muchas sillas están mal instaladas o no son las adecuadas para la edad del niño — y eso lo cambiamos cada día.</p>
+        <p>Combinamos productos confiables con asesoría honesta e instalación profesional, para que cada familia viaje tranquila.</p>
+        <div class="stats">
+          <div class="stat"><strong>+500</strong><span>familias atendidas</span></div>
+          <div class="stat"><strong>100%</strong><span>sillas revisadas</span></div>
+          <div class="stat"><strong>4.9★</strong><span>satisfacción</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACTO ===================== -->
+  <section class="section section--alt" id="contacto">
+    <div class="container contact">
+      <div class="contact__info">
+        <h2>Contáctanos</h2>
+        <p>¿Dudas sobre qué silla elegir o cómo instalarla? Escríbenos, con gusto te ayudamos.</p>
+        <ul class="contact__list">
+          <li><span>📍</span> <span id="cInfoUbicacion"></span></li>
+          <li><span>🕘</span> <span id="cInfoHorario"></span></li>
+          <li><span>📧</span> <a id="cInfoEmail" href="#"></a></li>
+          <li><span>📷</span> <a id="cInfoInsta" href="#" target="_blank" rel="noopener">@carseatclinicc</a></li>
+        </ul>
+        <a class="btn btn--whatsapp" id="cWhatsBtn" href="#" target="_blank" rel="noopener">
+          💬 Escríbenos por WhatsApp
+        </a>
+      </div>
+      <form class="contact__form" id="contactForm">
+        <label>Nombre <input type="text" name="nombre" required placeholder="Tu nombre" /></label>
+        <label>Mensaje <textarea name="mensaje" rows="4" required placeholder="Cuéntanos en qué te ayudamos"></textarea></label>
+        <button type="submit" class="btn btn--primary btn--block">Enviar por WhatsApp</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="brand brand--light">
+        <span class="brand__mark" aria-hidden="true">🪑</span>
+        <span class="brand__text"><strong>Car Seat Clinic</strong><small>Panamá</small></span>
+      </div>
+      <p class="footer__copy">© <span id="year"></span> Car Seat Clinic Panamá. Hecho con cuidado para las familias.</p>
+      <div class="footer__links">
+        <a href="#productos">Productos</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== CARRITO (DRAWER) ===================== -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="cart" id="cart" aria-hidden="true" aria-label="Carrito de compras">
+    <div class="cart__head">
+      <h3>Tu carrito</h3>
+      <button class="icon-btn" id="closeCart" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <div class="cart__items" id="cartItems"><!-- ítems por JS --></div>
+    <div class="cart__empty" id="cartEmpty">
+      <span>🛒</span>
+      <p>Tu carrito está vacío</p>
+      <a href="#productos" class="btn btn--ghost" id="cartEmptyShop">Ver productos</a>
+    </div>
+    <div class="cart__foot" id="cartFoot">
+      <div class="cart__total"><span>Total</span><strong id="cartTotal">$0</strong></div>
+      <button class="btn btn--primary btn--block" id="goCheckout">Finalizar compra</button>
+    </div>
+  </aside>
+
+  <!-- ===================== CHECKOUT (MODAL) ===================== -->
+  <div class="modal" id="checkoutModal" aria-hidden="true">
+    <div class="modal__box">
+      <button class="icon-btn modal__close" id="closeCheckout" aria-label="Cerrar">✕</button>
+      <h3>Finalizar compra</h3>
+      <p class="modal__sub">Completa tus datos y elige cómo pagar.</p>
+
+      <form class="checkout__form" id="checkoutForm">
+        <div class="field-row">
+          <label>Nombre y apellido <input type="text" name="nombre" required placeholder="Ej. María Pérez" /></label>
+          <label>Teléfono <input type="tel" name="telefono" required placeholder="Ej. 6000-0000" /></label>
+        </div>
+        <label>Correo electrónico <input type="email" name="email" placeholder="tucorreo@email.com" /></label>
+        <label>Dirección de entrega <input type="text" name="direccion" required placeholder="Provincia, distrito, calle..." /></label>
+        <label>Notas (opcional) <input type="text" name="notas" placeholder="Referencias, horario de entrega..." /></label>
+      </form>
+
+      <div class="checkout__summary">
+        <div class="checkout__line"><span>Productos</span><span id="ckCount">0</span></div>
+        <div class="checkout__line checkout__line--total"><span>Total a pagar</span><strong id="ckTotal">$0</strong></div>
+      </div>
+
+      <div class="checkout__pay">
+        <div id="paypal-container"><!-- botones PayPal si hay Client ID --></div>
+        <button class="btn btn--whatsapp btn--block" id="payWhatsapp">
+          💬 Confirmar pedido por WhatsApp
+        </button>
+        <p class="checkout__note" id="payNote"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificación flotante -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+</body>
+</html>
