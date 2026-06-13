@@ -33,6 +33,12 @@ const CONFIG = {
 
   /* --- PayPal (opcional, pago con tarjeta) --- */
   paypalClientId: "",
+
+  /* --- Administradores ---
+     Cualquier persona que inicie sesión con uno de estos correos será
+     administradora automáticamente (puede editar productos, stock y pedidos).
+     Puedes agregar más separados por coma. */
+  adminEmails: ["luislassogonzalez@gmail.com"],
 };
 
 /* =====================================================================

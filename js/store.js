@@ -286,6 +286,12 @@
     try { await DB.signInGoogle(); } catch (e) { toast("No se pudo abrir Google"); }
   }
 
+  function isAdminUser(user, profile) {
+    if (profile && profile.is_admin) return true;
+    const emails = (CONFIG.adminEmails || []).map((e) => e.toLowerCase());
+    return user && emails.includes((user.email || "").toLowerCase());
+  }
+
   async function refreshAuthUI() {
     currentUser = await DB.getUser();
     currentProfile = currentUser ? await DB.getProfile() : null;
@@ -294,7 +300,7 @@
       const name = (currentProfile && currentProfile.full_name) || currentUser.email.split("@")[0];
       label.textContent = name.length > 12 ? name.slice(0, 11) + "…" : name;
       $("#accountMenuName").textContent = currentUser.email;
-      const admin = currentProfile && currentProfile.is_admin;
+      const admin = isAdminUser(currentUser, currentProfile);
       $("#adminLink").style.display = admin ? "inline-block" : "none";
       $("#accountAdmin").style.display = admin ? "block" : "none";
     } else {

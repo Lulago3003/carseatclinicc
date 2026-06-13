@@ -35,7 +35,9 @@
     const user = await DB.getUser();
     if (!user) { showGate("login"); return; }
     const profile = await DB.getProfile();
-    if (!profile || !profile.is_admin) {
+    const emails = (CONFIG.adminEmails || []).map((e) => e.toLowerCase());
+    const adminByEmail = emails.includes((user.email || "").toLowerCase());
+    if (!adminByEmail && (!profile || !profile.is_admin)) {
       showGate("noadmin", user.email);
       return;
     }

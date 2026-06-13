@@ -43,9 +43,14 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 -- Función auxiliar: ¿el usuario actual es admin?
+-- Es admin si tiene is_admin=true en su perfil, O si su correo está en la
+-- lista de correos admin de abajo (forma fácil: solo inicia sesión con ese correo).
 create or replace function public.is_admin()
 returns boolean language sql security definer stable set search_path = public as $$
-  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
+  select coalesce((select is_admin from public.profiles where id = auth.uid()), false)
+      or lower(coalesce(auth.jwt() ->> 'email', '')) = any (array[
+           'luislassogonzalez@gmail.com'   -- ⭐ correos administradores (agrega más con coma)
+         ]);
 $$;
 
 -- ---------- 2) PRODUCTOS (con STOCK) ----------
