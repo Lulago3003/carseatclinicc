@@ -28,8 +28,8 @@ const CONFIG = {
      Pega aquí los datos de tu proyecto Supabase (mira la guía del README).
      Mientras estén vacíos, la tienda funciona en "modo demo" con los
      productos de muestra y sin login real. */
-  supabaseUrl: "",      // ej. "https://abcdefgh.supabase.co"
-  supabaseAnonKey: "",  // la clave pública "anon" (puede ser larga)
+  supabaseUrl: "https://fahqjwnwoznaerrwgdmc.supabase.co",
+  supabaseAnonKey: "sb_publishable_e52thJbAZrWPpq4KJOsaRg_KrHEuNcC",
 
   /* --- PayPal (opcional, pago con tarjeta) --- */
   paypalClientId: "",
