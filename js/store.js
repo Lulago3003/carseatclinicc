@@ -11,11 +11,31 @@
   const money = (n) => CONFIG.moneda + Number(n).toLocaleString("en-US");
 
   const CAT_LABEL = { sillas: "Silla de carro", bases: "Base", accesorios: "Accesorio" };
-  const CAT_ICON = { sillas: "🪑", bases: "🔩", accesorios: "🧸" };
   const CAT_BG = {
     sillas: "linear-gradient(135deg,#e4f5f4,#c7ebe9)",
     bases: "linear-gradient(135deg,#fdeee6,#ffe0cf)",
     accesorios: "linear-gradient(135deg,#eef3ff,#dde8ff)",
+  };
+
+  // Ilustraciones de respaldo (cuando un producto no tiene foto): se ven como
+  // una silla de carro de bebé / base / accesorio, en los colores de la marca.
+  const SVG = {
+    sillas: `<svg viewBox="0 0 100 100" width="60%" height="60%" xmlns="http://www.w3.org/2000/svg">
+      <path d="M25 50 Q50 13 75 50" stroke="#146363" stroke-width="7" stroke-linecap="round" fill="none"/>
+      <path d="M18 50 Q20 87 50 87 Q80 87 82 50 Q78 43 70 47 Q66 58 50 58 Q34 58 30 47 Q22 43 18 50 Z" fill="#1f8a8a"/>
+      <path d="M31 51 Q34 77 50 77 Q66 77 69 51 Q60 61 50 61 Q40 61 31 51 Z" fill="#eafaf8"/>
+      <path d="M50 61 L43 77" stroke="#ff8a5c" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M50 61 L57 77" stroke="#ff8a5c" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="50" cy="61" r="3.6" fill="#ff8a5c"/></svg>`,
+    bases: `<svg viewBox="0 0 100 100" width="58%" height="58%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="47" width="60" height="18" rx="7" fill="#f06f3c"/>
+      <rect x="11" y="52" width="15" height="8" rx="4" fill="#146363"/>
+      <rect x="74" y="52" width="15" height="8" rx="4" fill="#146363"/>
+      <rect x="45" y="65" width="10" height="23" rx="3" fill="#f06f3c"/>
+      <rect x="38" y="86" width="24" height="7" rx="3.5" fill="#146363"/></svg>`,
+    accesorios: `<svg viewBox="0 0 100 100" width="56%" height="56%" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 22 L58 44 L80 50 L58 56 L50 78 L42 56 L20 50 L42 44 Z" fill="#3a6ea5"/>
+      <path d="M75 24 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#9bbbe0"/></svg>`,
   };
 
   /* ---------- Estado ---------- */
@@ -28,12 +48,11 @@
 
   const productById = (id) => products.find((p) => p.id === id);
 
-  function media(p, big) {
+  function media(p) {
     if (p.imagen && p.imagen.trim() !== "") {
       return `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy" />`;
     }
-    const size = big ? "font-size:30px" : "font-size:64px";
-    return `<div style="width:100%;height:100%;display:grid;place-items:center;background:${CAT_BG[p.categoria] || CAT_BG.accesorios};${size}">${CAT_ICON[p.categoria] || "📦"}</div>`;
+    return `<div style="width:100%;height:100%;display:grid;place-items:center;background:${CAT_BG[p.categoria] || CAT_BG.accesorios}">${SVG[p.categoria] || SVG.accesorios}</div>`;
   }
 
   /* ---------- Carrito (estado + persistencia) ---------- */
