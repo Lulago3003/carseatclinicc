@@ -51,14 +51,18 @@ const CONFIG = {
    SERVICIOS  (estos sí se editan aquí — cambian poco)
    ===================================================================== */
 const SERVICIOS = [
-  { icono: "🔧", nombre: "Instalación profesional", precio: 25, desde: false,
-    descripcion: "Instalamos tu silla según el peso y edad del niño, y te enseñamos a hacerlo." },
-  { icono: "🛡️", nombre: "Revisión de seguridad", precio: 15, desde: false,
-    descripcion: "Verificamos que tu silla esté bien anclada, sin holguras y dentro de su vida útil." },
-  { icono: "🧭", nombre: "Asesoría para elegir silla", precio: 0, desde: false,
-    descripcion: "Te ayudamos a escoger la silla ideal según edad, peso y el auto de tu familia." },
-  { icono: "✨", nombre: "Limpieza y desinfección", precio: 30, desde: true,
-    descripcion: "Lavado profundo y desinfección de la silla, sin dañar los materiales." },
+  { icono: "🔧", nombre: "Instalación profesional",
+    descripcion: "Instalamos y aseguramos la silla según el peso y la edad de tu pequeño, y te enseñamos a hacerlo tú misma con total confianza." },
+  { icono: "🛡️", nombre: "Chequeo de seguridad",
+    descripcion: "Revisamos que la silla esté bien anclada, sin holguras y dentro de su vida útil, con recomendaciones claras para viajar tranquila." },
+  { icono: "🧭", nombre: "Asesoría para elegir tu silla",
+    descripcion: "Te ayudamos a escoger la silla ideal según la edad, el peso del niño y el modelo de tu auto. Sin compromiso." },
+  { icono: "✨", nombre: "Limpieza y desinfección",
+    descripcion: "Lavado profundo y desinfección de la silla para devolverle higiene y frescura, cuidando cada uno de sus materiales." },
+  { icono: "🚗", nombre: "Alquiler de sillas",
+    descripcion: "¿De visita en Panamá o necesitas una silla temporal? Renta una silla certificada por el tiempo que la necesites." },
+  { icono: "🏠", nombre: "Atención a domicilio",
+    descripcion: "Llevamos la instalación y el chequeo hasta tu casa para tu mayor comodidad. Coordina tu cita fácilmente." },
 ];
 
 /* =====================================================================

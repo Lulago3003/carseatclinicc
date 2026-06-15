@@ -182,17 +182,17 @@ img { max-width: 100%; display: block; }
 .card__add:hover { background: var(--brand-dark); transform: scale(1.05); }
 
 /* ---------- Servicios ---------- */
-.services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+.services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .service {
-  background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 26px 22px;
-  text-align: center; transition: transform .2s, box-shadow .2s;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px 24px;
+  text-align: center; transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column;
 }
 .service:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
-.service__icon { font-size: 40px; }
-.service h3 { font-size: 1.08rem; margin: 12px 0 8px; }
-.service p { color: var(--muted); font-size: .88rem; }
-.service__price { margin-top: 14px; font-family: "Poppins"; font-weight: 700; color: var(--brand-dark); font-size: 1.05rem; }
-.service__price.free { color: var(--accent-dark); }
+.service__icon { font-size: 42px; }
+.service h3 { font-size: 1.1rem; margin: 12px 0 8px; }
+.service p { color: var(--muted); font-size: .9rem; flex: 1; }
+.service__cta { display: inline-block; margin-top: 16px; color: var(--brand-dark); font-weight: 700; font-size: .9rem; transition: color .15s; }
+.service__cta:hover { color: var(--accent-dark); }
 
 /* ---------- Nosotros ---------- */
 .about { display: grid; grid-template-columns: .8fr 1.2fr; gap: 48px; align-items: center; }

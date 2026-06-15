@@ -100,11 +100,10 @@
 
   function renderServices() {
     $("#serviceGrid").innerHTML = SERVICIOS.map((s) => {
-      const precio = s.precio === 0
-        ? `<div class="service__price free">Sin costo</div>`
-        : `<div class="service__price">${s.desde ? "Desde " : ""}${money(s.precio)}</div>`;
+      const wa = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic 👋 Quisiera información sobre: " + s.nombre)}`;
       return `<div class="service"><div class="service__icon">${s.icono}</div>
-        <h3>${s.nombre}</h3><p>${s.descripcion}</p>${precio}</div>`;
+        <h3>${s.nombre}</h3><p>${s.descripcion}</p>
+        <a class="service__cta" href="${wa}" target="_blank" rel="noopener">Más información →</a></div>`;
     }).join("");
   }
 
