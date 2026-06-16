@@ -4,16 +4,18 @@
    ===================================================================== */
 
 :root {
-  --brand: #1f8a8a;
-  --brand-dark: #146363;
-  --brand-soft: #e4f5f4;
-  --accent: #ff8a5c;
-  --accent-dark: #f06f3c;
-  --ink: #18313a;
-  --muted: #5d7177;
+  /* Paleta oficial Car Seat Clinic Center */
+  --brand: #2f3e34;       /* Verde Bosque (principal) */
+  --brand-dark: #232e26;  /* más oscuro (hover) */
+  --brand-soft: #e7ede7;  /* sage muy claro (fondos suaves) */
+  --sage: #7a8f7c;        /* Verde Salvia (secundario) */
+  --accent: #d8a7a7;      /* Rosa Empolvado (apoyo) */
+  --accent-dark: #a9706f; /* rosa oscuro (texto/hover) */
+  --ink: #333333;         /* Gris Carbón (texto) */
+  --muted: #6f786f;       /* texto secundario */
   --bg: #ffffff;
-  --bg-alt: #f4f9f9;
-  --line: #e3edec;
+  --bg-alt: #f5f1eb;      /* Beige Suave (fondo alterno) */
+  --line: #e6e0d5;        /* borde cálido */
   --white: #ffffff;
   --shadow-sm: 0 2px 8px rgba(20, 60, 60, .06);
   --shadow: 0 12px 30px rgba(20, 60, 60, .10);
@@ -29,14 +31,15 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Poppins", system-ui, sans-serif;
   color: var(--ink);
   background: var(--bg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, .brand strong { font-family: "Poppins", sans-serif; line-height: 1.15; }
+h1, h2, .section__head h2, .hero h1, .brand strong { font-family: "Playfair Display", Georgia, serif; line-height: 1.15; }
+h3 { font-family: "Poppins", sans-serif; line-height: 1.2; }
 
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
@@ -48,11 +51,11 @@ img { max-width: 100%; display: block; }
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 13px 22px; border-radius: 999px; font-weight: 600; font-size: .95rem;
   border: none; cursor: pointer; transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
-  font-family: "Inter", sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 .btn:active { transform: translateY(1px); }
-.btn--primary { background: var(--brand); color: #fff; box-shadow: 0 8px 20px rgba(31,138,138,.30); }
-.btn--primary:hover { background: var(--brand-dark); box-shadow: 0 10px 26px rgba(31,138,138,.40); }
+.btn--primary { background: var(--brand); color: #fff; box-shadow: 0 8px 20px rgba(47,62,52,.28); }
+.btn--primary:hover { background: var(--brand-dark); box-shadow: 0 10px 26px rgba(47,62,52,.38); }
 .btn--ghost { background: #fff; color: var(--brand-dark); border: 1.5px solid var(--line); }
 .btn--ghost:hover { border-color: var(--brand); background: var(--brand-soft); }
 .btn--accent { background: var(--accent); color: #fff; }
@@ -93,9 +96,9 @@ img { max-width: 100%; display: block; }
   border: none; width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
   cursor: pointer; transition: background .15s;
 }
-.cart-btn:hover { background: #d2efed; }
+.cart-btn:hover { background: #dbe5db; }
 .cart-btn__count {
-  position: absolute; top: -6px; right: -6px; background: var(--accent); color: #fff;
+  position: absolute; top: -6px; right: -6px; background: var(--accent-dark); color: #fff;
   font-size: .7rem; font-weight: 700; min-width: 19px; height: 19px; padding: 0 5px;
   border-radius: 999px; display: grid; place-items: center; border: 2px solid #fff;
 }
@@ -164,7 +167,7 @@ img { max-width: 100%; display: block; }
 .card__media { position: relative; aspect-ratio: 4/3; display: grid; place-items: center; }
 .card__media img { width: 100%; height: 100%; object-fit: cover; }
 .card__badge {
-  position: absolute; top: 12px; left: 12px; background: var(--accent); color: #fff;
+  position: absolute; top: 12px; left: 12px; background: var(--brand); color: #fff;
   font-size: .72rem; font-weight: 700; padding: 5px 11px; border-radius: 999px; letter-spacing: .02em;
 }
 .card__body { padding: 18px; display: flex; flex-direction: column; flex: 1; gap: 8px; }

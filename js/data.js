@@ -10,7 +10,7 @@
 const CONFIG = {
   /* --- Datos del negocio --- */
   nombre: "Car Seat Clinic",
-  eslogan: "Panamá",
+  eslogan: "Center",
 
   /* --- Contacto --- */
   // WhatsApp en formato internacional, SIN signos. Panamá = 507.
