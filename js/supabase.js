@@ -25,6 +25,8 @@ const DB = (function () {
       id: row.id,
       nombre: row.name,
       categoria: row.category,
+      marca: row.brand || "",
+      recomendado: row.fit || "",
       precio: Number(row.price),
       antes: row.compare_at ? Number(row.compare_at) : 0,
       badge: row.badge || "",
@@ -62,6 +64,7 @@ const DB = (function () {
       id: p.id, name: p.nombre, category: p.categoria, price: p.precio,
       compare_at: p.antes || null, badge: p.badge || null, image_url: p.imagen || null,
       description: p.descripcion || null, stock: p.stock, active: p.activo, sort: p.sort || 0,
+      brand: p.marca || null, fit: p.recomendado || null,
     };
     const { error } = await client.from("products").upsert(row);
     if (error) throw error;
@@ -95,9 +98,15 @@ const DB = (function () {
   }
 
   /* ---------- Autenticación ---------- */
-  async function signUp(email, password, nombre) {
+  async function signUp(email, password, meta) {
     if (!ready) throw new Error("DEMO");
-    return client.auth.signUp({ email, password, options: { data: { full_name: nombre } } });
+    return client.auth.signUp({ email, password, options: { data: meta || {} } });
+  }
+
+  async function subscribe(sub) {
+    if (!ready) throw new Error("DEMO");
+    const { error } = await client.from("subscribers").insert(sub);
+    if (error) throw error;
   }
   async function signIn(email, password) {
     if (!ready) throw new Error("DEMO");
@@ -132,6 +141,6 @@ const DB = (function () {
     init, get ready() { return ready; },
     getProducts, getProductsAdmin, saveProduct, deleteProduct,
     placeOrder, getMyOrders, updateOrderStatus,
-    signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange,
+    signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };
 })();

@@ -10,33 +10,50 @@
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const money = (n) => CONFIG.moneda + Number(n).toLocaleString("en-US");
 
-  const CAT_LABEL = { sillas: "Silla de carro", bases: "Base", accesorios: "Accesorio" };
-  const CAT_BG = {
-    sillas: "linear-gradient(135deg,#e7ede7,#d6e0d6)",
-    bases: "linear-gradient(135deg,#f5f1eb,#ece3d5)",
-    accesorios: "linear-gradient(135deg,#f4eaea,#ecd9d9)",
+  const CAT_LABEL = {
+    "recien-nacidos": "Recién nacidos", "convertibles": "Convertible", "giro-360": "Silla 360°",
+    "combinadas": "Combinada", "booster": "Booster", "accesorios": "Accesorio",
+    "limpieza": "Limpieza", "gift-cards": "Gift Card",
+    // compatibilidad con datos antiguos
+    "sillas": "Silla de carro", "bases": "Base",
   };
+  const SEAT_CATS = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster", "sillas"];
 
-  // Ilustraciones de respaldo (cuando un producto no tiene foto): se ven como
-  // una silla de carro de bebé / base / accesorio, en los colores de la marca.
-  const SVG = {
-    sillas: `<svg viewBox="0 0 100 100" width="60%" height="60%" xmlns="http://www.w3.org/2000/svg">
+  function bgFor(cat) {
+    if (SEAT_CATS.includes(cat)) return "linear-gradient(135deg,#e7ede7,#d6e0d6)";
+    if (cat === "gift-cards") return "linear-gradient(135deg,#f4eaea,#ecd9d9)";
+    if (cat === "limpieza") return "linear-gradient(135deg,#eef2ee,#dfe8e0)";
+    return "linear-gradient(135deg,#f5f1eb,#ece3d5)"; // accesorios / bases
+  }
+
+  // Ilustraciones de respaldo en los colores de la marca.
+  const SVG_SEAT = `<svg viewBox="0 0 100 100" width="60%" height="60%" xmlns="http://www.w3.org/2000/svg">
       <path d="M25 50 Q50 13 75 50" stroke="#232e26" stroke-width="7" stroke-linecap="round" fill="none"/>
       <path d="M18 50 Q20 87 50 87 Q80 87 82 50 Q78 43 70 47 Q66 58 50 58 Q34 58 30 47 Q22 43 18 50 Z" fill="#2f3e34"/>
       <path d="M31 51 Q34 77 50 77 Q66 77 69 51 Q60 61 50 61 Q40 61 31 51 Z" fill="#f5f1eb"/>
       <path d="M50 61 L43 77" stroke="#a9706f" stroke-width="3.5" stroke-linecap="round"/>
       <path d="M50 61 L57 77" stroke="#a9706f" stroke-width="3.5" stroke-linecap="round"/>
-      <circle cx="50" cy="61" r="3.6" fill="#a9706f"/></svg>`,
-    bases: `<svg viewBox="0 0 100 100" width="58%" height="58%" xmlns="http://www.w3.org/2000/svg">
-      <rect x="20" y="47" width="60" height="18" rx="7" fill="#7a8f7c"/>
-      <rect x="11" y="52" width="15" height="8" rx="4" fill="#2f3e34"/>
-      <rect x="74" y="52" width="15" height="8" rx="4" fill="#2f3e34"/>
-      <rect x="45" y="65" width="10" height="23" rx="3" fill="#7a8f7c"/>
-      <rect x="38" y="86" width="24" height="7" rx="3.5" fill="#2f3e34"/></svg>`,
-    accesorios: `<svg viewBox="0 0 100 100" width="56%" height="56%" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="61" r="3.6" fill="#a9706f"/></svg>`;
+  const SVG_STAR = `<svg viewBox="0 0 100 100" width="56%" height="56%" xmlns="http://www.w3.org/2000/svg">
       <path d="M50 22 L58 44 L80 50 L58 56 L50 78 L42 56 L20 50 L42 44 Z" fill="#2f3e34"/>
-      <path d="M75 24 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#d8a7a7"/></svg>`,
-  };
+      <path d="M75 24 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#d8a7a7"/></svg>`;
+  const SVG_GIFT = `<svg viewBox="0 0 100 100" width="56%" height="56%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="48" width="48" height="32" rx="4" fill="#2f3e34"/>
+      <rect x="22" y="40" width="56" height="12" rx="3" fill="#7a8f7c"/>
+      <rect x="46" y="40" width="8" height="40" fill="#d8a7a7"/>
+      <path d="M50 40 C42 28 30 32 35 40 M50 40 C58 28 70 32 65 40" stroke="#d8a7a7" stroke-width="4" fill="none"/></svg>`;
+  const SVG_CLEAN = `<svg viewBox="0 0 100 100" width="54%" height="54%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="40" y="44" width="26" height="38" rx="6" fill="#2f3e34"/>
+      <rect x="45" y="30" width="14" height="14" rx="2" fill="#7a8f7c"/>
+      <path d="M45 32 L31 28 M45 36 L31 36 M45 40 L31 44" stroke="#7a8f7c" stroke-width="3" stroke-linecap="round"/>
+      <rect x="43" y="54" width="20" height="13" rx="2" fill="#f5f1eb"/></svg>`;
+
+  function svgFor(cat) {
+    if (SEAT_CATS.includes(cat)) return SVG_SEAT;
+    if (cat === "gift-cards") return SVG_GIFT;
+    if (cat === "limpieza") return SVG_CLEAN;
+    return SVG_STAR;
+  }
 
   /* ---------- Estado ---------- */
   let products = [];
@@ -52,7 +69,7 @@
     if (p.imagen && p.imagen.trim() !== "") {
       return `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy" />`;
     }
-    return `<div style="width:100%;height:100%;display:grid;place-items:center;background:${CAT_BG[p.categoria] || CAT_BG.accesorios}">${SVG[p.categoria] || SVG.accesorios}</div>`;
+    return `<div style="width:100%;height:100%;display:grid;place-items:center;background:${bgFor(p.categoria)}">${svgFor(p.categoria)}</div>`;
   }
 
   /* ---------- Carrito (estado + persistencia) ---------- */
@@ -101,8 +118,9 @@
           ${p.badge ? `<span class="card__badge">${p.badge}</span>` : ""}
         </div>
         <div class="card__body">
-          <span class="card__cat">${CAT_LABEL[p.categoria] || ""}</span>
+          <span class="card__cat">${CAT_LABEL[p.categoria] || ""}${p.marca ? ` · ${p.marca}` : ""}</span>
           <h3 class="card__title">${p.nombre}</h3>
+          ${p.recomendado ? `<p class="card__fit">👶 ${p.recomendado}</p>` : ""}
           <p class="card__desc">${p.descripcion}</p>
           ${stockTag}
           <div class="card__foot">
@@ -181,12 +199,14 @@
     if (d.telefono) msg += `Teléfono: ${d.telefono}%0A`;
     if (d.email) msg += `Correo: ${d.email}%0A`;
     if (d.direccion) msg += `Dirección: ${d.direccion}%0A`;
+    msg += `Entrega: ${d.entrega ? "A domicilio" : "Retiro en tienda"}%0A`;
+    if (d.instalacion) msg += `*Quiere instalación profesional* ✅%0A`;
     if (d.notas) msg += `Notas: ${d.notas}`;
     return msg;
   }
   function customerData(form) {
     const d = Object.fromEntries(new FormData(form).entries());
-    return { nombre: d.nombre, telefono: d.telefono, email: d.email, direccion: d.direccion, notas: d.notas };
+    return { nombre: d.nombre, telefono: d.telefono, email: d.email, direccion: d.direccion, notas: d.notas, instalacion: !!d.instalacion, entrega: d.entrega ? "domicilio" : "tienda" };
   }
 
   // Registra el pedido en la base de datos (descuenta stock). Devuelve true si ok.
@@ -266,6 +286,7 @@
     $("#authTitle").textContent = isReg ? "Crear cuenta" : "Iniciar sesión";
     $("#authSubmit").textContent = isReg ? "Registrarme" : "Ingresar";
     $("#nameField").style.display = isReg ? "block" : "none";
+    $("#regExtra").style.display = isReg ? "block" : "none";
     $("#authSwitchText").textContent = isReg ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?";
     $("#authSwitch").textContent = isReg ? "Inicia sesión" : "Regístrate";
   }
@@ -277,8 +298,11 @@
     const d = Object.fromEntries(new FormData(e.target).entries());
     try {
       if (authMode === "register") {
-        const { error } = await DB.signUp(d.email, d.password, d.nombre);
+        if (!d.tyc) { err.textContent = "Debes aceptar los términos para crear tu cuenta."; return; }
+        const meta = { full_name: d.nombre, telefono: d.telefono || "", edad_nino: d.edadnino || "", acepta_promos: !!d.promos };
+        const { error } = await DB.signUp(d.email, d.password, meta);
         if (error) throw error;
+        if (d.promos) { try { await DB.subscribe({ name: d.nombre || null, email: d.email, whatsapp: d.telefono || null, source: "registro" }); } catch (e2) {} }
         toast("¡Cuenta creada! Revisa tu correo si pide confirmación.");
       } else {
         const { error } = await DB.signIn(d.email, d.password);
@@ -375,13 +399,13 @@
 
   /* ---------- Encuentra tu silla ideal ---------- */
   const RECS = {
-    infant: { nombre: "Silla para bebé (Grupo 0+)", cat: "sillas",
+    infant: { nombre: "Silla para bebé (Grupo 0+)", cat: "recien-nacidos",
       desc: "Para recién nacidos hasta ~13 kg. Se instala a contramarcha, que es la posición más segura para los más pequeños.",
       servicio: "Te recomendamos nuestra instalación profesional a contramarcha." },
-    convertible: { nombre: "Silla convertible / 360° (Grupo 0-1-2-3)", cat: "sillas",
+    convertible: { nombre: "Silla convertible / 360° (Grupo 0-1-2-3)", cat: "giro-360",
       desc: "Acompaña al niño desde el nacimiento hasta ~36 kg. El giro 360° facilita sentarlo y bajarlo.",
       servicio: "Incluye nuestra instalación profesional y revisión de seguridad." },
-    booster: { nombre: "Booster con respaldo (Grupo 2-3)", cat: "sillas",
+    booster: { nombre: "Booster con respaldo (Grupo 2-3)", cat: "booster",
       desc: "Para niños de ~15 a 36 kg. Eleva al niño para que el cinturón del auto quede en la posición correcta.",
       servicio: "Agenda una revisión para asegurar el ajuste correcto del cinturón." },
   };
@@ -426,6 +450,31 @@
     chip.classList.add("is-active");
     renderProducts(chip.dataset.cat);
     document.getElementById("productos").scrollIntoView({ behavior: "smooth" });
+  }
+
+  /* ---------- Reserva tu cita ---------- */
+  function handleCita(e) {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(e.target).entries());
+    let msg = `*Nueva solicitud de cita — Car Seat Clinic*%0A%0A`;
+    msg += `Servicio: ${d.servicio}%0AFecha: ${d.fecha}%0AHora: ${d.hora}%0ANombre: ${d.nombre}%0ATeléfono: ${d.telefono}`;
+    if (d.comentarios) msg += `%0AComentarios: ${d.comentarios}`;
+    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, "_blank");
+    toast("¡Listo! Te confirmamos la cita por WhatsApp 📅");
+  }
+
+  /* ---------- Newsletter / Afiliación ---------- */
+  async function handleNewsletter(form, origen) {
+    const d = Object.fromEntries(new FormData(form).entries());
+    if (DB.ready) { try { await DB.subscribe({ name: d.nombre || null, email: d.email, source: origen }); } catch (e) {} }
+    form.reset();
+    toast("¡Gracias por suscribirte! 💌");
+  }
+
+  function closePopup() { $("#newsletterPopup").hidden = true; try { sessionStorage.setItem("csc_np", "1"); } catch (e) {} }
+  function maybeShowPopup() {
+    try { if (sessionStorage.getItem("csc_np") === "1") return; } catch (e) {}
+    setTimeout(() => { try { if (sessionStorage.getItem("csc_np") !== "1") $("#newsletterPopup").hidden = false; } catch (e) {} }, 9000);
   }
 
   /* ---------- Cargar productos ---------- */
@@ -485,6 +534,14 @@
   // Cuestionario "Encuentra tu silla ideal"
   $("#finderForm").addEventListener("submit", handleFinder);
 
+  // Reserva tu cita
+  $("#citaForm").addEventListener("submit", handleCita);
+
+  // Newsletter (footer + pop-up)
+  $("#newsletterForm").addEventListener("submit", (e) => { e.preventDefault(); handleNewsletter(e.target, "footer"); });
+  $("#npForm").addEventListener("submit", (e) => { e.preventDefault(); handleNewsletter(e.target, "popup"); closePopup(); });
+  $("#npClose").addEventListener("click", closePopup);
+
   // Formulario de contacto → WhatsApp
   $("#contactForm").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -498,6 +555,7 @@
   renderServices();
   fillContact();
   loadProducts();
+  maybeShowPopup();
   if (DB.ready) {
     refreshAuthUI();
     DB.onAuthChange(async () => { await refreshAuthUI(); });

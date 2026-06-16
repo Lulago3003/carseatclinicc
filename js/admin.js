@@ -13,7 +13,11 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("is-open"), 2400);
   }
 
-  const CATS = [["sillas", "Silla de carro"], ["bases", "Base"], ["accesorios", "Accesorio"]];
+  const CATS = [
+    ["recien-nacidos", "Recién nacidos"], ["convertibles", "Convertible"], ["giro-360", "Silla 360°"],
+    ["combinadas", "Combinada"], ["booster", "Booster"], ["accesorios", "Accesorio"],
+    ["limpieza", "Limpieza"], ["gift-cards", "Gift Card"],
+  ];
 
   // Acceso rápido por código (solo ver). Se guarda mientras dure la pestaña.
   const LOCAL_KEY = "csc_local_admin";
@@ -118,7 +122,7 @@
 
   /* ---------- Editor de productos ---------- */
   function blankProduct() {
-    return { id: "p_" + Date.now(), nombre: "", categoria: "sillas", precio: 0, antes: 0, badge: "", imagen: "", descripcion: "", stock: 0, activo: true, sort: 0, _new: true };
+    return { id: "p_" + Date.now(), nombre: "", categoria: "recien-nacidos", marca: "", recomendado: "", precio: 0, antes: 0, badge: "", imagen: "", descripcion: "", stock: 0, activo: true, sort: 0, _new: true };
   }
 
   function productForm(p) {
@@ -127,6 +131,8 @@
       <div class="admin__card-grid">
         <label class="col-2">Nombre <input data-f="nombre" value="${esc(p.nombre)}" placeholder="Ej. Silla convertible 360°" /></label>
         <label>Categoría <select data-f="categoria">${opts}</select></label>
+        <label>Marca <input data-f="marca" value="${esc(p.marca)}" placeholder="Ej. Chicco" /></label>
+        <label class="col-2">Recomendado para <input data-f="recomendado" value="${esc(p.recomendado)}" placeholder="Ej. 0–13 kg · 0–15 meses" /></label>
         <label>Precio ($) <input data-f="precio" type="number" min="0" step="0.01" value="${p.precio}" /></label>
         <label>Precio antes ($) <input data-f="antes" type="number" min="0" step="0.01" value="${p.antes || ""}" placeholder="Opcional" /></label>
         <label>Stock <input data-f="stock" type="number" min="0" step="1" value="${p.stock}" /></label>
@@ -156,6 +162,7 @@
     return {
       id: card.dataset.id,
       nombre: get("nombre").trim(), categoria: get("categoria"),
+      marca: get("marca").trim(), recomendado: get("recomendado").trim(),
       precio: parseFloat(get("precio")) || 0, antes: parseFloat(get("antes")) || 0,
       stock: parseInt(get("stock")) || 0, badge: get("badge").trim(),
       imagen: get("imagen").trim(), descripcion: get("descripcion").trim(),
