@@ -411,7 +411,9 @@
     $("#cInfoHorario").textContent = CONFIG.horario;
     const mail = $("#cInfoEmail"); mail.textContent = CONFIG.email; mail.href = "mailto:" + CONFIG.email;
     $("#cInfoInsta").href = CONFIG.instagram;
-    $("#cWhatsBtn").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, tengo una consulta 👶")}`;
+    $("#cWhatsBtn").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, tengo una consulta")}`;
+    const map = $("#mapFrame");
+    if (map) map.src = `https://maps.google.com/maps?q=${encodeURIComponent(CONFIG.mapsQuery || CONFIG.ubicacion)}&z=13&output=embed`;
     $("#year").textContent = new Date().getFullYear();
   }
 

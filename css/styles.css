@@ -247,6 +247,8 @@ img { max-width: 100%; display: block; }
 .contact__list span:first-child { font-size: 20px; }
 .contact__list a:hover { color: var(--brand); }
 .contact__form { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); }
+.map { margin-top: 30px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow-sm); line-height: 0; }
+.map iframe { width: 100%; height: 320px; border: 0; display: block; filter: grayscale(.15); }
 label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 16px; }
 input, textarea {
   width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px;

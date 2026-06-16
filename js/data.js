@@ -19,6 +19,9 @@ const CONFIG = {
   instagram: "https://www.instagram.com/carseatclinicc",
   ubicacion: "Ciudad de Panamá, Panamá",
   horario: "Lun a Sáb · 9:00 a.m. – 6:00 p.m.",
+  // Dirección que se muestra en el mapa. Cambia por la dirección real
+  // (puedes poner el nombre del local o una dirección exacta).
+  mapsQuery: "Ciudad de Panamá, Panamá",
 
   /* --- Moneda --- */
   moneda: "$",
@@ -38,13 +41,21 @@ const CONFIG = {
      Cualquier persona que inicie sesión con uno de estos correos será
      administradora automáticamente (puede editar productos, stock y pedidos).
      Puedes agregar más separados por coma. */
-  adminEmails: ["luislassogonzalez@gmail.com"],
+  adminEmails: ["luislassogonzalez@gmail.com", "admin@carseatclinic.app"],
 
-  /* --- Acceso rápido por código (solo para ENTRAR y VER el panel) ---
-     Útil para revisar el panel sin iniciar sesión. OJO: no es seguro
-     (la clave queda visible en el código). Para GUARDAR cambios de verdad
-     hay que iniciar sesión con un correo de adminEmails. */
-  adminCode: { usuario: "admin", clave: "admin" },
+  /* --- Acceso por código al panel (CRM) ---
+     Al entrar con este usuario/clave, el panel inicia sesión en una cuenta
+     de administrador real, así puedes EDITAR todo (productos, stock, pedidos).
+     ⚠️ Importante: estas claves son visibles en el código, así que cualquiera
+     que lo vea podría entrar. Cambia "clave" y "password" por algo difícil
+     antes de lanzar (o usa tu correo personal, que es lo más seguro). */
+  adminCode: {
+    usuario: "admin",
+    clave: "admin",
+    // Cuenta real de administrador (se crea sola la primera vez que entras):
+    email: "admin@carseatclinic.app",
+    password: "AdminCSC-2026",
+  },
 };
 
 /* =====================================================================

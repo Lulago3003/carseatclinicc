@@ -98,18 +98,31 @@
     await DB.signOut(); await gate();
   });
 
-  // Acceso rápido por código (usuario/clave de CONFIG.adminCode)
-  $("#codeForm").addEventListener("submit", (e) => {
+  // Acceso por código (usuario/clave de CONFIG.adminCode) → login real al CRM
+  $("#codeForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const err = $("#codeError"); err.textContent = "";
+    const btn = e.target.querySelector("button");
     const d = Object.fromEntries(new FormData(e.target).entries());
     const ac = CONFIG.adminCode || {};
-    if ((d.usuario || "").trim() === ac.usuario && (d.clave || "") === ac.clave) {
-      localAdmin = true; sessionStorage.setItem(LOCAL_KEY, "1");
-      gate();
-    } else {
-      err.textContent = "Usuario o clave incorrectos.";
+    if ((d.usuario || "").trim() !== ac.usuario || (d.clave || "") !== ac.clave) {
+      err.textContent = "Usuario o clave incorrectos."; return;
     }
+    // Sin base de datos: modo solo lectura
+    if (!DB.ready) { localAdmin = true; sessionStorage.setItem(LOCAL_KEY, "1"); gate(); return; }
+    // Con base de datos: inicia sesión en la cuenta admin (se crea sola la 1ra vez)
+    btn.disabled = true; btn.textContent = "Entrando…";
+    let res = await DB.signIn(ac.email, ac.password);
+    if (res.error) {
+      await DB.signUp(ac.email, ac.password, { full_name: "Administrador" });
+      res = await DB.signIn(ac.email, ac.password);
+    }
+    btn.disabled = false; btn.textContent = "Entrar con código";
+    if (res.error) {
+      err.textContent = "No se pudo entrar. Revisa la guía (puede faltar correr el SQL o desactivar la confirmación por correo).";
+      return;
+    }
+    await gate();
   });
 
   /* ---------- Pestañas ---------- */
