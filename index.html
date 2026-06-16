@@ -34,6 +34,7 @@
       </a>
 
       <nav class="nav" id="nav">
+        <a href="#encuentra">Encuentra tu silla</a>
         <a href="#productos">Productos</a>
         <a href="#servicios">Servicios</a>
         <a href="#nosotros">Nosotros</a>
@@ -104,6 +105,60 @@
       <div class="feature"><span>🚚</span><div><strong>Envío a todo el país</strong><p>Recibe tu silla donde estés.</p></div></div>
       <div class="feature"><span>✅</span><div><strong>Productos garantizados</strong><p>Marcas con normas internacionales.</p></div></div>
       <div class="feature"><span>💬</span><div><strong>Asesoría real</strong><p>Te ayudamos a elegir la silla ideal.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== ENCUENTRA TU SILLA IDEAL ===================== -->
+  <section class="section section--alt" id="encuentra">
+    <div class="container">
+      <div class="section__head">
+        <h2>Encuentra tu silla ideal</h2>
+        <p>Responde unas preguntas rápidas y te decimos qué tipo de silla es la más adecuada y segura para tu pequeño.</p>
+      </div>
+      <div class="finder">
+        <form class="finder__form" id="finderForm">
+          <label>Edad del niño
+            <select name="edad" required>
+              <option value="">Selecciona…</option>
+              <option>0 a 12 meses</option>
+              <option>1 a 3 años</option>
+              <option>4 a 7 años</option>
+              <option>8 a 12 años</option>
+            </select>
+          </label>
+          <label>Peso aproximado (kg)
+            <input type="number" name="peso" min="0" step="0.5" placeholder="Ej. 12" />
+          </label>
+          <label>Talla / estatura (cm)
+            <input type="number" name="talla" min="0" placeholder="Opcional" />
+          </label>
+          <label>Tipo de vehículo
+            <select name="vehiculo">
+              <option>Auto / Sedán</option>
+              <option>SUV</option>
+              <option>Camioneta / Pickup</option>
+              <option>Otro</option>
+            </select>
+          </label>
+          <label>¿Cuántos niños viajan?
+            <select name="ninos">
+              <option>1</option>
+              <option>2</option>
+              <option>3 o más</option>
+            </select>
+          </label>
+          <label>Presupuesto aproximado
+            <select name="presupuesto">
+              <option>Sin preferencia</option>
+              <option>Económico</option>
+              <option>Intermedio</option>
+              <option>Premium</option>
+            </select>
+          </label>
+          <button class="btn btn--primary btn--block finder__submit" type="submit">Ver mi silla recomendada</button>
+        </form>
+        <div class="finder__result" id="finderResult" hidden></div>
+      </div>
     </div>
   </section>
 

@@ -184,6 +184,30 @@ img { max-width: 100%; display: block; }
 }
 .card__add:hover { background: var(--brand-dark); transform: scale(1.05); }
 
+/* ---------- Encuentra tu silla ideal ---------- */
+.finder { max-width: 920px; margin: 0 auto; display: grid; gap: 22px; }
+.finder__form {
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px;
+  box-shadow: var(--shadow-sm); display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.finder__form select { width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: .95rem; background: #fff; color: var(--ink); }
+.finder__form select:focus { outline: none; border-color: var(--brand); }
+.finder__submit { grid-column: 1 / -1; }
+.finder__result { }
+.finder__rec { background: var(--brand); color: #fff; border-radius: var(--radius-lg); padding: 30px; text-align: center; box-shadow: var(--shadow); }
+.finder__rec h3 { color: #fff; font-size: 1.5rem; margin: 8px 0 10px; }
+.finder__rec p { color: rgba(255,255,255,.9); max-width: 40em; margin: 0 auto 8px; }
+.finder__tag { display: inline-block; background: var(--accent); color: #5a2f2f; font-weight: 700; font-size: .8rem; padding: 5px 14px; border-radius: 999px; }
+.finder__svc { font-size: .92rem; }
+.finder__note { font-size: .88rem; background: rgba(255,255,255,.12); padding: 10px 14px; border-radius: 12px; display: inline-block; margin-top: 6px; }
+.finder__actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.finder__actions .btn--primary { background: #fff; color: var(--brand-dark); }
+.finder__actions .btn--primary:hover { background: var(--bg-alt); }
+.finder__actions .btn--ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.6); }
+.finder__actions .btn--ghost:hover { background: rgba(255,255,255,.12); border-color: #fff; }
+@media (max-width: 720px) { .finder__form { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .finder__form { grid-template-columns: 1fr; } }
+
 /* ---------- Servicios ---------- */
 .services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .service {

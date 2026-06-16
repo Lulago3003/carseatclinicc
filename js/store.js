@@ -373,6 +373,61 @@
     $("#year").textContent = new Date().getFullYear();
   }
 
+  /* ---------- Encuentra tu silla ideal ---------- */
+  const RECS = {
+    infant: { nombre: "Silla para bebé (Grupo 0+)", cat: "sillas",
+      desc: "Para recién nacidos hasta ~13 kg. Se instala a contramarcha, que es la posición más segura para los más pequeños.",
+      servicio: "Te recomendamos nuestra instalación profesional a contramarcha." },
+    convertible: { nombre: "Silla convertible / 360° (Grupo 0-1-2-3)", cat: "sillas",
+      desc: "Acompaña al niño desde el nacimiento hasta ~36 kg. El giro 360° facilita sentarlo y bajarlo.",
+      servicio: "Incluye nuestra instalación profesional y revisión de seguridad." },
+    booster: { nombre: "Booster con respaldo (Grupo 2-3)", cat: "sillas",
+      desc: "Para niños de ~15 a 36 kg. Eleva al niño para que el cinturón del auto quede en la posición correcta.",
+      servicio: "Agenda una revisión para asegurar el ajuste correcto del cinturón." },
+  };
+
+  function recommend(d) {
+    const w = parseFloat(d.peso) || 0;
+    let rec;
+    if (w > 0) rec = w <= 13 ? RECS.infant : w <= 18 ? RECS.convertible : RECS.booster;
+    else if (d.edad === "0 a 12 meses") rec = RECS.infant;
+    else if (d.edad === "1 a 3 años") rec = RECS.convertible;
+    else rec = RECS.booster;
+    return rec;
+  }
+
+  function handleFinder(e) {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(e.target).entries());
+    const rec = recommend(d);
+    const extra = (d.ninos && d.ninos !== "1")
+      ? `<p class="finder__note">Como viajan ${d.ninos} niños, te ayudamos a elegir modelos compactos que quepan bien en tu ${d.vehiculo.toLowerCase()}.</p>` : "";
+    const wa = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic 👋 Usé el buscador y me recomendó: " + rec.nombre + ". Quisiera asesoría.")}`;
+    const box = $("#finderResult");
+    box.innerHTML = `
+      <div class="finder__rec">
+        <span class="finder__tag">Tu silla recomendada</span>
+        <h3>${rec.nombre}</h3>
+        <p>${rec.desc}</p>
+        <p class="finder__svc">🛡️ ${rec.servicio}</p>
+        ${extra}
+        <div class="finder__actions">
+          <button class="btn btn--primary" data-ver-sillas="${rec.cat}">Ver sillas recomendadas</button>
+          <a class="btn btn--ghost" href="${wa}" target="_blank" rel="noopener">Agendar asesoría</a>
+        </div>
+      </div>`;
+    box.hidden = false;
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function applyFilter(cat) {
+    const chip = $(`#filters .chip[data-cat="${cat}"]`) || $('#filters .chip[data-cat="todos"]');
+    $$("#filters .chip").forEach((c) => c.classList.remove("is-active"));
+    chip.classList.add("is-active");
+    renderProducts(chip.dataset.cat);
+    document.getElementById("productos").scrollIntoView({ behavior: "smooth" });
+  }
+
   /* ---------- Cargar productos ---------- */
   async function loadProducts() {
     products = await DB.getProducts();
@@ -388,6 +443,7 @@
     const inc = t.closest("[data-inc]"); if (inc) { const id = inc.getAttribute("data-inc"); setQty(id, (cart[id] || 0) + 1); return; }
     const dec = t.closest("[data-dec]"); if (dec) { const id = dec.getAttribute("data-dec"); setQty(id, (cart[id] || 0) - 1); return; }
     const rm = t.closest("[data-rm]"); if (rm) { setQty(rm.getAttribute("data-rm"), 0); return; }
+    const vs = t.closest("[data-ver-sillas]"); if (vs) { applyFilter(vs.getAttribute("data-ver-sillas")); return; }
     // cerrar menú de cuenta al hacer clic fuera
     if (!t.closest("#accountMenu") && !t.closest("#accountBtn")) $("#accountMenu").hidden = true;
   });
@@ -425,6 +481,9 @@
   // Menú móvil
   $("#navToggle").addEventListener("click", () => $("#nav").classList.toggle("is-open"));
   $$("#nav a").forEach((a) => a.addEventListener("click", () => $("#nav").classList.remove("is-open")));
+
+  // Cuestionario "Encuentra tu silla ideal"
+  $("#finderForm").addEventListener("submit", handleFinder);
 
   // Formulario de contacto → WhatsApp
   $("#contactForm").addEventListener("submit", (e) => {
