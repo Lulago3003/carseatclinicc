@@ -55,6 +55,24 @@
     return SVG_STAR;
   }
 
+  // Set de íconos line-art coherentes (un solo grosor, color de marca)
+  const ICONS = {
+    shield: '<path d="M12 3l7 2.5v5.5c0 4-2.8 6.8-7 8-4.2-1.2-7-4-7-8V5.5L12 3z"/><path d="M9 12l2 2 4-4"/>',
+    truck: '<path d="M3 6.5h11v9H3z"/><path d="M14 9.5h3.4L21 12.6v2.9h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17" cy="17.5" r="1.6"/>',
+    seal: '<path d="M12 3l2.1 1.6 2.6-.2.6 2.5 2.2 1.4-1 2.4 1 2.4-2.2 1.4-.6 2.5-2.6-.2L12 21l-2.1-1.6-2.6.2-.6-2.5-2.2-1.4 1-2.4-1-2.4 2.2-1.4.6-2.5 2.6.2z"/><path d="M9.3 12l1.9 1.9 3.5-3.7"/>',
+    chat: '<path d="M20 11.5a7.5 7.5 0 0 1-10.8 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1 1 20 11.5z"/><path d="M9 11.5h.01M12 11.5h.01M15 11.5h.01"/>',
+    wrench: '<path d="M15.5 7a3.5 3.5 0 0 0-4.6 4.3l-5.6 5.6a1.6 1.6 0 0 0 2.3 2.3l5.6-5.6A3.5 3.5 0 0 0 17 9.5L14.8 11.7 12.3 9.2 14.5 7z"/>',
+    clipboard: '<rect x="6" y="5" width="12" height="15" rx="2"/><rect x="9" y="3.4" width="6" height="3.2" rx="1"/><path d="M9 13l2 2 4-4"/>',
+    compass: '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.2 5-5 2.2 2.2-5z"/>',
+    sparkles: '<path d="M11 4l1.6 4.4L17 10l-4.4 1.6L11 16l-1.6-4.4L5 10l4.4-1.6z"/><path d="M18 14l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z"/>',
+    key: '<circle cx="8" cy="14" r="3.6"/><path d="M10.6 11.4L19 3"/><path d="M16.5 5.5l2 2"/><path d="M14 8l2 2"/>',
+    home: '<path d="M4 11l8-6 8 6"/><path d="M6 10.5V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-8.5"/><path d="M10 20v-5h4v5"/>',
+    heart: '<path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/>',
+  };
+  function icon(name) {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ICONS.shield}</svg>`;
+  }
+
   /* ---------- Estado ---------- */
   let products = [];
   let cart = load();
@@ -138,7 +156,7 @@
   function renderServices() {
     $("#serviceGrid").innerHTML = SERVICIOS.map((s) => {
       const wa = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic 👋 Quisiera información sobre: " + s.nombre)}`;
-      return `<div class="service"><div class="service__icon">${s.icono}</div>
+      return `<div class="service"><div class="service__icon">${icon(s.icono)}</div>
         <h3>${s.nombre}</h3><p>${s.descripcion}</p>
         <a class="service__cta" href="${wa}" target="_blank" rel="noopener">Más información →</a></div>`;
     }).join("");

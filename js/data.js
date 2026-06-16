@@ -51,17 +51,17 @@ const CONFIG = {
    SERVICIOS  (estos sí se editan aquí — cambian poco)
    ===================================================================== */
 const SERVICIOS = [
-  { icono: "🔧", nombre: "Instalación profesional",
+  { icono: "wrench", nombre: "Instalación profesional",
     descripcion: "Instalamos y aseguramos la silla según el peso y la edad de tu pequeño, y te enseñamos a hacerlo tú misma con total confianza." },
-  { icono: "🛡️", nombre: "Chequeo de seguridad",
+  { icono: "clipboard", nombre: "Chequeo de seguridad",
     descripcion: "Revisamos que la silla esté bien anclada, sin holguras y dentro de su vida útil, con recomendaciones claras para viajar tranquila." },
-  { icono: "🧭", nombre: "Asesoría para elegir tu silla",
+  { icono: "compass", nombre: "Asesoría para elegir tu silla",
     descripcion: "Te ayudamos a escoger la silla ideal según la edad, el peso del niño y el modelo de tu auto. Sin compromiso." },
-  { icono: "✨", nombre: "Limpieza y desinfección",
+  { icono: "sparkles", nombre: "Limpieza y desinfección",
     descripcion: "Lavado profundo y desinfección de la silla para devolverle higiene y frescura, cuidando cada uno de sus materiales." },
-  { icono: "🚗", nombre: "Alquiler de sillas",
+  { icono: "key", nombre: "Alquiler de sillas",
     descripcion: "¿De visita en Panamá o necesitas una silla temporal? Renta una silla certificada por el tiempo que la necesites." },
-  { icono: "🏠", nombre: "Atención a domicilio",
+  { icono: "home", nombre: "Atención a domicilio",
     descripcion: "Llevamos la instalación y el chequeo hasta tu casa para tu mayor comodidad. Coordina tu cita fácilmente." },
 ];
 

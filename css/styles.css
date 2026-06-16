@@ -138,7 +138,8 @@ img { max-width: 100%; display: block; }
 .features { padding: 36px 0; border-bottom: 1px solid var(--line); }
 .features__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .feature { display: flex; gap: 14px; align-items: flex-start; }
-.feature span { font-size: 26px; }
+.feature__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--brand-soft); color: var(--brand); flex-shrink: 0; }
+.feature__icon svg { width: 24px; height: 24px; }
 .feature strong { display: block; font-size: .98rem; }
 .feature p { color: var(--muted); font-size: .86rem; margin: 0; }
 
@@ -217,7 +218,8 @@ img { max-width: 100%; display: block; }
   text-align: center; transition: transform .2s, box-shadow .2s; display: flex; flex-direction: column;
 }
 .service:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
-.service__icon { font-size: 42px; }
+.service__icon { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); margin: 0 auto; }
+.service__icon svg { width: 30px; height: 30px; }
 .service h3 { font-size: 1.1rem; margin: 12px 0 8px; }
 .service p { color: var(--muted); font-size: .9rem; flex: 1; }
 .service__cta { display: inline-block; margin-top: 16px; color: var(--brand-dark); font-weight: 700; font-size: .9rem; transition: color .15s; }
