@@ -97,11 +97,20 @@
     }
     if (!DB.ready) { localAdmin = true; sessionStorage.setItem(LOCAL_KEY, "1"); gate(); return; }
     btn.disabled = true; btn.textContent = "Entrando…";
-    let res = await DB.signIn(ac.email, ac.password);
-    if (res.error) { await DB.signUp(ac.email, ac.password, { full_name: "Administrador" }); res = await DB.signIn(ac.email, ac.password); }
+    let ok = false;
+    try {
+      let res = await DB.signIn(ac.email, ac.password);
+      if (res.error) {
+        await DB.signUp(ac.email, ac.password, { full_name: "Administrador" });
+        res = await DB.signIn(ac.email, ac.password);
+      }
+      if (res.error) err.textContent = "No se pudo entrar: " + res.error.message;
+      else ok = true;
+    } catch (ex) {
+      err.textContent = "Error de conexión: " + (ex && ex.message ? ex.message : ex);
+    }
     btn.disabled = false; btn.textContent = "Entrar con código";
-    if (res.error) { err.textContent = "No se pudo entrar. Revisa la guía (SQL/confirmación)."; return; }
-    await gate();
+    if (ok) await gate();
   });
 
   /* ---------- Pestañas ---------- */
