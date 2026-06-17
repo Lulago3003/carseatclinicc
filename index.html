@@ -171,19 +171,30 @@
         <p>Sillas, bases y accesorios pensados para proteger a tu pequeño en cada viaje.</p>
       </div>
 
-      <div class="filters" id="filters">
-        <button class="chip is-active" data-cat="todos">Todos</button>
-        <button class="chip" data-cat="recien-nacidos">Recién nacidos</button>
-        <button class="chip" data-cat="convertibles">Convertibles</button>
-        <button class="chip" data-cat="giro-360">360°</button>
-        <button class="chip" data-cat="combinadas">Combinadas</button>
-        <button class="chip" data-cat="booster">Booster</button>
-        <button class="chip" data-cat="accesorios">Accesorios</button>
-        <button class="chip" data-cat="limpieza">Limpieza</button>
-        <button class="chip" data-cat="gift-cards">Gift Cards</button>
+      <div class="shop">
+        <aside class="shop__filters" id="shopFilters">
+          <button class="shop__filtersToggle" id="filtersToggle">Filtros ▾</button>
+          <div class="shop__filtersBody" id="filtersBody">
+            <div class="fgroup"><h4>Tipo de producto</h4><ul class="flist" id="fTypes"></ul></div>
+            <div class="fgroup"><h4>Marca</h4><ul class="flist" id="fBrands"></ul></div>
+            <div class="fgroup"><h4>Precio</h4><ul class="flist" id="fPrices"></ul></div>
+          </div>
+        </aside>
+        <div class="shop__main">
+          <div class="shop__bar">
+            <span class="shop__count" id="shopCount"></span>
+            <label class="shop__sortwrap">Ordenar:
+              <select id="sortSelect" class="shop__sort">
+                <option value="destacados">Destacados</option>
+                <option value="precio-asc">Precio: menor a mayor</option>
+                <option value="precio-desc">Precio: mayor a menor</option>
+                <option value="nombre">Nombre (A–Z)</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid" id="productGrid"><!-- productos generados por JS --></div>
+        </div>
       </div>
-
-      <div class="grid" id="productGrid"><!-- productos generados por JS --></div>
     </div>
   </section>
 

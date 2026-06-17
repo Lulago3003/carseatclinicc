@@ -9,6 +9,7 @@
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const money = (n) => CONFIG.moneda + Number(n).toLocaleString("en-US");
+  const esc = (s) => String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
   const CAT_LABEL = {
     "recien-nacidos": "Recién nacidos", "convertibles": "Convertible", "giro-360": "Silla 360°",
@@ -76,6 +77,17 @@
   /* ---------- Estado ---------- */
   let products = [];
   let cart = load();
+  let fCat = "todos", fPrice = "all", fSort = "destacados";
+  const fBrands = new Set();
+  const PRICE_RANGES = [
+    ["all", "Todos", () => true],
+    ["lt50", "Menos de $50", (p) => p.precio < 50],
+    ["50-150", "$50 – $150", (p) => p.precio >= 50 && p.precio <= 150],
+    ["150-300", "$150 – $300", (p) => p.precio > 150 && p.precio <= 300],
+    ["gt300", "Más de $300", (p) => p.precio > 300],
+  ];
+  const CAT_ORDER = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster", "accesorios", "limpieza", "gift-cards"];
+  let detailPid = null, detailStock = 0;
   let currentUser = null;
   let currentProfile = null;
   let authMode = "login"; // "login" | "register"
@@ -95,12 +107,12 @@
   function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } }
   function save() { localStorage.setItem(STORE_KEY, JSON.stringify(cart)); }
 
-  function add(id) {
+  function add(id, qty = 1) {
     const p = productById(id);
     if (!p) return;
     const current = cart[id] || 0;
-    if (current + 1 > p.stock) { toast("No hay más stock disponible"); return; }
-    cart[id] = current + 1;
+    if (current + qty > p.stock) { toast("No hay suficiente stock disponible"); return; }
+    cart[id] = current + qty;
     save(); renderCart(); openCart();
     toast("Agregado al carrito ✓");
   }
@@ -121,10 +133,9 @@
   }
 
   /* ---------- Render: productos ---------- */
-  function renderProducts(cat = "todos") {
+  function renderProducts(list) {
     const grid = $("#productGrid");
-    const list = cat === "todos" ? products : products.filter((p) => p.categoria === cat);
-    if (!list.length) { grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay productos en esta categoría.</p>`; return; }
+    if (!list || !list.length) { grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay productos con esos filtros.</p>`; return; }
     grid.innerHTML = list.map((p) => {
       const agotado = p.stock <= 0;
       let stockTag = "";
@@ -151,6 +162,29 @@
         </div>
       </article>`;
     }).join("");
+  }
+
+  function buildFilters() {
+    const present = CAT_ORDER.filter((c) => products.some((p) => p.categoria === c));
+    $("#fTypes").innerHTML = [`<li><button class="flink ${fCat === "todos" ? "is-active" : ""}" data-cat="todos">Todos</button></li>`]
+      .concat(present.map((c) => `<li><button class="flink ${fCat === c ? "is-active" : ""}" data-cat="${c}">${CAT_LABEL[c] || c}</button></li>`)).join("");
+    const brands = [...new Set(products.map((p) => p.marca).filter(Boolean))].sort();
+    $("#fBrands").innerHTML = brands.length
+      ? brands.map((b) => `<li><label class="fcheck"><input type="checkbox" data-brand="${esc(b)}" ${fBrands.has(b) ? "checked" : ""}/> ${esc(b)}</label></li>`).join("")
+      : `<li class="muted" style="list-style:none">Sin marcas aún</li>`;
+    $("#fPrices").innerHTML = PRICE_RANGES.map(([v, l]) => `<li><label class="fcheck"><input type="radio" name="fprice" data-price="${v}" ${fPrice === v ? "checked" : ""}/> ${l}</label></li>`).join("");
+  }
+
+  function applyFilters() {
+    let list = products.slice();
+    if (fCat !== "todos") list = list.filter((p) => p.categoria === fCat);
+    if (fBrands.size) list = list.filter((p) => fBrands.has(p.marca));
+    const pr = PRICE_RANGES.find((r) => r[0] === fPrice); if (pr) list = list.filter(pr[2]);
+    if (fSort === "precio-asc") list.sort((a, b) => a.precio - b.precio);
+    else if (fSort === "precio-desc") list.sort((a, b) => b.precio - a.precio);
+    else if (fSort === "nombre") list.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    renderProducts(list);
+    const c = $("#shopCount"); if (c) c.textContent = `${list.length} producto${list.length === 1 ? "" : "s"}`;
   }
 
   function renderServices() {
@@ -191,6 +225,7 @@
   /* ---------- Ficha de producto ---------- */
   function openDetail(id) {
     const p = productById(id); if (!p) return;
+    detailPid = id; detailStock = p.stock;
     const imgs = (p.imagenes && p.imagenes.length) ? p.imagenes : (p.imagen ? [p.imagen] : []);
     const main = imgs.length
       ? `<div class="detail__main"><img id="detailMain" src="${imgs[0]}" alt="${p.nombre}" /></div>`
@@ -203,13 +238,19 @@
     $("#detailBody").innerHTML = `
       <div>${main}${thumbs}</div>
       <div class="detail__info">
-        <span class="card__cat">${CAT_LABEL[p.categoria] || ""}${p.marca ? " · " + p.marca : ""}</span>
+        <div class="detail__crumb">Inicio / ${CAT_LABEL[p.categoria] || "Productos"}</div>
+        ${p.marca ? `<span class="detail__brand">${p.marca}</span>` : ""}
         <h3>${p.nombre}</h3>
         ${p.recomendado ? `<p class="card__fit">👶 ${p.recomendado}</p>` : ""}
         <div class="detail__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${money(p.precio)}</b></div>
         <p class="detail__desc">${p.descripcion || ""}</p>
         ${feats}
-        <button class="btn btn--primary btn--block" data-add="${p.id}" ${agotado ? "disabled" : ""}>${agotado ? "Agotado" : "Agregar al carrito"}</button>
+        ${agotado
+          ? `<button class="btn btn--primary btn--block" disabled>Agotado</button>`
+          : `<div class="detail__buy">
+              <div class="detail__qty"><button data-detqty="-1" aria-label="Menos">−</button><span id="detQty">1</span><button data-detqty="1" aria-label="Más">+</button></div>
+              <button class="btn btn--primary detail__addbtn" id="detailAdd">Agregar al carrito</button>
+            </div>`}
       </div>`;
     $("#detailModal").classList.add("is-open");
   }
@@ -492,10 +533,8 @@
   }
 
   function applyFilter(cat) {
-    const chip = $(`#filters .chip[data-cat="${cat}"]`) || $('#filters .chip[data-cat="todos"]');
-    $$("#filters .chip").forEach((c) => c.classList.remove("is-active"));
-    chip.classList.add("is-active");
-    renderProducts(chip.dataset.cat);
+    fCat = cat; fBrands.clear(); fPrice = "all";
+    buildFilters(); applyFilters();
     document.getElementById("productos").scrollIntoView({ behavior: "smooth" });
   }
 
@@ -527,8 +566,8 @@
   /* ---------- Cargar productos ---------- */
   async function loadProducts() {
     products = await DB.getProducts();
-    const active = $("#filters .chip.is-active");
-    renderProducts(active ? active.dataset.cat : "todos");
+    buildFilters();
+    applyFilters();
     renderCart();
   }
 
@@ -537,6 +576,8 @@
     const t = e.target;
     const a = t.closest("[data-add]"); if (a && !a.disabled) { add(a.getAttribute("data-add")); closeDetail(); return; }
     const th = t.closest("[data-thumb]"); if (th) { const m = $("#detailMain"); if (m) m.src = th.getAttribute("data-thumb"); $$("#detailModal [data-thumb]").forEach((x) => x.classList.remove("is-active")); th.classList.add("is-active"); return; }
+    const dq = t.closest("[data-detqty]"); if (dq) { const el = $("#detQty"); let q = (parseInt(el.textContent) || 1) + parseInt(dq.getAttribute("data-detqty")); el.textContent = Math.max(1, Math.min(q, detailStock || 1)); return; }
+    if (t.closest("#detailAdd")) { const q = parseInt(($("#detQty") || {}).textContent) || 1; add(detailPid, q); closeDetail(); return; }
     const det = t.closest("[data-detail]"); if (det) { openDetail(det.getAttribute("data-detail")); return; }
     const inc = t.closest("[data-inc]"); if (inc) { const id = inc.getAttribute("data-inc"); setQty(id, (cart[id] || 0) + 1); return; }
     const dec = t.closest("[data-dec]"); if (dec) { const id = dec.getAttribute("data-dec"); setQty(id, (cart[id] || 0) - 1); return; }
@@ -546,12 +587,21 @@
     if (!t.closest("#accountMenu") && !t.closest("#accountBtn")) $("#accountMenu").hidden = true;
   });
 
-  $("#filters").addEventListener("click", (e) => {
-    const chip = e.target.closest(".chip"); if (!chip) return;
-    $$("#filters .chip").forEach((c) => c.classList.remove("is-active"));
-    chip.classList.add("is-active");
-    renderProducts(chip.dataset.cat);
+  $("#shopFilters").addEventListener("click", (e) => {
+    const t = e.target.closest("[data-cat]");
+    if (t) { fCat = t.dataset.cat; buildFilters(); applyFilters(); }
   });
+  $("#shopFilters").addEventListener("change", (e) => {
+    if (e.target.matches("[data-brand]")) {
+      const b = e.target.getAttribute("data-brand");
+      if (e.target.checked) fBrands.add(b); else fBrands.delete(b);
+      applyFilters();
+    } else if (e.target.matches("[data-price]")) {
+      fPrice = e.target.getAttribute("data-price"); applyFilters();
+    }
+  });
+  $("#sortSelect").addEventListener("change", (e) => { fSort = e.target.value; applyFilters(); });
+  $("#filtersToggle").addEventListener("click", () => $("#filtersBody").classList.toggle("is-open"));
 
   $("#openCart").addEventListener("click", openCart);
   $("#closeCart").addEventListener("click", closeCart);

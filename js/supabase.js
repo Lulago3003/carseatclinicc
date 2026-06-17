@@ -13,7 +13,14 @@ const DB = (function () {
   // Inicializa el cliente si hay credenciales en CONFIG
   function init() {
     if (CONFIG.supabaseUrl && CONFIG.supabaseAnonKey && window.supabase) {
-      client = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey);
+      client = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseAnonKey, {
+        auth: {
+          persistSession: true, autoRefreshToken: true, detectSessionInUrl: true,
+          // Lock "pass-through": evita el deadlock de navigator.locks que colgaba
+          // las consultas/el login cuando había una sesión guardada.
+          lock: (_name, _acquireTimeout, fn) => fn(),
+        },
+      });
       ready = true;
     }
     return ready;
