@@ -131,7 +131,7 @@
       if (agotado) stockTag = `<span class="card__stock card__stock--out">Agotado</span>`;
       else if (p.stock <= 5) stockTag = `<span class="card__stock card__stock--low">¡Solo quedan ${p.stock}!</span>`;
       return `<article class="card ${agotado ? "card--out" : ""}">
-        <div class="card__media">
+        <div class="card__media" data-detail="${p.id}">
           ${media(p)}
           ${p.badge ? `<span class="card__badge">${p.badge}</span>` : ""}
         </div>
@@ -187,6 +187,33 @@
 
   function openCart() { $("#cart").classList.add("is-open"); $("#overlay").classList.add("is-open"); }
   function closeCart() { $("#cart").classList.remove("is-open"); $("#overlay").classList.remove("is-open"); }
+
+  /* ---------- Ficha de producto ---------- */
+  function openDetail(id) {
+    const p = productById(id); if (!p) return;
+    const imgs = (p.imagenes && p.imagenes.length) ? p.imagenes : (p.imagen ? [p.imagen] : []);
+    const main = imgs.length
+      ? `<div class="detail__main"><img id="detailMain" src="${imgs[0]}" alt="${p.nombre}" /></div>`
+      : `<div class="detail__main">${svgFor(p.categoria)}</div>`;
+    const thumbs = imgs.length > 1
+      ? `<div class="detail__thumbs">${imgs.map((u, i) => `<img class="${i === 0 ? "is-active" : ""}" data-thumb="${u}" src="${u}" alt="" />`).join("")}</div>` : "";
+    const feats = (p.caracteristicas && p.caracteristicas.length)
+      ? `<ul class="detail__feats">${p.caracteristicas.map((f) => `<li>${f}</li>`).join("")}</ul>` : "";
+    const agotado = p.stock <= 0;
+    $("#detailBody").innerHTML = `
+      <div>${main}${thumbs}</div>
+      <div class="detail__info">
+        <span class="card__cat">${CAT_LABEL[p.categoria] || ""}${p.marca ? " · " + p.marca : ""}</span>
+        <h3>${p.nombre}</h3>
+        ${p.recomendado ? `<p class="card__fit">👶 ${p.recomendado}</p>` : ""}
+        <div class="detail__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${money(p.precio)}</b></div>
+        <p class="detail__desc">${p.descripcion || ""}</p>
+        ${feats}
+        <button class="btn btn--primary btn--block" data-add="${p.id}" ${agotado ? "disabled" : ""}>${agotado ? "Agotado" : "Agregar al carrito"}</button>
+      </div>`;
+    $("#detailModal").classList.add("is-open");
+  }
+  function closeDetail() { $("#detailModal").classList.remove("is-open"); }
 
   /* ---------- Checkout ---------- */
   function goCheckout() {
@@ -508,7 +535,9 @@
   /* ---------- Eventos ---------- */
   document.addEventListener("click", (e) => {
     const t = e.target;
-    const a = t.closest("[data-add]"); if (a && !a.disabled) { add(a.getAttribute("data-add")); return; }
+    const a = t.closest("[data-add]"); if (a && !a.disabled) { add(a.getAttribute("data-add")); closeDetail(); return; }
+    const th = t.closest("[data-thumb]"); if (th) { const m = $("#detailMain"); if (m) m.src = th.getAttribute("data-thumb"); $$("#detailModal [data-thumb]").forEach((x) => x.classList.remove("is-active")); th.classList.add("is-active"); return; }
+    const det = t.closest("[data-detail]"); if (det) { openDetail(det.getAttribute("data-detail")); return; }
     const inc = t.closest("[data-inc]"); if (inc) { const id = inc.getAttribute("data-inc"); setQty(id, (cart[id] || 0) + 1); return; }
     const dec = t.closest("[data-dec]"); if (dec) { const id = dec.getAttribute("data-dec"); setQty(id, (cart[id] || 0) - 1); return; }
     const rm = t.closest("[data-rm]"); if (rm) { setQty(rm.getAttribute("data-rm"), 0); return; }
@@ -529,6 +558,8 @@
   $("#overlay").addEventListener("click", closeCart);
   $("#cartEmptyShop").addEventListener("click", closeCart);
   $("#goCheckout").addEventListener("click", goCheckout);
+  $("#detailClose").addEventListener("click", closeDetail);
+  $("#detailModal").addEventListener("click", (e) => { if (e.target.id === "detailModal") closeDetail(); });
   $("#closeCheckout").addEventListener("click", closeCheckout);
   $("#payWhatsapp").addEventListener("click", sendWhatsAppOrder);
   $("#checkoutModal").addEventListener("click", (e) => { if (e.target.id === "checkoutModal") closeCheckout(); });

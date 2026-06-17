@@ -70,8 +70,8 @@
           <h2>Productos</h2>
           <button class="btn btn--primary" id="newProductBtn">+ Nuevo producto</button>
         </div>
-        <p class="muted">Edita los datos y presiona <strong>Guardar</strong>. El stock se actualiza en la tienda al instante.</p>
-        <div id="productEditor" class="admin__list"></div>
+        <p class="muted">Toca <strong>Editar</strong> para cambiar fotos, características, precio y stock. Los cambios se ven al instante en la tienda.</p>
+        <div id="productList" class="plist"></div>
       </div>
 
       <!-- Pedidos -->
@@ -81,6 +81,55 @@
       </div>
     </section>
   </main>
+
+  <!-- Ventana de edición de producto -->
+  <div class="modal" id="editModal" aria-hidden="true">
+    <div class="modal__box modal__box--lg">
+      <button class="icon-btn modal__close" id="editClose" aria-label="Cerrar">✕</button>
+      <h3 id="editTitle">Editar producto</h3>
+
+      <div class="edit-grid">
+        <label class="col-2">Nombre <input id="f-nombre" placeholder="Ej. Silla convertible 360°" /></label>
+        <label>Categoría <select id="f-categoria"></select></label>
+        <label>Marca <input id="f-marca" placeholder="Ej. Chicco" /></label>
+        <label>Recomendado para <input id="f-recomendado" placeholder="0–13 kg · 0–15 meses" /></label>
+        <label>Precio ($) <input id="f-precio" type="number" min="0" step="0.01" /></label>
+        <label>Precio antes ($) <input id="f-antes" type="number" min="0" step="0.01" placeholder="Opcional (oferta)" /></label>
+        <label>Stock <input id="f-stock" type="number" min="0" step="1" /></label>
+        <label>Etiqueta <input id="f-badge" placeholder="Más vendido / Oferta" /></label>
+        <label>Orden <input id="f-sort" type="number" step="1" /></label>
+        <label class="check col-2"><input id="f-activo" type="checkbox" /> Visible en la tienda</label>
+      </div>
+
+      <div class="edit-block">
+        <h4>Fotos</h4>
+        <div class="img-list" id="imgList"></div>
+        <div class="img-add">
+          <label class="btn btn--ghost btn--file">📤 Subir fotos<input type="file" id="imgFile" accept="image/*" multiple hidden /></label>
+          <span class="img-or">o pega un enlace:</span>
+          <input id="imgUrl" placeholder="https://..." />
+          <button class="btn btn--ghost" id="imgUrlAdd" type="button">Agregar</button>
+        </div>
+        <p class="muted" id="imgStatus"></p>
+      </div>
+
+      <div class="edit-block">
+        <h4>Características</h4>
+        <ul class="feat-list" id="featList"></ul>
+        <div class="feat-add">
+          <input id="featInput" placeholder="Ej. Arnés de 5 puntos" />
+          <button class="btn btn--ghost" id="featAdd" type="button">Agregar</button>
+        </div>
+      </div>
+
+      <label>Descripción <textarea id="f-descripcion" rows="3" placeholder="Texto del producto"></textarea></label>
+
+      <div class="edit-actions">
+        <button class="btn btn--primary" id="editSave">💾 Guardar producto</button>
+        <button class="btn btn--ghost" id="editCancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
   <div class="toast" id="toast"></div>
 

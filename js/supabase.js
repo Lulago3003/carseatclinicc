@@ -19,8 +19,15 @@ const DB = (function () {
     return ready;
   }
 
+  function toArr(v) {
+    if (Array.isArray(v)) return v;
+    if (typeof v === "string" && v.trim()) { try { const a = JSON.parse(v); return Array.isArray(a) ? a : []; } catch { return []; } }
+    return [];
+  }
+
   // Normaliza una fila de la base de datos al formato que usa la tienda
   function normalize(row) {
+    const imagenes = toArr(row.images);
     return {
       id: row.id,
       nombre: row.name,
@@ -30,7 +37,9 @@ const DB = (function () {
       precio: Number(row.price),
       antes: row.compare_at ? Number(row.compare_at) : 0,
       badge: row.badge || "",
-      imagen: row.image_url || "",
+      imagen: row.image_url || imagenes[0] || "",
+      imagenes: imagenes,
+      caracteristicas: toArr(row.features),
       descripcion: row.description || "",
       stock: Number(row.stock ?? 0),
       activo: row.active !== false,
@@ -60,14 +69,29 @@ const DB = (function () {
 
   async function saveProduct(p) {
     if (!ready) throw new Error("Base de datos no conectada");
+    const imagenes = Array.isArray(p.imagenes) ? p.imagenes : [];
     const row = {
       id: p.id, name: p.nombre, category: p.categoria, price: p.precio,
-      compare_at: p.antes || null, badge: p.badge || null, image_url: p.imagen || null,
+      compare_at: p.antes || null, badge: p.badge || null,
+      image_url: imagenes[0] || p.imagen || null,
+      images: imagenes,
+      features: Array.isArray(p.caracteristicas) ? p.caracteristicas : [],
       description: p.descripcion || null, stock: p.stock, active: p.activo, sort: p.sort || 0,
       brand: p.marca || null, fit: p.recomendado || null,
     };
     const { error } = await client.from("products").upsert(row);
     if (error) throw error;
+  }
+
+  // Sube una foto al almacenamiento y devuelve su URL pública
+  async function uploadImage(file) {
+    if (!ready) throw new Error("DEMO");
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = `prod-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+    const { error } = await client.storage.from("productos").upload(path, file, { cacheControl: "3600", upsert: false });
+    if (error) throw error;
+    const { data } = client.storage.from("productos").getPublicUrl(path);
+    return data.publicUrl;
   }
 
   async function deleteProduct(id) {
@@ -139,7 +163,7 @@ const DB = (function () {
 
   return {
     init, get ready() { return ready; },
-    getProducts, getProductsAdmin, saveProduct, deleteProduct,
+    getProducts, getProductsAdmin, saveProduct, deleteProduct, uploadImage,
     placeOrder, getMyOrders, updateOrderStatus,
     signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };

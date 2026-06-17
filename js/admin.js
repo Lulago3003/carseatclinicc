@@ -1,16 +1,17 @@
 /* =====================================================================
-   Car Seat Clinic — Panel de administración
+   Car Seat Clinic Center — Panel de administración (CRM)
    ===================================================================== */
 (function () {
   "use strict";
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const money = (n) => CONFIG.moneda + Number(n).toLocaleString("en-US");
+  const esc = (s) => String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
   let toastTimer;
   function toast(msg) {
     const t = $("#toast"); t.textContent = msg; t.classList.add("is-open");
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("is-open"), 2400);
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("is-open"), 2600);
   }
 
   const CATS = [
@@ -18,27 +19,27 @@
     ["combinadas", "Combinada"], ["booster", "Booster"], ["accesorios", "Accesorio"],
     ["limpieza", "Limpieza"], ["gift-cards", "Gift Card"],
   ];
+  const catLabel = (c) => (CATS.find((x) => x[0] === c) || [c, c])[1];
 
-  // Acceso rápido por código (solo ver). Se guarda mientras dure la pestaña.
   const LOCAL_KEY = "csc_local_admin";
   let localAdmin = sessionStorage.getItem(LOCAL_KEY) === "1";
+
+  let products = [];          // cache para el panel
+  let editingId = null;
+  let editorImages = [];
+  let editorFeatures = [];
 
   /* ---------- Arranque ---------- */
   DB.init();
   if (!DB.ready) {
     $("#gateTitle").textContent = "Falta conectar la base de datos";
-    $("#gateMsg").innerHTML = "Aún no has configurado Supabase. Sigue la guía del <strong>README</strong> (poner <code>supabaseUrl</code> y <code>supabaseAnonKey</code> en <code>js/data.js</code>).";
+    $("#gateMsg").innerHTML = "Aún no has configurado Supabase. Sigue la guía del <strong>README</strong>.";
     $("#gateLogin").style.display = "none";
   } else {
     boot();
   }
+  async function boot() { DB.onAuthChange(gate); await gate(); }
 
-  async function boot() {
-    DB.onAuthChange(gate);
-    await gate();
-  }
-
-  // Decide si mostrar login o el panel según la sesión y si es admin
   async function gate() {
     if (localAdmin) { showPanel(); return; }
     const user = await DB.getUser();
@@ -46,10 +47,7 @@
     const profile = await DB.getProfile();
     const emails = (CONFIG.adminEmails || []).map((e) => e.toLowerCase());
     const adminByEmail = emails.includes((user.email || "").toLowerCase());
-    if (!adminByEmail && (!profile || !profile.is_admin)) {
-      showGate("noadmin", user.email);
-      return;
-    }
+    if (!adminByEmail && (!profile || !profile.is_admin)) { showGate("noadmin", user.email); return; }
     showPanel();
   }
 
@@ -57,7 +55,7 @@
     $("#gate").hidden = false; $("#panel").hidden = true; $("#logoutBtn").style.display = "none";
     if (mode === "noadmin") {
       $("#gateTitle").textContent = "Tu cuenta no es administradora";
-      $("#gateMsg").innerHTML = `Estás como <strong>${email}</strong>, pero no tienes permisos de admin.<br>Para activarte, ejecuta en Supabase (SQL):<br><code>update profiles set is_admin = true where email = '${email}';</code>`;
+      $("#gateMsg").innerHTML = `Estás como <strong>${email}</strong>, pero no tienes permisos de admin.`;
       $("#gateLogin").style.display = "none";
       $("#logoutBtn").style.display = "inline-flex";
     } else {
@@ -69,18 +67,8 @@
 
   async function showPanel() {
     $("#gate").hidden = true; $("#panel").hidden = false; $("#logoutBtn").style.display = "inline-flex";
-    showModeBanner();
     await renderProducts();
     await renderOrders();
-  }
-
-  function showModeBanner() {
-    let b = document.getElementById("modeBanner");
-    if (!b) { b = document.createElement("div"); b.id = "modeBanner"; b.className = "admin__banner"; $("#panel").prepend(b); }
-    if (localAdmin) {
-      b.style.display = "block";
-      b.innerHTML = "👁️ <strong>Modo código (solo ver).</strong> Para <strong>guardar</strong> cambios y ver pedidos, cierra sesión e inicia con tu correo de administrador.";
-    } else { b.style.display = "none"; }
   }
 
   /* ---------- Login ---------- */
@@ -98,7 +86,6 @@
     await DB.signOut(); await gate();
   });
 
-  // Acceso por código (usuario/clave de CONFIG.adminCode) → login real al CRM
   $("#codeForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const err = $("#codeError"); err.textContent = "";
@@ -108,20 +95,12 @@
     if ((d.usuario || "").trim() !== ac.usuario || (d.clave || "") !== ac.clave) {
       err.textContent = "Usuario o clave incorrectos."; return;
     }
-    // Sin base de datos: modo solo lectura
     if (!DB.ready) { localAdmin = true; sessionStorage.setItem(LOCAL_KEY, "1"); gate(); return; }
-    // Con base de datos: inicia sesión en la cuenta admin (se crea sola la 1ra vez)
     btn.disabled = true; btn.textContent = "Entrando…";
     let res = await DB.signIn(ac.email, ac.password);
-    if (res.error) {
-      await DB.signUp(ac.email, ac.password, { full_name: "Administrador" });
-      res = await DB.signIn(ac.email, ac.password);
-    }
+    if (res.error) { await DB.signUp(ac.email, ac.password, { full_name: "Administrador" }); res = await DB.signIn(ac.email, ac.password); }
     btn.disabled = false; btn.textContent = "Entrar con código";
-    if (res.error) {
-      err.textContent = "No se pudo entrar. Revisa la guía (puede faltar correr el SQL o desactivar la confirmación por correo).";
-      return;
-    }
+    if (res.error) { err.textContent = "No se pudo entrar. Revisa la guía (SQL/confirmación)."; return; }
     await gate();
   });
 
@@ -133,76 +112,148 @@
     $("#tab-pedidos").hidden = t.dataset.tab !== "pedidos";
   }));
 
-  /* ---------- Editor de productos ---------- */
-  function blankProduct() {
-    return { id: "p_" + Date.now(), nombre: "", categoria: "recien-nacidos", marca: "", recomendado: "", precio: 0, antes: 0, badge: "", imagen: "", descripcion: "", stock: 0, activo: true, sort: 0, _new: true };
-  }
-
-  function productForm(p) {
-    const opts = CATS.map(([v, l]) => `<option value="${v}" ${p.categoria === v ? "selected" : ""}>${l}</option>`).join("");
-    return `<div class="admin__card" data-id="${p.id}">
-      <div class="admin__card-grid">
-        <label class="col-2">Nombre <input data-f="nombre" value="${esc(p.nombre)}" placeholder="Ej. Silla convertible 360°" /></label>
-        <label>Categoría <select data-f="categoria">${opts}</select></label>
-        <label>Marca <input data-f="marca" value="${esc(p.marca)}" placeholder="Ej. Chicco" /></label>
-        <label class="col-2">Recomendado para <input data-f="recomendado" value="${esc(p.recomendado)}" placeholder="Ej. 0–13 kg · 0–15 meses" /></label>
-        <label>Precio ($) <input data-f="precio" type="number" min="0" step="0.01" value="${p.precio}" /></label>
-        <label>Precio antes ($) <input data-f="antes" type="number" min="0" step="0.01" value="${p.antes || ""}" placeholder="Opcional" /></label>
-        <label>Stock <input data-f="stock" type="number" min="0" step="1" value="${p.stock}" /></label>
-        <label>Etiqueta <input data-f="badge" value="${esc(p.badge)}" placeholder="Más vendido / Oferta" /></label>
-        <label>Orden <input data-f="sort" type="number" step="1" value="${p.sort || 0}" /></label>
-        <label class="col-2">Imagen (URL o assets/foto.jpg) <input data-f="imagen" value="${esc(p.imagen)}" placeholder="Opcional" /></label>
-        <label class="col-3">Descripción <textarea data-f="descripcion" rows="2" placeholder="Texto del producto">${esc(p.descripcion)}</textarea></label>
-        <label class="check"><input data-f="activo" type="checkbox" ${p.activo ? "checked" : ""} /> Visible en la tienda</label>
-      </div>
-      <div class="admin__card-actions">
-        <button class="btn btn--primary" data-save>💾 Guardar</button>
-        <button class="btn btn--ghost" data-del>🗑️ Eliminar</button>
-      </div>
-    </div>`;
-  }
-
-  function esc(s) { return String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
-
+  /* ---------- Lista de productos ---------- */
   async function renderProducts() {
-    let list = [];
-    try { list = await DB.getProductsAdmin(); } catch (e) { toast("Error al cargar productos"); return; }
-    $("#productEditor").innerHTML = list.map(productForm).join("") || `<p class="muted">No hay productos. Crea uno con "Nuevo producto".</p>`;
+    try { products = await DB.getProductsAdmin(); } catch (e) { toast("Error al cargar productos"); return; }
+    const cont = $("#productList");
+    if (!products.length) { cont.innerHTML = `<p class="muted">No hay productos. Crea uno con "Nuevo producto".</p>`; return; }
+    cont.innerHTML = products.map((p) => {
+      const img = p.imagen ? `<img src="${esc(p.imagen)}" alt="" />` : `<span>🪑</span>`;
+      const stockCls = p.stock <= 0 ? "is-out" : p.stock <= 5 ? "is-low" : "";
+      const stockTxt = p.stock <= 0 ? "Agotado" : `${p.stock} en stock`;
+      return `<div class="prow" data-id="${p.id}">
+        <div class="prow__img">${img}</div>
+        <div class="prow__main">
+          <strong>${esc(p.nombre)}${p.activo ? "" : ' <em class="prow__hidden">(oculto)</em>'}</strong>
+          <span class="prow__meta">${catLabel(p.categoria)}${p.marca ? " · " + esc(p.marca) : ""} · ${money(p.precio)}</span>
+        </div>
+        <span class="prow__stock ${stockCls}">${stockTxt}</span>
+        <div class="prow__act">
+          <button class="btn btn--ghost btn--sm" data-edit="${p.id}">Editar</button>
+          <button class="icon-btn" data-del="${p.id}" title="Eliminar">🗑</button>
+        </div>
+      </div>`;
+    }).join("");
   }
 
-  function readCard(card) {
-    const get = (f) => { const el = card.querySelector(`[data-f="${f}"]`); return el.type === "checkbox" ? el.checked : el.value; };
-    return {
-      id: card.dataset.id,
-      nombre: get("nombre").trim(), categoria: get("categoria"),
-      marca: get("marca").trim(), recomendado: get("recomendado").trim(),
-      precio: parseFloat(get("precio")) || 0, antes: parseFloat(get("antes")) || 0,
-      stock: parseInt(get("stock")) || 0, badge: get("badge").trim(),
-      imagen: get("imagen").trim(), descripcion: get("descripcion").trim(),
-      sort: parseInt(get("sort")) || 0, activo: get("activo"),
-    };
-  }
-
-  $("#newProductBtn").addEventListener("click", () => {
-    const wrap = document.createElement("div");
-    wrap.innerHTML = productForm(blankProduct());
-    $("#productEditor").prepend(wrap.firstElementChild);
-    window.scrollTo({ top: 180, behavior: "smooth" });
+  $("#productList").addEventListener("click", async (e) => {
+    const ed = e.target.closest("[data-edit]");
+    if (ed) { openEditor(products.find((p) => p.id === ed.getAttribute("data-edit"))); return; }
+    const del = e.target.closest("[data-del]");
+    if (del) {
+      if (!confirm("¿Eliminar este producto? No se puede deshacer.")) return;
+      try { await DB.deleteProduct(del.getAttribute("data-del")); toast("Eliminado"); await renderProducts(); }
+      catch (err) { toast("No se pudo eliminar"); }
+    }
   });
 
-  $("#productEditor").addEventListener("click", async (e) => {
-    const card = e.target.closest(".admin__card"); if (!card) return;
-    if (e.target.closest("[data-save]")) {
-      const p = readCard(card);
-      if (!p.nombre) { toast("Ponle un nombre al producto"); return; }
-      try { await DB.saveProduct(p); toast("Guardado ✓"); await renderProducts(); }
-      catch (err) { toast(localAdmin ? "Modo código: inicia sesión con tu correo para guardar." : "Error: " + (err.message || "no se pudo guardar")); }
+  $("#newProductBtn").addEventListener("click", () => openEditor(null));
+
+  /* ---------- Ventana de edición ---------- */
+  function openEditor(p) {
+    editingId = p ? p.id : null;
+    editorImages = p && Array.isArray(p.imagenes) ? p.imagenes.slice() : [];
+    editorFeatures = p && Array.isArray(p.caracteristicas) ? p.caracteristicas.slice() : [];
+    $("#editTitle").textContent = p ? "Editar producto" : "Nuevo producto";
+    $("#f-categoria").innerHTML = CATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+    const set = (id, v) => { $(id).value = v; };
+    set("#f-nombre", p ? p.nombre : "");
+    $("#f-categoria").value = p ? p.categoria : "recien-nacidos";
+    set("#f-marca", p ? p.marca : "");
+    set("#f-recomendado", p ? p.recomendado : "");
+    set("#f-precio", p ? p.precio : 0);
+    set("#f-antes", p && p.antes ? p.antes : "");
+    set("#f-stock", p ? p.stock : 0);
+    set("#f-badge", p ? p.badge : "");
+    set("#f-sort", p && p.sort ? p.sort : 0);
+    $("#f-activo").checked = p ? p.activo !== false : true;
+    set("#f-descripcion", p ? p.descripcion : "");
+    $("#imgStatus").textContent = "";
+    renderImgList(); renderFeatList();
+    $("#editModal").classList.add("is-open");
+  }
+  function closeEditor() { $("#editModal").classList.remove("is-open"); }
+
+  function renderImgList() {
+    const c = $("#imgList");
+    if (!editorImages.length) { c.innerHTML = `<p class="muted" style="margin:0">Aún no hay fotos.</p>`; return; }
+    c.innerHTML = editorImages.map((u, i) => `
+      <div class="img-chip">
+        <img src="${esc(u)}" alt="" />
+        <button data-imgrm="${i}" title="Quitar">✕</button>
+        ${i === 0 ? '<span class="img-chip__main">Principal</span>' : `<button class="img-chip__set" data-imgmain="${i}">Hacer principal</button>`}
+      </div>`).join("");
+  }
+  function renderFeatList() {
+    const c = $("#featList");
+    c.innerHTML = editorFeatures.map((f, i) => `<li>${esc(f)}<button data-featrm="${i}" title="Quitar">✕</button></li>`).join("")
+      || `<li class="muted" style="list-style:none">Aún no hay características.</li>`;
+  }
+
+  // Imágenes: subir archivos
+  $("#imgFile").addEventListener("change", async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const status = $("#imgStatus");
+    for (let i = 0; i < files.length; i++) {
+      status.textContent = `Subiendo ${i + 1} de ${files.length}…`;
+      try { const url = await DB.uploadImage(files[i]); editorImages.push(url); renderImgList(); }
+      catch (err) { status.textContent = "Error al subir (¿corriste la migración 3?). Puedes pegar un enlace."; e.target.value = ""; return; }
     }
-    if (e.target.closest("[data-del]")) {
-      if (!confirm("¿Eliminar este producto? No se puede deshacer.")) return;
-      try { await DB.deleteProduct(card.dataset.id); toast("Eliminado"); card.remove(); }
-      catch (err) { toast(localAdmin ? "Modo código: inicia sesión con tu correo para eliminar." : "Error al eliminar"); }
-    }
+    status.textContent = "Fotos subidas ✓"; e.target.value = "";
+  });
+  // Imágenes: por enlace
+  $("#imgUrlAdd").addEventListener("click", () => {
+    const inp = $("#imgUrl"); const u = inp.value.trim();
+    if (!u) return; editorImages.push(u); inp.value = ""; renderImgList();
+  });
+  // Imágenes: quitar / hacer principal
+  $("#imgList").addEventListener("click", (e) => {
+    const rm = e.target.closest("[data-imgrm]");
+    if (rm) { editorImages.splice(+rm.getAttribute("data-imgrm"), 1); renderImgList(); return; }
+    const mk = e.target.closest("[data-imgmain]");
+    if (mk) { const i = +mk.getAttribute("data-imgmain"); const [u] = editorImages.splice(i, 1); editorImages.unshift(u); renderImgList(); }
+  });
+
+  // Características
+  function addFeat() {
+    const inp = $("#featInput"); const v = inp.value.trim();
+    if (!v) return; editorFeatures.push(v); inp.value = ""; renderFeatList(); inp.focus();
+  }
+  $("#featAdd").addEventListener("click", addFeat);
+  $("#featInput").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addFeat(); } });
+  $("#featList").addEventListener("click", (e) => {
+    const rm = e.target.closest("[data-featrm]");
+    if (rm) { editorFeatures.splice(+rm.getAttribute("data-featrm"), 1); renderFeatList(); }
+  });
+
+  $("#editClose").addEventListener("click", closeEditor);
+  $("#editCancel").addEventListener("click", closeEditor);
+  $("#editModal").addEventListener("click", (e) => { if (e.target.id === "editModal") closeEditor(); });
+
+  $("#editSave").addEventListener("click", async () => {
+    const v = (id) => $(id).value;
+    const p = {
+      id: editingId || "p_" + Date.now(),
+      nombre: v("#f-nombre").trim(),
+      categoria: v("#f-categoria"),
+      marca: v("#f-marca").trim(),
+      recomendado: v("#f-recomendado").trim(),
+      precio: parseFloat(v("#f-precio")) || 0,
+      antes: parseFloat(v("#f-antes")) || 0,
+      stock: parseInt(v("#f-stock")) || 0,
+      badge: v("#f-badge").trim(),
+      sort: parseInt(v("#f-sort")) || 0,
+      activo: $("#f-activo").checked,
+      descripcion: v("#f-descripcion").trim(),
+      imagenes: editorImages.slice(),
+      caracteristicas: editorFeatures.slice(),
+    };
+    if (!p.nombre) { toast("Ponle un nombre al producto"); return; }
+    const btn = $("#editSave"); btn.disabled = true; btn.textContent = "Guardando…";
+    try { await DB.saveProduct(p); toast("Guardado ✓"); closeEditor(); await renderProducts(); }
+    catch (err) { toast("Error: " + (err.message || "no se pudo guardar")); }
+    btn.disabled = false; btn.textContent = "💾 Guardar producto";
   });
 
   /* ---------- Pedidos ---------- */
@@ -219,19 +270,15 @@
       return `<div class="admin__card" data-order="${o.id}">
         <div class="order-head"><strong>${fecha}</strong> <b>${money(o.total)}</b></div>
         <p class="muted" style="margin:6px 0">${items}</p>
-        <p style="font-size:.88rem">👤 ${esc(c.nombre || "—")} · 📞 ${esc(c.telefono || "—")}<br>📍 ${esc(c.direccion || "—")}${c.notas ? "<br>📝 " + esc(c.notas) : ""}</p>
-        <div class="admin__card-actions">
-          <label class="inline">Estado <select data-status>${opts}</select></label>
-        </div>
+        <p style="font-size:.88rem">👤 ${esc(c.nombre || "—")} · 📞 ${esc(c.telefono || "—")}<br>📍 ${esc(c.direccion || "—")}${c.instalacion ? "<br>🔧 Quiere instalación" : ""}${c.notas ? "<br>📝 " + esc(c.notas) : ""}</p>
+        <div class="admin__card-actions"><label class="inline">Estado <select data-status>${opts}</select></label></div>
       </div>`;
     }).join("");
   }
-  // Actualizar el estado del pedido (permitido por la política RLS de admin)
   $("#ordersList").addEventListener("change", async (e) => {
     if (!e.target.matches("[data-status]")) return;
     const card = e.target.closest("[data-order]");
     try { await DB.updateOrderStatus(card.dataset.order, e.target.value); toast("Estado actualizado ✓"); }
-    catch (err) { toast("No se pudo actualizar el estado"); }
+    catch (err) { toast("No se pudo actualizar"); }
   });
-
 })();
