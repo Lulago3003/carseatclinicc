@@ -158,7 +158,11 @@ const DB = (function () {
   }
 
   function onAuthChange(cb) {
-    if (ready) client.auth.onAuthStateChange((_e, session) => cb(session ? session.user : null));
+    // Importante: diferimos con setTimeout para NO llamar a Supabase dentro
+    // del callback de onAuthStateChange (eso causa un deadlock que cuelga el login).
+    if (ready) client.auth.onAuthStateChange((_e, session) => {
+      setTimeout(() => cb(session ? session.user : null), 0);
+    });
   }
 
   return {
