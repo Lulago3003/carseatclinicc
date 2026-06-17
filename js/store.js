@@ -147,16 +147,11 @@
           ${p.badge ? `<span class="card__badge">${p.badge}</span>` : ""}
         </div>
         <div class="card__body">
-          <span class="card__cat">${CAT_LABEL[p.categoria] || ""}${p.marca ? ` · ${p.marca}` : ""}</span>
-          <h3 class="card__title">${p.nombre}</h3>
-          ${p.recomendado ? `<p class="card__fit">👶 ${p.recomendado}</p>` : ""}
-          <p class="card__desc">${p.descripcion}</p>
+          <span class="card__brand">${p.marca || CAT_LABEL[p.categoria] || ""}</span>
+          <h3 class="card__title" data-detail="${p.id}">${p.nombre}</h3>
           ${stockTag}
           <div class="card__foot">
-            <div class="card__price">
-              ${p.antes ? `<s>${money(p.antes)}</s>` : ""}
-              <b>${money(p.precio)}</b>
-            </div>
+            <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${money(p.precio)}</b></div>
             <button class="card__add" data-add="${p.id}" ${agotado ? "disabled" : ""} aria-label="Agregar ${p.nombre}">${agotado ? "✕" : "+"}</button>
           </div>
         </div>
