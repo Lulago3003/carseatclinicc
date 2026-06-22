@@ -95,10 +95,10 @@
 
   const productById = (id) => products.find((p) => p.id === id);
 
+  function catImage(cat) { return (typeof IMAGENES_CATEGORIA !== "undefined" && IMAGENES_CATEGORIA[cat]) || ""; }
   function media(p) {
-    if (p.imagen && p.imagen.trim() !== "") {
-      return `<img src="${p.imagen}" alt="${p.nombre}" loading="lazy" />`;
-    }
+    const img = (p.imagen && p.imagen.trim()) || catImage(p.categoria);
+    if (img) return `<img src="${img}" alt="${p.nombre}" loading="lazy" />`;
     return `<div style="width:100%;height:100%;display:grid;place-items:center;background:${bgFor(p.categoria)}">${svgFor(p.categoria)}</div>`;
   }
 
@@ -233,7 +233,8 @@
   function openDetail(id) {
     const p = productById(id); if (!p) return;
     detailPid = id; detailStock = p.stock;
-    const imgs = (p.imagenes && p.imagenes.length) ? p.imagenes : (p.imagen ? [p.imagen] : []);
+    let imgs = (p.imagenes && p.imagenes.length) ? p.imagenes : (p.imagen ? [p.imagen] : []);
+    if (!imgs.length && catImage(p.categoria)) imgs = [catImage(p.categoria)];
     const main = imgs.length
       ? `<div class="detail__main"><img id="detailMain" src="${imgs[0]}" alt="${p.nombre}" /></div>`
       : `<div class="detail__main">${svgFor(p.categoria)}</div>`;
@@ -387,8 +388,15 @@
   async function handleAuthSubmit(e) {
     e.preventDefault();
     const err = $("#authError"); err.textContent = "";
-    if (!DB.ready) { err.textContent = "Modo demo: conecta la base de datos para usar el login (ver guía)."; return; }
     const d = Object.fromEntries(new FormData(e.target).entries());
+    // Atajo de administrador: escribir admin / admin entra al panel (CRM)
+    const ac = CONFIG.adminCode || {};
+    if (authMode === "login" && (d.email || "").trim() === ac.usuario && (d.password || "") === ac.clave) {
+      try { sessionStorage.setItem("csc_admin_go", "1"); } catch (e3) {}
+      window.location.href = "admin.html";
+      return;
+    }
+    if (!DB.ready) { err.textContent = "Modo demo: conecta la base de datos para usar el login (ver guía)."; return; }
     try {
       if (authMode === "register") {
         if (!d.tyc) { err.textContent = "Debes aceptar los términos para crear tu cuenta."; return; }

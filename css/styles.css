@@ -611,12 +611,19 @@ body.admin { background: var(--bg-alt); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 980px) {
-  .grid, .services { grid-template-columns: repeat(2, 1fr); }
+  .grid, .services, .shop__main .grid { grid-template-columns: repeat(2, 1fr); }
   .features__grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
   .hero__inner { grid-template-columns: 1fr; }
   .hero__art { order: -1; height: 260px; }
   .about, .contact { grid-template-columns: 1fr; }
   .about__art { display: none; }
+}
+@media (max-width: 560px) {
+  .shop__main .grid { gap: 12px; }
+  .card__body { padding: 14px; gap: 6px; }
+  .card__title { font-size: .92rem; }
+  .card__price b { font-size: 1.1rem; }
+  .card__add { width: 38px; height: 38px; font-size: 20px; }
 }
 @media (max-width: 760px) {
   .nav {

@@ -59,6 +59,22 @@ const CONFIG = {
 };
 
 /* =====================================================================
+   IMÁGENES POR CATEGORÍA (de respaldo)
+   ---------------------------------------------------------------------
+   Si un producto no tiene foto propia, se usa esta según su categoría.
+   Así la tienda se ve con fotos SIN tener que editar la base de datos.
+   Cambia los enlaces por los que quieras (o sube fotos en el panel).
+   ===================================================================== */
+const IMAGENES_CATEGORIA = {
+  "recien-nacidos": "https://www.poppys.com/cdn/shop/files/e7745d742474451eff81bcc642634e4357635183.jpg",
+  "convertibles":   "https://www.poppys.com/cdn/shop/files/41sjb9Tcd5L._AC.jpg",
+  "giro-360":       "https://www.poppys.com/cdn/shop/files/PB-CFX101GR-TWIST-GRIS-PREMIUMBABY-1_720x_0a76dd69-53af-430e-b5a4-e0f5b28f7881.jpg",
+  "combinadas":     "https://www.poppys.com/cdn/shop/files/PB2389_GRAHAM_NEGRO_PREMIUMBABY_1_720x_f8f54e50-6186-4647-87b1-ab5df33dfb5e.jpg",
+  "booster":        "https://www.poppys.com/cdn/shop/files/20220921_i-chapp_shale_001_cs_cc_hr.jpg",
+  // accesorios, limpieza y gift-cards usan ilustración si no pones foto
+};
+
+/* =====================================================================
    SERVICIOS  (estos sí se editan aquí — cambian poco)
    ===================================================================== */
 const SERVICIOS = [

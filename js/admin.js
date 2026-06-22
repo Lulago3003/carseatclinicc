@@ -39,7 +39,22 @@
   } else {
     boot();
   }
-  async function boot() { DB.onAuthChange(gate); await gate(); }
+  // Inicia sesión en la cuenta admin (la crea sola la primera vez)
+  async function adminSignIn() {
+    const ac = CONFIG.adminCode || {};
+    let res = await DB.signIn(ac.email, ac.password);
+    if (res.error) { await DB.signUp(ac.email, ac.password, { full_name: "Administrador" }); res = await DB.signIn(ac.email, ac.password); }
+    if (res.error) throw new Error(res.error.message || "No se pudo entrar");
+  }
+
+  async function boot() {
+    DB.onAuthChange(gate);
+    // Atajo: si vino desde "Ingresar" con admin/admin, entra automáticamente
+    try {
+      if (sessionStorage.getItem("csc_admin_go") === "1") { sessionStorage.removeItem("csc_admin_go"); await adminSignIn(); }
+    } catch (e) {}
+    await gate();
+  }
 
   async function gate() {
     if (localAdmin) { showPanel(); return; }
@@ -99,17 +114,8 @@
     if (!DB.ready) { localAdmin = true; sessionStorage.setItem(LOCAL_KEY, "1"); gate(); return; }
     btn.disabled = true; btn.textContent = "Entrando…";
     let ok = false;
-    try {
-      let res = await DB.signIn(ac.email, ac.password);
-      if (res.error) {
-        await DB.signUp(ac.email, ac.password, { full_name: "Administrador" });
-        res = await DB.signIn(ac.email, ac.password);
-      }
-      if (res.error) err.textContent = "No se pudo entrar: " + res.error.message;
-      else ok = true;
-    } catch (ex) {
-      err.textContent = "Error de conexión: " + (ex && ex.message ? ex.message : ex);
-    }
+    try { await adminSignIn(); ok = true; }
+    catch (ex) { err.textContent = "No se pudo entrar: " + (ex && ex.message ? ex.message : ex); }
     btn.disabled = false; btn.textContent = "Entrar con código";
     if (ok) await gate();
   });
