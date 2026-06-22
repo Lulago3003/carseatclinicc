@@ -400,6 +400,7 @@
     try {
       if (authMode === "register") {
         if (!d.tyc) { err.textContent = "Debes aceptar los términos para crear tu cuenta."; return; }
+        if ((d.password || "").length < 6) { err.textContent = "La contraseña debe tener al menos 6 caracteres."; return; }
         const meta = { full_name: d.nombre, telefono: d.telefono || "", edad_nino: d.edadnino || "", acepta_promos: !!d.promos };
         const { error } = await DB.signUp(d.email, d.password, meta);
         if (error) throw error;
