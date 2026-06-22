@@ -77,6 +77,15 @@ const SERVICIOS = [
 ];
 
 /* =====================================================================
+   TESTIMONIOS  (edita libremente: nombre, ciudad y texto)
+   ===================================================================== */
+const TESTIMONIOS = [
+  { nombre: "María G.", ciudad: "Ciudad de Panamá", texto: "Me ayudaron a elegir la silla correcta y me la instalaron explicándome cada paso. Viajo mucho más tranquila con mi bebé." },
+  { nombre: "Carlos y Andrea", ciudad: "Costa del Este", texto: "Pensábamos que la silla estaba bien puesta… hasta que la revisaron. Encontraron varias cosas y nos lo dejaron perfecto." },
+  { nombre: "Daniela R.", ciudad: "Chorrera", texto: "El acompañamiento fue increíble, sin presión y con mucha paciencia. Se nota que saben de seguridad infantil." },
+];
+
+/* =====================================================================
    PRODUCTOS DE MUESTRA (solo respaldo "modo demo")
    Cuando conectes Supabase, los productos reales vienen de la base de
    datos y estos se ignoran.

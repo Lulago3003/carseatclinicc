@@ -191,6 +191,17 @@
     }).join("");
   }
 
+  function renderTestimonios() {
+    const g = $("#testimonios-grid");
+    if (!g || typeof TESTIMONIOS === "undefined") return;
+    g.innerHTML = TESTIMONIOS.map((t) => `
+      <figure class="tcard">
+        <div class="tcard__stars">★★★★★</div>
+        <blockquote>"${t.texto}"</blockquote>
+        <figcaption>— ${t.nombre}${t.ciudad ? ", " + t.ciudad : ""}</figcaption>
+      </figure>`).join("");
+  }
+
   /* ---------- Render: carrito ---------- */
   function renderCart() {
     const count = itemsCount();
@@ -649,6 +660,7 @@
   document.title = `${CONFIG.nombre} ${CONFIG.eslogan} — Sillas de carro y seguridad infantil`;
   DB.init();
   renderServices();
+  renderTestimonios();
   fillContact();
   loadProducts();
   maybeShowPopup();
