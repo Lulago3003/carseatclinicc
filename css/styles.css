@@ -28,7 +28,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
   font-family: "Poppins", system-ui, sans-serif;
@@ -36,7 +36,10 @@ body {
   background: var(--bg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
+* { min-width: 0; }
+img, svg { max-width: 100%; }
 
 h1, h2, .section__head h2, .hero h1, .brand strong { font-family: "Playfair Display", Georgia, serif; line-height: 1.15; }
 h3 { font-family: "Poppins", sans-serif; line-height: 1.2; }
@@ -220,7 +223,7 @@ img { max-width: 100%; display: block; }
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px;
   box-shadow: var(--shadow-sm); display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
 }
-.finder__form select { width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: .95rem; background: #fff; color: var(--ink); }
+.finder__form select { width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 16px; background: #fff; color: var(--ink); }
 .finder__form select:focus { outline: none; border-color: var(--brand); }
 .finder__submit { grid-column: 1 / -1; }
 .finder__result { }
@@ -279,10 +282,10 @@ img { max-width: 100%; display: block; }
 label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 16px; }
 input, textarea {
   width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px;
-  font-family: inherit; font-size: .95rem; font-weight: 400; color: var(--ink); transition: border .15s;
+  font-family: inherit; font-size: 16px; font-weight: 400; color: var(--ink); transition: border .15s;
 }
 input:focus, textarea:focus { outline: none; border-color: var(--brand); }
-select { width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: .95rem; background: #fff; color: var(--ink); }
+select { width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 16px; background: #fff; color: var(--ink); }
 select:focus { outline: none; border-color: var(--brand); }
 
 /* ---------- Reserva tu cita ---------- */
