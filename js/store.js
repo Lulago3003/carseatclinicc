@@ -114,6 +114,7 @@
     if (current + qty > p.stock) { toast("No hay suficiente stock disponible"); return; }
     cart[id] = current + qty;
     save(); renderCart(); openCart();
+    const cc = $("#cartCount"); if (cc) { cc.classList.remove("pop"); void cc.offsetWidth; cc.classList.add("pop"); }
     toast("Agregado al carrito ✓");
   }
   function setQty(id, qty) {
@@ -577,6 +578,26 @@
     renderCart();
   }
 
+  // Aparición suave de secciones al hacer scroll
+  function setupReveal() {
+    if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const sel = ".section__head, .pillar, .tcard, .rcard, .feature, .service, .about__text, .about__art, .finder, .cita__form, .map, .newsletter";
+    const els = $$(sel);
+    if (!els.length) return;
+    const reveal = (el) => el.classList.add("is-visible");
+    els.forEach((el) => el.classList.add("reveal"));
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => { if (e.isIntersecting) { reveal(e.target); obs.unobserve(e.target); } });
+    }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
+    els.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.top < (window.innerHeight || 800) && r.bottom > 0) reveal(el); // ya visible al cargar
+      else io.observe(el);
+    });
+    // Red de seguridad: que nada quede oculto si el scroll/observer falla
+    setTimeout(() => els.forEach(reveal), 2500);
+  }
+
   /* ---------- Eventos ---------- */
   document.addEventListener("click", (e) => {
     const t = e.target;
@@ -664,6 +685,7 @@
   fillContact();
   loadProducts();
   maybeShowPopup();
+  setupReveal();
   if (DB.ready) {
     refreshAuthUI();
     DB.onAuthChange(async () => { await refreshAuthUI(); });

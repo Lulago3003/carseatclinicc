@@ -25,6 +25,7 @@
   let localAdmin = sessionStorage.getItem(LOCAL_KEY) === "1";
 
   let products = [];          // cache para el panel
+  let ordersCount = 0;
   let editingId = null;
   let editorImages = [];
   let editorFeatures = [];
@@ -124,25 +125,44 @@
   /* ---------- Lista de productos ---------- */
   async function renderProducts() {
     try { products = await DB.getProductsAdmin(); } catch (e) { toast("Error al cargar productos"); return; }
+    renderStats();
+    renderList($("#prodSearch") ? $("#prodSearch").value : "");
+  }
+
+  function renderStats() {
+    const out = products.filter((p) => p.stock <= 0).length;
+    const low = products.filter((p) => p.stock > 0 && p.stock <= 5).length;
+    $("#adminStats").innerHTML = `
+      <div class="astat"><b>${products.length}</b><span>productos</span></div>
+      <div class="astat astat--warn"><b>${low}</b><span>stock bajo</span></div>
+      <div class="astat astat--out"><b>${out}</b><span>agotados</span></div>
+      <div class="astat"><b>${ordersCount}</b><span>pedidos</span></div>`;
+  }
+
+  function rowHtml(p) {
+    const img = p.imagen ? `<img src="${esc(p.imagen)}" alt="" loading="lazy" />` : `<span>🪑</span>`;
+    const stockCls = p.stock <= 0 ? "is-out" : p.stock <= 5 ? "is-low" : "";
+    const stockTxt = p.stock <= 0 ? "Agotado" : `${p.stock} en stock`;
+    return `<div class="prow" data-id="${p.id}">
+      <div class="prow__img">${img}</div>
+      <div class="prow__main">
+        <strong>${esc(p.nombre)}${p.activo ? "" : ' <em class="prow__hidden">(oculto)</em>'}</strong>
+        <span class="prow__meta">${catLabel(p.categoria)}${p.marca ? " · " + esc(p.marca) : ""} · ${money(p.precio)}</span>
+      </div>
+      <span class="prow__stock ${stockCls}">${stockTxt}</span>
+      <div class="prow__act">
+        <button class="btn btn--ghost btn--sm" data-edit="${p.id}">Editar</button>
+        <button class="icon-btn" data-del="${p.id}" title="Eliminar">🗑</button>
+      </div>
+    </div>`;
+  }
+
+  function renderList(query) {
+    const q = (query || "").toLowerCase().trim();
+    const list = q ? products.filter((p) => p.nombre.toLowerCase().includes(q)) : products;
     const cont = $("#productList");
-    if (!products.length) { cont.innerHTML = `<p class="muted">No hay productos. Crea uno con "Nuevo producto".</p>`; return; }
-    cont.innerHTML = products.map((p) => {
-      const img = p.imagen ? `<img src="${esc(p.imagen)}" alt="" />` : `<span>🪑</span>`;
-      const stockCls = p.stock <= 0 ? "is-out" : p.stock <= 5 ? "is-low" : "";
-      const stockTxt = p.stock <= 0 ? "Agotado" : `${p.stock} en stock`;
-      return `<div class="prow" data-id="${p.id}">
-        <div class="prow__img">${img}</div>
-        <div class="prow__main">
-          <strong>${esc(p.nombre)}${p.activo ? "" : ' <em class="prow__hidden">(oculto)</em>'}</strong>
-          <span class="prow__meta">${catLabel(p.categoria)}${p.marca ? " · " + esc(p.marca) : ""} · ${money(p.precio)}</span>
-        </div>
-        <span class="prow__stock ${stockCls}">${stockTxt}</span>
-        <div class="prow__act">
-          <button class="btn btn--ghost btn--sm" data-edit="${p.id}">Editar</button>
-          <button class="icon-btn" data-del="${p.id}" title="Eliminar">🗑</button>
-        </div>
-      </div>`;
-    }).join("");
+    if (!list.length) { cont.innerHTML = `<p class="muted">${q ? 'Sin resultados para "' + esc(q) + '".' : 'No hay productos. Crea uno con "Nuevo producto".'}</p>`; return; }
+    cont.innerHTML = list.map(rowHtml).join("");
   }
 
   $("#productList").addEventListener("click", async (e) => {
@@ -157,6 +177,7 @@
   });
 
   $("#newProductBtn").addEventListener("click", () => openEditor(null));
+  $("#prodSearch").addEventListener("input", (e) => renderList(e.target.value));
 
   /* ---------- Ventana de edición ---------- */
   function openEditor(p) {
@@ -270,6 +291,8 @@
   async function renderOrders() {
     let orders = [];
     try { orders = await DB.getMyOrders(); } catch (e) { return; }
+    ordersCount = orders.length;
+    if ($("#adminStats")) renderStats();
     if (!orders.length) { $("#ordersList").innerHTML = `<p class="muted">Aún no hay pedidos.</p>`; return; }
     $("#ordersList").innerHTML = orders.map((o) => {
       const items = (o.items || []).map((i) => `${i.qty}x ${i.id}`).join(", ");
