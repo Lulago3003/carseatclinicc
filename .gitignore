@@ -9,3 +9,6 @@ node_modules/
 # Logs y temporales
 *.log
 .cache/
+
+# Documentos fuente pesados (inventario, etc.) — no van en la web
+*.docx

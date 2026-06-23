@@ -9,6 +9,7 @@
   const $ = (s) => document.querySelector(s);
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const money = (n) => CONFIG.moneda + Number(n).toLocaleString("en-US");
+  const precioTxt = (p) => (p && p.precio > 0) ? money(p.precio) : "Consultar";
   const esc = (s) => String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 
   const CAT_LABEL = {
@@ -152,7 +153,7 @@
           <h3 class="card__title" data-detail="${p.id}">${p.nombre}</h3>
           ${stockTag}
           <div class="card__foot">
-            <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${money(p.precio)}</b></div>
+            <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
             <button class="card__add" data-add="${p.id}" ${agotado ? "disabled" : ""} aria-label="Agregar ${p.nombre}">${agotado ? "✕" : "+"}</button>
           </div>
         </div>
@@ -250,7 +251,7 @@
         ${p.marca ? `<span class="detail__brand">${p.marca}</span>` : ""}
         <h3>${p.nombre}</h3>
         ${p.recomendado ? `<p class="card__fit">👶 ${p.recomendado}</p>` : ""}
-        <div class="detail__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${money(p.precio)}</b></div>
+        <div class="detail__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
         <p class="detail__desc">${p.descripcion || ""}</p>
         ${feats}
         ${agotado
