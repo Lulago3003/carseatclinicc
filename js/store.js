@@ -588,6 +588,19 @@
     renderCart();
   }
 
+  // Carrusel del hero (cambia cada 4s)
+  function setupHeroSlider() {
+    const slides = $$("#heroSlider .hero__slide");
+    if (slides.length < 2) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let i = 0;
+    setInterval(() => {
+      slides[i].classList.remove("is-active");
+      i = (i + 1) % slides.length;
+      slides[i].classList.add("is-active");
+    }, 4000);
+  }
+
   // Aparición suave de secciones al hacer scroll
   function setupReveal() {
     if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -696,6 +709,7 @@
   loadProducts();
   maybeShowPopup();
   setupReveal();
+  setupHeroSlider();
   if (DB.ready) {
     refreshAuthUI();
     DB.onAuthChange(async () => { await refreshAuthUI(); });
