@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light" />
-  <title>Administrar · Car Seat Clinic Panamá</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>" />
+  <title>Administrar | Car Seat Clinic Panamá</title>
+  <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
@@ -15,11 +15,11 @@
   <header class="header">
     <div class="container header__inner">
       <a href="index.html" class="brand">
-        <span class="brand__mark">⚙️</span>
+        <span class="brand__mark">CS</span>
         <span class="brand__text"><strong>Panel de administración</strong><small>Car Seat Clinic</small></span>
       </a>
       <div class="header__actions" style="margin-left:auto">
-        <a href="index.html" class="btn btn--ghost">← Ver tienda</a>
+        <a href="index.html" class="btn btn--ghost">Ver tienda</a>
         <button class="btn btn--ghost" id="logoutBtn" style="display:none">Cerrar sesión</button>
       </div>
     </div>
@@ -59,28 +59,136 @@
     </section>
 
     <!-- Panel (visible solo para admins) -->
-    <section id="panel" hidden>
-      <div class="admin__tabs">
-        <button class="tab is-active" data-tab="productos">📦 Productos y stock</button>
-        <button class="tab" data-tab="pedidos">🧾 Pedidos</button>
-      </div>
-
-      <!-- Productos -->
-      <div id="tab-productos" class="tab-panel">
-        <div class="admin__bar">
-          <h2>Productos</h2>
-          <button class="btn btn--primary" id="newProductBtn">+ Nuevo producto</button>
+    <section id="panel" class="admin-shell" hidden>
+      <aside class="admin-sidebar" aria-label="Navegación del CRM">
+        <span class="admin-sidebar__eyebrow">CRM</span>
+        <h1>Centro de control</h1>
+        <p>Inventario, pedidos y alertas de tienda en un solo lugar.</p>
+        <div class="admin__tabs" role="tablist" aria-label="Secciones del panel">
+          <button class="tab is-active" data-tab="dashboard" type="button">Resumen</button>
+          <button class="tab" data-tab="productos" type="button">Productos</button>
+          <button class="tab" data-tab="pedidos" type="button">Pedidos</button>
         </div>
-        <div class="admin__stats" id="adminStats"></div>
-        <p class="muted">Toca <strong>Editar</strong> para cambiar fotos, características, precio y stock. Los cambios se ven al instante en la tienda.</p>
-        <input class="admin__search" id="prodSearch" type="search" placeholder="Buscar producto por nombre…" />
-        <div id="productList" class="plist"></div>
-      </div>
+      </aside>
 
-      <!-- Pedidos -->
-      <div id="tab-pedidos" class="tab-panel" hidden>
-        <div class="admin__bar"><h2>Pedidos</h2></div>
-        <div id="ordersList" class="admin__list"></div>
+      <div class="admin-workspace">
+        <div class="admin-topline">
+          <div>
+            <span class="eyebrow">Administración</span>
+            <h2>Hoy en Car Seat Clinic</h2>
+          </div>
+          <div class="admin-topline__actions">
+            <span id="adminDate" class="admin-date"></span>
+            <button class="btn btn--primary" id="newProductBtn" type="button">Nuevo producto</button>
+          </div>
+        </div>
+
+        <!-- Resumen -->
+        <div id="tab-dashboard" class="tab-panel">
+          <div class="admin-dashboard" id="dashboardStats"></div>
+
+          <div class="admin-grid admin-grid--dashboard">
+            <section class="admin-panel">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Prioridades</span>
+                  <h3>Alertas para revisar</h3>
+                </div>
+              </div>
+              <div id="crmAlerts" class="crm-alerts"></div>
+            </section>
+
+            <section class="admin-panel">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Ventas</span>
+                  <h3>Pedidos recientes</h3>
+                </div>
+                <button class="link-btn" type="button" data-jump-tab="pedidos">Ver pedidos</button>
+              </div>
+              <div id="dashboardOrders" class="admin-mini-list"></div>
+            </section>
+
+            <section class="admin-panel admin-panel--wide">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Inventario</span>
+                  <h3>Stock que necesita atención</h3>
+                </div>
+                <button class="link-btn" type="button" data-jump-tab="productos" data-product-filter="low">Ver inventario</button>
+              </div>
+              <div id="dashboardStock" class="admin-mini-list admin-mini-list--grid"></div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Productos -->
+        <div id="tab-productos" class="tab-panel" hidden>
+          <div class="admin__bar">
+            <div>
+              <span class="eyebrow">Inventario</span>
+              <h2>Productos y stock</h2>
+            </div>
+          </div>
+          <div class="admin__stats" id="adminStats"></div>
+          <div class="admin-filters" aria-label="Filtros de productos">
+            <label>Buscar
+              <input class="admin__search" id="prodSearch" type="search" placeholder="Nombre, marca o categoría" />
+            </label>
+            <label>Categoría
+              <select id="categoryFilter"></select>
+            </label>
+            <label>Estado
+              <select id="stockFilter">
+                <option value="all">Todos</option>
+                <option value="low">Stock bajo</option>
+                <option value="out">Agotados</option>
+                <option value="no-photo">Sin foto</option>
+                <option value="no-price">Sin precio</option>
+                <option value="hidden">Ocultos</option>
+              </select>
+            </label>
+            <button class="btn btn--ghost" id="clearProductFilters" type="button">Limpiar</button>
+          </div>
+          <div class="admin-list-head">
+            <p class="muted" id="productCount">Cargando productos...</p>
+            <p class="muted">Edita precio y stock desde la lista, o abre el producto completo.</p>
+          </div>
+          <div id="productList" class="plist"></div>
+        </div>
+
+        <!-- Pedidos -->
+        <div id="tab-pedidos" class="tab-panel" hidden>
+          <div class="admin__bar">
+            <div>
+              <span class="eyebrow">Seguimiento</span>
+              <h2>Pedidos</h2>
+            </div>
+          </div>
+          <div class="admin-filters admin-filters--orders" aria-label="Filtros de pedidos">
+            <label>Buscar cliente
+              <input class="admin__search" id="orderSearch" type="search" placeholder="Nombre, teléfono o dirección" />
+            </label>
+            <label>Estado
+              <select id="orderStatusFilter">
+                <option value="all">Todos</option>
+                <option value="nuevo">Nuevo</option>
+                <option value="contactado">Contactado</option>
+                <option value="pendiente_pago">Pendiente de pago</option>
+                <option value="pagado">Pagado</option>
+                <option value="listo_instalar">Listo para instalar</option>
+                <option value="enviado">Enviado</option>
+                <option value="entregado">Entregado</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </label>
+          </div>
+          <div class="admin-list-head">
+            <p class="muted" id="ordersCount">Cargando pedidos...</p>
+            <p class="muted">Usa WhatsApp para dar seguimiento sin salir del panel.</p>
+          </div>
+          <div id="ordersList" class="admin__list"></div>
+        </div>
       </div>
     </section>
   </main>
@@ -108,7 +216,7 @@
         <h4>Fotos</h4>
         <div class="img-list" id="imgList"></div>
         <div class="img-add">
-          <label class="btn btn--ghost btn--file">📤 Subir fotos<input type="file" id="imgFile" accept="image/*" multiple hidden /></label>
+          <label class="btn btn--ghost btn--file">Subir fotos<input type="file" id="imgFile" accept="image/*" multiple hidden /></label>
           <span class="img-or">o pega un enlace:</span>
           <input id="imgUrl" placeholder="https://..." />
           <button class="btn btn--ghost" id="imgUrlAdd" type="button">Agregar</button>
@@ -128,7 +236,7 @@
       <label>Descripción <textarea id="f-descripcion" rows="3" placeholder="Texto del producto"></textarea></label>
 
       <div class="edit-actions">
-        <button class="btn btn--primary" id="editSave">💾 Guardar producto</button>
+        <button class="btn btn--primary" id="editSave">Guardar producto</button>
         <button class="btn btn--ghost" id="editCancel">Cancelar</button>
       </div>
     </div>
