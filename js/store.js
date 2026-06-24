@@ -131,7 +131,7 @@
   function catImage(cat) { return (typeof IMAGENES_CATEGORIA !== "undefined" && IMAGENES_CATEGORIA[cat]) || ""; }
   function media(p) {
     const img = (p.imagen && p.imagen.trim()) || catImage(p.categoria);
-    if (img) return `<img src="${img}" alt="${p.nombre}" loading="lazy" />`;
+    if (img) return `<img src="${img}" alt="${p.nombre}" loading="lazy" decoding="async" />`;
     return `<div style="width:100%;height:100%;display:grid;place-items:center;background:${bgFor(p.categoria)}">${svgFor(p.categoria)}</div>`;
   }
 
@@ -176,7 +176,7 @@
       const desc = shortText(p.descripcion || p.recomendado || "", 118);
       let stockTag = "";
       if (agotado) stockTag = `<span class="card__stock card__stock--out">Agotado</span>`;
-      else if (sinPrecio) stockTag = `<span class="card__stock card__stock--consult">Cotización por WhatsApp</span>`;
+      else if (sinPrecio) stockTag = `<span class="card__stock card__stock--consult">Asesoría y cotización</span>`;
       else if (p.stock <= 5) stockTag = `<span class="card__stock card__stock--low">¡Solo quedan ${p.stock}!</span>`;
       return `<article class="card ${agotado ? "card--out" : ""}">
         <div class="card__media" data-detail="${p.id}">
@@ -186,6 +186,7 @@
         <div class="card__body">
           <span class="card__brand">${p.marca || CAT_LABEL[p.categoria] || ""}</span>
           <h3 class="card__title" data-detail="${p.id}">${p.nombre}</h3>
+          ${p.recomendado ? `<span class="card__fit">${esc(p.recomendado)}</span>` : ""}
           ${desc ? `<p class="card__desc">${esc(desc)}</p>` : ""}
           ${stockTag}
           <div class="card__foot">
@@ -194,7 +195,7 @@
               ? `<button class="card__add" data-add="${p.id}" aria-label="Agregar ${esc(p.nombre)}">+</button>`
               : agotado
                 ? `<button class="card__consult card__consult--disabled" disabled>Agotado</button>`
-                : `<button class="card__consult" data-consult="${p.id}" aria-label="Consultar ${esc(p.nombre)}">Consultar</button>`}
+                : `<button class="card__consult" data-consult="${p.id}" aria-label="Cotizar ${esc(p.nombre)}">Cotizar</button>`}
           </div>
         </div>
       </article>`;
@@ -229,7 +230,7 @@
       const wa = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic 👋 Quisiera información sobre: " + s.nombre)}`;
       return `<div class="service"><div class="service__icon">${icon(s.icono)}</div>
         <h3>${s.nombre}</h3><p>${s.descripcion}</p>
-        <a class="service__cta" href="${wa}" target="_blank" rel="noopener">Más información →</a></div>`;
+        <a class="service__cta" href="${wa}" target="_blank" rel="noopener">Pedir información</a></div>`;
     }).join("");
   }
 
@@ -750,7 +751,7 @@
   });
 
   /* ---------- Inicio ---------- */
-  document.title = `${CONFIG.nombre} ${CONFIG.eslogan} — Sillas de carro y seguridad infantil`;
+  document.title = `${CONFIG.nombre} ${CONFIG.eslogan} | Sillas de carro y seguridad infantil`;
   DB.init();
   renderServices();
   renderTestimonios();
