@@ -10,7 +10,11 @@
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const money = (n) => CONFIG.moneda + Number(n).toLocaleString("en-US");
   const precioTxt = (p) => (p && p.precio > 0) ? money(p.precio) : "Consultar";
-  const esc = (s) => String(s ?? "").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const shortText = (s, max = 112) => {
+    const t = String(s ?? "").replace(/\s+/g, " ").trim();
+    return t.length > max ? t.slice(0, max - 1).trim() + "…" : t;
+  };
 
   const CAT_LABEL = {
     "recien-nacidos": "Recién nacidos", "convertibles": "Convertible", "giro-360": "Silla 360°",
@@ -82,10 +86,11 @@
   const fBrands = new Set();
   const PRICE_RANGES = [
     ["all", "Todos", () => true],
-    ["lt50", "Menos de $50", (p) => p.precio < 50],
-    ["50-150", "$50 – $150", (p) => p.precio >= 50 && p.precio <= 150],
-    ["150-300", "$150 – $300", (p) => p.precio > 150 && p.precio <= 300],
-    ["gt300", "Más de $300", (p) => p.precio > 300],
+    ["consultar", "Precio por consultar", (p) => !p.precio || Number(p.precio) <= 0],
+    ["lt50", "Menos de $50", (p) => Number(p.precio) > 0 && Number(p.precio) < 50],
+    ["50-150", "$50 – $150", (p) => Number(p.precio) >= 50 && Number(p.precio) <= 150],
+    ["150-300", "$150 – $300", (p) => Number(p.precio) > 150 && Number(p.precio) <= 300],
+    ["gt300", "Más de $300", (p) => Number(p.precio) > 300],
   ];
   const CAT_ORDER = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster", "accesorios", "limpieza", "gift-cards"];
   let detailPid = null, detailStock = 0;
@@ -95,6 +100,33 @@
   let pendingCheckout = false;
 
   const productById = (id) => products.find((p) => p.id === id);
+  const isPriced = (p) => Number(p && p.precio) > 0;
+
+  function consultUrl(p) {
+    const name = p && p.nombre ? p.nombre : "un producto";
+    const msg = `Hola Car Seat Clinic, quisiera consultar precio y disponibilidad de: ${name}`;
+    return `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
+  }
+
+  function consultProduct(p) {
+    if (!p) return;
+    window.open(consultUrl(p), "_blank");
+  }
+
+  function cleanCartForCatalog() {
+    let changed = false;
+    Object.keys(cart).forEach((id) => {
+      const p = productById(id);
+      if (!p || !isPriced(p) || p.stock <= 0) {
+        delete cart[id];
+        changed = true;
+      } else if (cart[id] > p.stock) {
+        cart[id] = p.stock;
+        changed = true;
+      }
+    });
+    if (changed) save();
+  }
 
   function catImage(cat) { return (typeof IMAGENES_CATEGORIA !== "undefined" && IMAGENES_CATEGORIA[cat]) || ""; }
   function media(p) {
@@ -111,6 +143,8 @@
   function add(id, qty = 1) {
     const p = productById(id);
     if (!p) return;
+    if (!isPriced(p)) { consultProduct(p); toast("Te abrimos WhatsApp para cotizar"); return; }
+    if (p.stock <= 0) { toast("Producto agotado"); return; }
     const current = cart[id] || 0;
     if (current + qty > p.stock) { toast("No hay suficiente stock disponible"); return; }
     cart[id] = current + qty;
@@ -120,19 +154,16 @@
   }
   function setQty(id, qty) {
     const p = productById(id);
+    if (p && !isPriced(p)) { delete cart[id]; save(); renderCart(); return; }
     if (p && qty > p.stock) { toast(`Solo quedan ${p.stock}`); qty = p.stock; }
     if (qty <= 0) delete cart[id]; else cart[id] = qty;
     save(); renderCart();
   }
-  function itemsCount() { return Object.values(cart).reduce((a, b) => a + b, 0); }
-  function total() {
-    return Object.entries(cart).reduce((s, [id, q]) => {
-      const p = productById(id); return p ? s + p.precio * q : s;
-    }, 0);
-  }
   function cartList() {
-    return Object.entries(cart).map(([id, qty]) => ({ id, qty, p: productById(id) })).filter((i) => i.p);
+    return Object.entries(cart).map(([id, qty]) => ({ id, qty, p: productById(id) })).filter((i) => i.p && isPriced(i.p));
   }
+  function itemsCount() { return cartList().reduce((a, i) => a + i.qty, 0); }
+  function total() { return cartList().reduce((s, { qty, p }) => s + p.precio * qty, 0); }
 
   /* ---------- Render: productos ---------- */
   function renderProducts(list) {
@@ -140,8 +171,12 @@
     if (!list || !list.length) { grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay productos con esos filtros.</p>`; return; }
     grid.innerHTML = list.map((p) => {
       const agotado = p.stock <= 0;
+      const sinPrecio = !isPriced(p);
+      const canBuy = !agotado && !sinPrecio;
+      const desc = shortText(p.descripcion || p.recomendado || "", 118);
       let stockTag = "";
       if (agotado) stockTag = `<span class="card__stock card__stock--out">Agotado</span>`;
+      else if (sinPrecio) stockTag = `<span class="card__stock card__stock--consult">Cotización por WhatsApp</span>`;
       else if (p.stock <= 5) stockTag = `<span class="card__stock card__stock--low">¡Solo quedan ${p.stock}!</span>`;
       return `<article class="card ${agotado ? "card--out" : ""}">
         <div class="card__media" data-detail="${p.id}">
@@ -151,10 +186,15 @@
         <div class="card__body">
           <span class="card__brand">${p.marca || CAT_LABEL[p.categoria] || ""}</span>
           <h3 class="card__title" data-detail="${p.id}">${p.nombre}</h3>
+          ${desc ? `<p class="card__desc">${esc(desc)}</p>` : ""}
           ${stockTag}
           <div class="card__foot">
             <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
-            <button class="card__add" data-add="${p.id}" ${agotado ? "disabled" : ""} aria-label="Agregar ${p.nombre}">${agotado ? "✕" : "+"}</button>
+            ${canBuy
+              ? `<button class="card__add" data-add="${p.id}" aria-label="Agregar ${esc(p.nombre)}">+</button>`
+              : agotado
+                ? `<button class="card__consult card__consult--disabled" disabled>Agotado</button>`
+                : `<button class="card__consult" data-consult="${p.id}" aria-label="Consultar ${esc(p.nombre)}">Consultar</button>`}
           </div>
         </div>
       </article>`;
@@ -177,8 +217,8 @@
     if (fCat !== "todos") list = list.filter((p) => p.categoria === fCat);
     if (fBrands.size) list = list.filter((p) => fBrands.has(p.marca));
     const pr = PRICE_RANGES.find((r) => r[0] === fPrice); if (pr) list = list.filter(pr[2]);
-    if (fSort === "precio-asc") list.sort((a, b) => a.precio - b.precio);
-    else if (fSort === "precio-desc") list.sort((a, b) => b.precio - a.precio);
+    if (fSort === "precio-asc") list.sort((a, b) => (isPriced(a) ? a.precio : Number.MAX_SAFE_INTEGER) - (isPriced(b) ? b.precio : Number.MAX_SAFE_INTEGER));
+    else if (fSort === "precio-desc") list.sort((a, b) => (isPriced(b) ? b.precio : -1) - (isPriced(a) ? a.precio : -1));
     else if (fSort === "nombre") list.sort((a, b) => a.nombre.localeCompare(b.nombre));
     renderProducts(list);
     const c = $("#shopCount"); if (c) c.textContent = `${list.length} producto${list.length === 1 ? "" : "s"}`;
@@ -244,6 +284,7 @@
     const feats = (p.caracteristicas && p.caracteristicas.length)
       ? `<ul class="detail__feats">${p.caracteristicas.map((f) => `<li>${f}</li>`).join("")}</ul>` : "";
     const agotado = p.stock <= 0;
+    const sinPrecio = !isPriced(p);
     $("#detailBody").innerHTML = `
       <div>${main}${thumbs}</div>
       <div class="detail__info">
@@ -256,7 +297,10 @@
         ${feats}
         ${agotado
           ? `<button class="btn btn--primary btn--block" disabled>Agotado</button>`
-          : `<div class="detail__buy">
+          : sinPrecio
+            ? `<a class="btn btn--whatsapp btn--block" href="${consultUrl(p)}" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+              <p class="detail__hint">Te confirmamos precio, disponibilidad y compatibilidad con tu auto.</p>`
+            : `<div class="detail__buy">
               <div class="detail__qty"><button data-detqty="-1" aria-label="Menos">−</button><span id="detQty">1</span><button data-detqty="1" aria-label="Más">+</button></div>
               <button class="btn btn--primary detail__addbtn" id="detailAdd">Agregar al carrito</button>
             </div>`}
@@ -268,6 +312,7 @@
   /* ---------- Checkout ---------- */
   function goCheckout() {
     if (itemsCount() === 0) { toast("Tu carrito está vacío"); return; }
+    if (total() <= 0) { toast("Consulta precios por WhatsApp antes de finalizar"); return; }
     // En modo real, hay que iniciar sesión para comprar
     if (DB.ready && !currentUser) {
       pendingCheckout = true;
@@ -497,6 +542,8 @@
     const mail = $("#cInfoEmail"); mail.textContent = CONFIG.email; mail.href = "mailto:" + CONFIG.email;
     $("#cInfoInsta").href = CONFIG.instagram;
     $("#cWhatsBtn").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, tengo una consulta")}`;
+    const floatWhats = $("#floatWhatsBtn");
+    if (floatWhats) floatWhats.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, quisiera recibir asesoría")}`;
     const map = $("#mapFrame");
     if (map) map.src = `https://maps.google.com/maps?q=${encodeURIComponent(CONFIG.mapsQuery || CONFIG.ubicacion)}&z=13&output=embed`;
     $("#year").textContent = new Date().getFullYear();
@@ -583,6 +630,7 @@
   /* ---------- Cargar productos ---------- */
   async function loadProducts() {
     products = await DB.getProducts();
+    cleanCartForCatalog();
     buildFilters();
     applyFilters();
     renderCart();
@@ -624,6 +672,7 @@
   /* ---------- Eventos ---------- */
   document.addEventListener("click", (e) => {
     const t = e.target;
+    const consult = t.closest("[data-consult]"); if (consult) { consultProduct(productById(consult.getAttribute("data-consult"))); return; }
     const a = t.closest("[data-add]"); if (a && !a.disabled) { add(a.getAttribute("data-add")); closeDetail(); return; }
     const th = t.closest("[data-thumb]"); if (th) { const m = $("#detailMain"); if (m) m.src = th.getAttribute("data-thumb"); $$("#detailModal [data-thumb]").forEach((x) => x.classList.remove("is-active")); th.classList.add("is-active"); return; }
     const dq = t.closest("[data-detqty]"); if (dq) { const el = $("#detQty"); let q = (parseInt(el.textContent) || 1) + parseInt(dq.getAttribute("data-detqty")); el.textContent = Math.max(1, Math.min(q, detailStock || 1)); return; }
