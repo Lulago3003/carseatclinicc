@@ -200,6 +200,16 @@
         </div>
       </article>`;
     }).join("");
+    animateProductCards();
+  }
+
+  function animateProductCards() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    $$("#productGrid .card").forEach((card, i) => {
+      card.classList.remove("is-entering");
+      card.style.animationDelay = `${Math.min(i, 7) * 42}ms`;
+      requestAnimationFrame(() => card.classList.add("is-entering"));
+    });
   }
 
   function buildFilters() {
@@ -573,6 +583,22 @@
     return rec;
   }
 
+  function updateFinderProgress() {
+    const form = $("#finderForm");
+    const bar = $("#finderProgressBar");
+    const text = $("#finderProgressText");
+    if (!form || !bar || !text) return;
+    const fields = Array.from(form.querySelectorAll("select, input")).filter((el) => el.name);
+    const answered = fields.filter((el) => {
+      if (el.tagName === "SELECT") return el.selectedIndex > 0;
+      return String(el.value || "").trim();
+    }).length;
+    const total = fields.length || 1;
+    const pct = Math.round((answered / total) * 100);
+    bar.style.width = `${pct}%`;
+    text.textContent = `${answered} de ${total} respuestas`;
+  }
+
   function handleFinder(e) {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target).entries());
@@ -594,6 +620,7 @@
         </div>
       </div>`;
     box.hidden = false;
+    updateFinderProgress();
     box.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
@@ -653,11 +680,14 @@
   // Aparición suave de secciones al hacer scroll
   function setupReveal() {
     if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const sel = ".section__head, .pillar, .tcard, .rcard, .feature, .service, .about__text, .about__art, .finder, .cita__form, .map, .newsletter";
+    const sel = ".section__head, .pillar, .tcard, .rcard, .feature, .service, .about__text, .about__art, .finder, .cita__form, .map, .newsletter, .route-card, .safe-route__intro, .safety-strip";
     const els = $$(sel);
     if (!els.length) return;
     const reveal = (el) => el.classList.add("is-visible");
-    els.forEach((el) => el.classList.add("reveal"));
+    els.forEach((el, i) => {
+      el.classList.add("reveal");
+      el.style.setProperty("--reveal-delay", `${Math.min(i % 6, 5) * 45}ms`);
+    });
     const io = new IntersectionObserver((entries, obs) => {
       entries.forEach((e) => { if (e.isIntersecting) { reveal(e.target); obs.unobserve(e.target); } });
     }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
@@ -668,6 +698,71 @@
     });
     // Red de seguridad: que nada quede oculto si el scroll/observer falla
     setTimeout(() => els.forEach(reveal), 2500);
+  }
+
+  function setupScrollProgress() {
+    const bar = $("#scrollProgress");
+    if (!bar) return;
+    let ticking = false;
+    const update = () => {
+      const doc = document.documentElement;
+      const max = Math.max(1, doc.scrollHeight - doc.clientHeight);
+      const pct = Math.min(1, Math.max(0, window.scrollY / max));
+      bar.style.transform = `scaleX(${pct})`;
+      ticking = false;
+    };
+    const requestUpdate = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    update();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+  }
+
+  function updateFloatingWhatsApp(section) {
+    const btn = $("#floatWhatsBtn");
+    if (!btn || !section) return;
+    const label = section.dataset.whatsappLabel || "WhatsApp";
+    const message = section.dataset.whatsappMessage || "Hola Car Seat Clinic, quisiera recibir asesoría.";
+    const span = btn.querySelector("span");
+    if (span && span.textContent !== label && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      btn.classList.add("is-changing");
+      setTimeout(() => {
+        span.textContent = label;
+        btn.classList.remove("is-changing");
+      }, 160);
+    } else if (span) {
+      span.textContent = label;
+    }
+    btn.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(message)}`;
+  }
+
+  function setupFloatingWhatsApp() {
+    const sections = $$("[data-whatsapp-label]");
+    if (!sections.length) return;
+    let ticking = false;
+    const choose = () => {
+      const line = window.innerHeight * 0.38;
+      let active = sections[0];
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= line && rect.bottom > 90) active = section;
+      });
+      updateFloatingWhatsApp(active);
+      ticking = false;
+    };
+    const requestChoose = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(choose);
+      }
+    };
+    choose();
+    window.addEventListener("scroll", requestChoose, { passive: true });
+    window.addEventListener("resize", requestChoose);
   }
 
   /* ---------- Eventos ---------- */
@@ -734,6 +829,8 @@
 
   // Cuestionario "Encuentra tu silla ideal"
   $("#finderForm").addEventListener("submit", handleFinder);
+  $("#finderForm").addEventListener("input", updateFinderProgress);
+  $("#finderForm").addEventListener("change", updateFinderProgress);
 
   // Reserva tu cita
   $("#citaForm").addEventListener("submit", handleCita);
@@ -758,8 +855,11 @@
   fillContact();
   loadProducts();
   maybeShowPopup();
+  updateFinderProgress();
+  setupScrollProgress();
   setupReveal();
   setupHeroSlider();
+  setupFloatingWhatsApp();
   if (DB.ready) {
     refreshAuthUI();
     DB.onAuthChange(async () => { await refreshAuthUI(); });

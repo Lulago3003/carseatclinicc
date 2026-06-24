@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
   <!-- ===================== ENCABEZADO ===================== -->
   <header class="header" id="header">
@@ -66,7 +67,7 @@
   </header>
 
   <!-- ===================== HERO ===================== -->
-  <section class="hero" id="inicio">
+  <section class="hero" id="inicio" data-whatsapp-label="Asesoría inicial" data-whatsapp-message="Hola Car Seat Clinic, quiero ayuda para elegir una silla segura.">
     <div class="container hero__inner">
       <div class="hero__text">
         <span class="pill">Asesoría experta en seguridad infantil</span>
@@ -94,7 +95,7 @@
             <span class="hero__cap"><strong>Instalación, revisión y limpieza</strong><span>Nuestros servicios →</span></span>
           </a>
         </div>
-        <div class="hero__assist">
+        <div class="hero__assist motion-float">
           <span class="hero__assist-kicker">Compra acompañada</span>
           <strong>Te confirmamos compatibilidad, stock y precio antes de decidir.</strong>
         </div>
@@ -124,6 +125,40 @@
         <li><span>02</span><strong>Te recomendamos opciones</strong><p>Comparamos seguridad, etapa de uso y espacio real.</p></li>
         <li><span>03</span><strong>Instalamos o revisamos</strong><p>Te dejamos lista la silla y te enseñamos a usarla.</p></li>
       </ol>
+    </div>
+  </section>
+
+  <!-- ===================== RUTA SEGURA ===================== -->
+  <section class="safe-route" id="ruta-segura" data-whatsapp-label="Ruta segura" data-whatsapp-message="Hola Car Seat Clinic, quiero que me guíen con la ruta segura para elegir e instalar una silla.">
+    <div class="container safe-route__inner">
+      <div class="safe-route__intro">
+        <span class="eyebrow">Ruta segura</span>
+        <h2>Una compra acompañada de principio a fin.</h2>
+        <p>La silla no termina en la caja. Revisamos compatibilidad, etapa de uso, instalación y seguimiento para que viajes con tranquilidad real.</p>
+        <a href="#citas" class="btn btn--primary">Agendar guía 1:1</a>
+      </div>
+      <div class="safe-route__track" aria-label="Ruta de asesoría segura">
+        <article class="route-card">
+          <span>01</span>
+          <h3>Diagnóstico</h3>
+          <p>Edad, peso, talla, auto y cómo viaja tu familia.</p>
+        </article>
+        <article class="route-card">
+          <span>02</span>
+          <h3>Compatibilidad</h3>
+          <p>Validamos modelos que sí funcionan para tu vehículo.</p>
+        </article>
+        <article class="route-card">
+          <span>03</span>
+          <h3>Instalación</h3>
+          <p>Te enseñamos a usar la silla, no solo a colocarla.</p>
+        </article>
+        <article class="route-card">
+          <span>04</span>
+          <h3>Seguimiento</h3>
+          <p>Te avisamos cuándo revisar ajustes o cambiar etapa.</p>
+        </article>
+      </div>
     </div>
   </section>
 
@@ -158,13 +193,17 @@
   </section>
 
   <!-- ===================== ENCUENTRA TU SILLA IDEAL ===================== -->
-  <section class="section section--alt" id="encuentra">
+  <section class="section section--alt" id="encuentra" data-whatsapp-label="Test de silla" data-whatsapp-message="Hola Car Seat Clinic, quiero hacer el test y recibir una recomendación de silla.">
     <div class="container">
       <div class="section__head">
         <h2>Encuentra tu silla ideal</h2>
         <p>Responde unas preguntas rápidas y te decimos qué tipo de silla es la más adecuada y segura para tu pequeño.</p>
       </div>
       <div class="finder">
+        <div class="finder__progress" id="finderProgress" aria-hidden="true">
+          <span class="finder__progressText" id="finderProgressText">0 de 6 respuestas</span>
+          <span class="finder__progressTrack"><span id="finderProgressBar"></span></span>
+        </div>
         <form class="finder__form" id="finderForm">
           <label>Edad del niño
             <select name="edad" required>
@@ -212,7 +251,7 @@
   </section>
 
   <!-- ===================== PRODUCTOS ===================== -->
-  <section class="section" id="productos">
+  <section class="section" id="productos" data-whatsapp-label="Cotizar producto" data-whatsapp-message="Hola Car Seat Clinic, estoy viendo productos y quiero cotizar una silla.">
     <div class="container">
       <div class="section__head section__head--shop">
         <span class="eyebrow">Inventario disponible</span>
@@ -252,7 +291,7 @@
   </section>
 
   <!-- ===================== SERVICIOS ===================== -->
-  <section class="section section--alt" id="servicios">
+  <section class="section section--alt" id="servicios" data-whatsapp-label="Consultar servicio" data-whatsapp-message="Hola Car Seat Clinic, quiero información sobre sus servicios.">
     <div class="container">
       <div class="section__head">
         <h2>Servicios</h2>
@@ -274,7 +313,7 @@
   </section>
 
   <!-- ===================== RECURSOS DE SEGURIDAD ===================== -->
-  <section class="section section--alt" id="recursos">
+  <section class="section section--alt" id="recursos" data-whatsapp-label="Duda de seguridad" data-whatsapp-message="Hola Car Seat Clinic, tengo una duda de seguridad infantil en el carro.">
     <div class="container">
       <div class="section__head">
         <h2>Recursos de seguridad</h2>
@@ -302,11 +341,18 @@
           <p>Los abrigos voluminosos dejan el arnés flojo sin que lo notes. Abrocha al niño con ropa ligera y cúbrelo con una manta por encima.</p>
         </article>
       </div>
+      <div class="safety-strip" aria-label="Consejos rápidos de seguridad">
+        <span>Revisión rápida antes de salir</span>
+        <strong>Arnés ajustado</strong>
+        <strong>Broche al pecho</strong>
+        <strong>Silla firme</strong>
+        <strong>Sin abrigos gruesos</strong>
+      </div>
     </div>
   </section>
 
   <!-- ===================== RESERVA TU CITA ===================== -->
-  <section class="section" id="citas">
+  <section class="section" id="citas" data-whatsapp-label="Reservar cita" data-whatsapp-message="Hola Car Seat Clinic, quiero reservar una cita.">
     <div class="container">
       <div class="section__head">
         <h2>Reserva tu cita</h2>
@@ -360,7 +406,7 @@
   </section>
 
   <!-- ===================== CONTACTO ===================== -->
-  <section class="section section--alt" id="contacto">
+  <section class="section section--alt" id="contacto" data-whatsapp-label="Escribir ahora" data-whatsapp-message="Hola Car Seat Clinic, quiero hablar con ustedes.">
     <div class="container">
       <div class="contact">
       <div class="contact__info">
@@ -549,7 +595,7 @@
     </form>
   </div>
 
-  <a class="float-whatsapp" id="floatWhatsBtn" href="#" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">
+  <a class="float-whatsapp" id="floatWhatsBtn" href="#" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp" data-whatsapp-label="WhatsApp">
     <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M20 11.5a7.5 7.5 0 0 1-10.8 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1 1 20 11.5z"/>
       <path d="M9 10.5c.6 2 2 3.4 4 4l1.3-1.1 2 .5c.2.1.4.3.4.5v1.2c0 .3-.2.5-.5.6-4.3.7-8.1-3-8.4-7.2 0-.3.2-.5.5-.5h1.2c.2 0 .4.1.5.4l.5 1.6L9 10.5z"/>
