@@ -90,6 +90,26 @@ const DB = (function () {
     if (error) throw error;
   }
 
+  /* ---------- Chat con IA ---------- */
+  // Guarda un mensaje del chat (lo usa para captar consultas aunque la IA no esté lista)
+  async function guardarMensaje(session_id, rol, mensaje, nombre) {
+    if (!ready) return;
+    try { await client.from("conversaciones").insert({ session_id, rol, mensaje, nombre: nombre || null }); } catch (e) {}
+  }
+  // Pregunta a la IA (vía Edge Function segura). Devuelve { answer }.
+  async function preguntarIA(messages) {
+    if (!ready) throw new Error("DEMO");
+    const { data, error } = await client.functions.invoke("asistente", { body: { messages } });
+    if (error) throw error;
+    return data;
+  }
+  // Conversaciones para el CRM (solo admin)
+  async function getConversaciones() {
+    if (!ready) return [];
+    const { data, error } = await client.from("conversaciones").select("*").order("created_at", { ascending: true });
+    if (error) throw error; return data || [];
+  }
+
   // Inicia un pago con la pasarela del banco (vía Edge Function segura).
   // Devuelve { url } a donde redirigir al cliente para pagar.
   async function crearPago(order) {
@@ -185,6 +205,7 @@ const DB = (function () {
     init, get ready() { return ready; },
     getProducts, getProductsAdmin, saveProduct, deleteProduct, uploadImage,
     placeOrder, getMyOrders, updateOrderStatus, crearPago,
+    guardarMensaje, preguntarIA, getConversaciones,
     signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };
 })();

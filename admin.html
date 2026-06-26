@@ -68,6 +68,7 @@
           <button class="tab is-active" data-tab="dashboard" type="button">Resumen</button>
           <button class="tab" data-tab="productos" type="button">Productos</button>
           <button class="tab" data-tab="pedidos" type="button">Pedidos</button>
+          <button class="tab" data-tab="conversaciones" type="button">Conversaciones</button>
         </div>
       </aside>
 
@@ -188,6 +189,12 @@
             <p class="muted">Usa WhatsApp para dar seguimiento sin salir del panel.</p>
           </div>
           <div id="ordersList" class="admin__list"></div>
+        </div>
+
+        <div id="tab-conversaciones" class="tab-panel" hidden>
+          <div class="admin__bar"><div><span class="eyebrow">Asistente</span><h2>Conversaciones del chat</h2></div></div>
+          <p class="muted">Lo que preguntaron los clientes y lo que respondió el asistente. Te sirve para captar consultas y mejorar la atención.</p>
+          <div id="convList" class="admin__list"></div>
         </div>
       </div>
     </section>

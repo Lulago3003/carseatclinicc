@@ -692,6 +692,50 @@
     }, 4000);
   }
 
+  // Asistente / chat con IA (guarda las consultas en el CRM)
+  function setupChat() {
+    const panel = $("#chatPanel"), msgs = $("#chatMsgs"), input = $("#chatInput");
+    if (!panel) return;
+    let sid;
+    try { sid = localStorage.getItem("csc_chat_session"); if (!sid) { sid = "s" + Date.now() + Math.random().toString(36).slice(2, 7); localStorage.setItem("csc_chat_session", sid); } }
+    catch (e) { sid = "s" + Date.now(); }
+    const history = [];
+    let greeted = false;
+    function bubble(role, htmlStr) {
+      const d = document.createElement("div");
+      d.className = "chat__bubble chat__bubble--" + (role === "user" ? "user" : "bot");
+      d.innerHTML = htmlStr; msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d;
+    }
+    function open() {
+      panel.hidden = false; $("#chatLaunch").classList.add("is-open");
+      if (!greeted) { greeted = true; bubble("bot", "¡Hola! 👋 Soy el asistente de <strong>Car Seat Clinic</strong>. Te ayudo a elegir la silla correcta, con dudas de seguridad, servicios o tu cita. ¿En qué te ayudo?"); }
+      input.focus();
+    }
+    function close() { panel.hidden = true; $("#chatLaunch").classList.remove("is-open"); }
+    $("#chatLaunch").addEventListener("click", () => (panel.hidden ? open() : close()));
+    $("#chatClose").addEventListener("click", close);
+    $("#chatForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = input.value.trim(); if (!text) return; input.value = "";
+      bubble("user", esc(text)); history.push({ role: "user", content: text });
+      DB.guardarMensaje(sid, "user", text);
+      const typing = bubble("bot", '<span class="chat__typing">Escribiendo…</span>');
+      let answer = "";
+      try { const r = await DB.preguntarIA(history); answer = (r && r.answer) ? r.answer : ""; } catch (err) { answer = ""; }
+      typing.remove();
+      if (answer) {
+        bubble("bot", esc(answer).replace(/\n/g, "<br>"));
+        history.push({ role: "assistant", content: answer });
+        DB.guardarMensaje(sid, "asistente", answer);
+      } else {
+        const wa = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
+        const fb = "Gracias por tu pregunta 🙌 Un asesor te responderá pronto. ¿Prefieres hablar ahora por WhatsApp?";
+        bubble("bot", `${fb}<br><a class="chat__wa" href="${wa}" target="_blank" rel="noopener">💬 Continuar por WhatsApp</a>`);
+        DB.guardarMensaje(sid, "asistente", "[sin IA] " + fb);
+      }
+    });
+  }
+
   // Aparición suave de secciones al hacer scroll
   function setupReveal() {
     if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -887,6 +931,7 @@
   setupScrollProgress();
   setupReveal();
   setupHeroSlider();
+  setupChat();
   setupFloatingWhatsApp();
   if (DB.ready) {
     refreshAuthUI();

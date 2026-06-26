@@ -132,10 +132,29 @@
   /* ---------- Pestañas ---------- */
   function activateTab(name) {
     $$(".tab").forEach((x) => x.classList.toggle("is-active", x.dataset.tab === name));
-    ["dashboard", "productos", "pedidos"].forEach((tab) => {
+    ["dashboard", "productos", "pedidos", "conversaciones"].forEach((tab) => {
       const panel = $(`#tab-${tab}`);
       if (panel) panel.hidden = tab !== name;
     });
+    if (name === "conversaciones") renderConversaciones();
+  }
+
+  async function renderConversaciones() {
+    const cont = $("#convList"); if (!cont) return;
+    cont.innerHTML = `<p class="muted">Cargando…</p>`;
+    let rows = [];
+    try { rows = await DB.getConversaciones(); }
+    catch (e) { cont.innerHTML = `<p class="muted">No se pudieron cargar (¿corriste <code>supabase-chat.sql</code>?).</p>`; return; }
+    if (!rows.length) { cont.innerHTML = `<p class="muted">Aún no hay conversaciones. Aparecerán cuando los clientes usen el chat.</p>`; return; }
+    const groups = {};
+    rows.forEach((r) => { (groups[r.session_id] = groups[r.session_id] || []).push(r); });
+    const order = Object.keys(groups).sort((a, b) => new Date(groups[b][0].created_at) - new Date(groups[a][0].created_at));
+    cont.innerHTML = order.map((sid) => {
+      const msgs = groups[sid];
+      const fecha = new Date(msgs[0].created_at).toLocaleString("es-PA");
+      const body = msgs.map((m) => `<div class="conv__msg conv__msg--${m.rol === "user" ? "user" : "bot"}"><b>${m.rol === "user" ? "Cliente" : "Asistente"}:</b> ${esc(m.mensaje)}</div>`).join("");
+      return `<div class="admin__card"><div class="conv__head"><strong>Consulta</strong> · <span class="muted">${fecha}</span></div>${body}</div>`;
+    }).join("");
   }
 
   $$(".tab").forEach((t) => t.addEventListener("click", () => {
