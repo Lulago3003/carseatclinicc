@@ -430,6 +430,10 @@
       </div>
       <div class="map">
         <iframe id="mapFrame" title="Ubicación de Car Seat Clinic Center" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <a class="map__qr" id="wazeLink" href="#" target="_blank" rel="noopener" title="Cómo llegar con Waze">
+          <div class="map__qrimg" id="wazeQr"></div>
+          <span>Llegar con <strong>Waze</strong></span>
+        </a>
       </div>
     </div>
   </section>
@@ -609,6 +613,7 @@
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
   <script src="js/data.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/store.js"></script>

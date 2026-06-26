@@ -22,6 +22,10 @@ const CONFIG = {
   // Dirección que se muestra en el mapa. Cambia por la dirección real
   // (puedes poner el nombre del local o una dirección exacta).
   mapsQuery: "Ciudad de Panamá, Panamá",
+  // Enlace de Waze para "cómo llegar" (QR junto al mapa). Si lo dejas vacío,
+  // se arma con la ubicación. Lo ideal: pon el enlace exacto de tu local
+  // (en Waze: compartir → copiar enlace) o coordenadas.
+  wazeUrl: "",
 
   /* --- Moneda --- */
   moneda: "$",

@@ -182,6 +182,7 @@
         <div class="card__media" data-detail="${p.id}">
           ${media(p)}
           ${p.badge ? `<span class="card__badge">${p.badge}</span>` : ""}
+          ${(p.antes && p.precio > 0 && p.antes > p.precio) ? `<span class="card__off">-${Math.round((1 - p.precio / p.antes) * 100)}%</span>` : ""}
         </div>
         <div class="card__body">
           <span class="card__brand">${p.marca || CAT_LABEL[p.categoria] || ""}</span>
@@ -564,6 +565,13 @@
     if (floatWhats) floatWhats.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, quisiera recibir asesoría")}`;
     const map = $("#mapFrame");
     if (map) map.src = `https://maps.google.com/maps?q=${encodeURIComponent(CONFIG.mapsQuery || CONFIG.ubicacion)}&z=13&output=embed`;
+    // QR de Waze (cómo llegar)
+    const wazeUrl = CONFIG.wazeUrl || `https://waze.com/ul?q=${encodeURIComponent(CONFIG.mapsQuery || CONFIG.ubicacion)}&navigate=yes`;
+    const wl = $("#wazeLink"); if (wl) wl.href = wazeUrl;
+    const qrEl = $("#wazeQr");
+    if (qrEl && typeof qrcode === "function") {
+      try { const qr = qrcode(0, "M"); qr.addData(wazeUrl); qr.make(); qrEl.innerHTML = qr.createImgTag(4, 0); } catch (e) {}
+    }
     $("#year").textContent = new Date().getFullYear();
   }
 

@@ -292,6 +292,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .card__media { position: relative; aspect-ratio: 1/1; display: grid; place-items: center; background: linear-gradient(180deg,#f9faf7,#f1f4ef); }
 .card__media img { width: 100%; height: 100%; object-fit: contain; padding: 12px; }
 .card__brand { color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; }
+.card__off { position: absolute; top: 12px; right: 12px; background: var(--accent-dark); color: #fff; font-size: .76rem; font-weight: 800; padding: 4px 9px; border-radius: 999px; box-shadow: var(--shadow-sm); }
 .card__badge {
   position: absolute; top: 12px; left: 12px; background: var(--brand); color: #fff;
   font-size: .72rem; font-weight: 700; padding: 5px 11px; border-radius: 999px; letter-spacing: .02em;
@@ -390,8 +391,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .contact__list span:first-child { font-size: 20px; }
 .contact__list a:hover { color: var(--brand); }
 .contact__form { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); }
-.map { margin-top: 30px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow-sm); line-height: 0; }
+.map { position: relative; margin-top: 30px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow-sm); line-height: 0; }
 .map iframe { width: 100%; height: 320px; border: 0; display: block; filter: grayscale(.15); }
+.map__qr { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 14px; padding: 8px 14px 8px 8px; box-shadow: var(--shadow); color: var(--ink); line-height: 1.2; }
+.map__qr:hover { box-shadow: var(--shadow-lg); }
+.map__qrimg { width: 66px; height: 66px; flex-shrink: 0; }
+.map__qrimg img { width: 100%; height: 100%; display: block; }
+.map__qr span { font-size: .82rem; }
+.map__qr strong { color: var(--brand-dark); }
+@media (max-width: 480px) { .map__qr { right: 10px; bottom: 10px; padding: 6px 11px 6px 6px; } .map__qrimg { width: 52px; height: 52px; } }
 label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 16px; }
 input, textarea {
   width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px;
