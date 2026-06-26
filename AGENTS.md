@@ -19,7 +19,15 @@ poppys.com (tienda) + safeintheseat.com (autoridad/educación).
 - **Backend:** **Supabase** (Postgres + Auth + Storage). Proyecto ref: `fahqjwnwoznaerrwgdmc`.
 - **Hosting:** GitHub Pages. Repo: `Lulago3003/carseatclinicc`. En vivo:
   https://lulago3003.github.io/carseatclinicc/
-- **Pagos:** pendiente (objetivo: Yappy/Tilopay o PayPal). Hoy: pedidos por WhatsApp.
+- **Pagos:** estructura lista (ver `PAGOS.md`): botón "Pagar con tarjeta" oculto
+tras `CONFIG.pago.activo`, `DB.crearPago()` → Edge Function `supabase/functions/crear-pago`
+(claves secretas en Supabase, no en el sitio). Pasarela objetivo: BAC Credomatic
+o Tilopay (Tilopay cubre BAC + Yappy). Hoy el flujo activo es cotización por WhatsApp.
+
+**Hosting/dominio (plan):** mover de GitHub Pages a **Cloudflare Pages** (gratis,
+conectado al repo) + dominio en **Cloudflare Registrar**. Las rutas de imágenes
+son relativas para que el cambio de dominio no rompa nada. Correo con dominio:
+Cloudflare Email Routing (recibir, gratis) + Zoho/Google Workspace (enviar).
 
 ## 📂 Estructura
 
