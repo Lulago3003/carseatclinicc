@@ -90,6 +90,15 @@ const DB = (function () {
     if (error) throw error;
   }
 
+  // Inicia un pago con la pasarela del banco (vía Edge Function segura).
+  // Devuelve { url } a donde redirigir al cliente para pagar.
+  async function crearPago(order) {
+    if (!ready) throw new Error("DEMO");
+    const { data, error } = await client.functions.invoke("crear-pago", { body: order });
+    if (error) throw error;
+    return data;
+  }
+
   // Sube una foto al almacenamiento y devuelve su URL pública
   async function uploadImage(file) {
     if (!ready) throw new Error("DEMO");
@@ -175,7 +184,7 @@ const DB = (function () {
   return {
     init, get ready() { return ready; },
     getProducts, getProductsAdmin, saveProduct, deleteProduct, uploadImage,
-    placeOrder, getMyOrders, updateOrderStatus,
+    placeOrder, getMyOrders, updateOrderStatus, crearPago,
     signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };
 })();

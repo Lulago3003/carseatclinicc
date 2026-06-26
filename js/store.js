@@ -338,6 +338,13 @@
     $("#ckTotal").textContent = money(total());
     $("#checkoutModal").classList.add("is-open");
     setupPayPal();
+    // Botón de pago con tarjeta (pasarela del banco), solo si está activo
+    const pc = $("#payCard");
+    if (pc) {
+      const on = !!(CONFIG.pago && CONFIG.pago.activo);
+      pc.style.display = on ? "block" : "none";
+      if (on) pc.textContent = "💳 " + (CONFIG.pago.etiqueta || "Pagar con tarjeta");
+    }
   }
   function closeCheckout() { $("#checkoutModal").classList.remove("is-open"); }
 
@@ -807,6 +814,19 @@
   $("#detailModal").addEventListener("click", (e) => { if (e.target.id === "detailModal") closeDetail(); });
   $("#closeCheckout").addEventListener("click", closeCheckout);
   $("#payWhatsapp").addEventListener("click", sendWhatsAppOrder);
+  $("#payCard").addEventListener("click", async () => {
+    const form = $("#checkoutForm");
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const ok = await registerOrder(form);
+    if (!ok) return;
+    try {
+      const r = await DB.crearPago({ items: cartList().map(({ id, qty }) => ({ id, qty })), total: total(), customer: customerData(form) });
+      if (r && r.url) { window.location.href = r.url; }
+      else toast("No se pudo iniciar el pago. Intenta por WhatsApp.");
+    } catch (e) {
+      toast("El pago con tarjeta aún no está configurado (ver PAGOS.md).");
+    }
+  });
   $("#checkoutModal").addEventListener("click", (e) => { if (e.target.id === "checkoutModal") closeCheckout(); });
 
   // Auth

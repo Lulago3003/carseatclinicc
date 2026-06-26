@@ -37,6 +37,16 @@ const CONFIG = {
   /* --- PayPal (opcional, pago con tarjeta) --- */
   paypalClientId: "",
 
+  /* --- Pago en línea con pasarela del banco (BAC / Tilopay) ---
+     Estructura lista. Ponlo en activo:true cuando tengas la cuenta de comercio
+     y hayas configurado la Edge Function en Supabase (ver PAGOS.md).
+     ⚠️ Las CLAVES SECRETAS NO van aquí (este archivo es público): van en
+     los "secrets" de Supabase. */
+  pago: {
+    activo: false,
+    etiqueta: "Pagar con tarjeta",
+  },
+
   /* --- Administradores ---
      Cualquier persona que inicie sesión con uno de estos correos será
      administradora automáticamente (puede editar productos, stock y pedidos).
