@@ -71,8 +71,8 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 ## ⬜ PENDIENTE — antes de LANZAR al público
 
 - [ ] **Asegurar el admin**: cambiar `admin/admin` (visible en el código) por algo fuerte.
-- [ ] **Páginas legales**: términos, privacidad, devoluciones (necesario para cobrar).
-- [ ] **SEO + Open Graph**: títulos/descripciones por página + vista previa bonita al compartir.
+- [x] **Páginas legales**: `terminos.html` y `privacidad.html` (enlazadas en el footer). ✅
+- [x] **SEO + Open Graph**: meta tags + Twitter card + canonical + theme-color en index. ✅
 - [ ] **Dominio + hosting**: comprar dominio en Cloudflare → publicar en **Cloudflare Pages** (gratis) → conectar dominio.
 - [ ] **Correo con dominio**: Cloudflare Email Routing (recibir) + Zoho/Google Workspace (enviar).
 - [ ] **Analítica** (Google Analytics o Meta Pixel).
@@ -82,7 +82,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [ ] Blog / más recursos de seguridad (contenido educativo).
 - [ ] Reserva de citas con calendario real (hoy es por WhatsApp).
 - [ ] Categoría "Juguetes/Regalos" (hoy los kits están como "Accesorio").
-- [ ] Pop-up del newsletter menos intrusivo (más retraso / no sobre modales).
+- [x] Pop-up del newsletter menos intrusivo (16s y no sale sobre ventanas abiertas). ✅
 - [ ] Feed de Instagram embebido.
 
 ---

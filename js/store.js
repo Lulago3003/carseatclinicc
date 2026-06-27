@@ -667,7 +667,15 @@
   function closePopup() { $("#newsletterPopup").hidden = true; try { sessionStorage.setItem("csc_np", "1"); } catch (e) {} }
   function maybeShowPopup() {
     try { if (sessionStorage.getItem("csc_np") === "1") return; } catch (e) {}
-    setTimeout(() => { try { if (sessionStorage.getItem("csc_np") !== "1") $("#newsletterPopup").hidden = false; } catch (e) {} }, 9000);
+    const tryShow = () => {
+      try { if (sessionStorage.getItem("csc_np") === "1") return; } catch (e) {}
+      // No mostrar si hay una ventana abierta (ficha, checkout, login, chat…)
+      const modalOpen = !!document.querySelector(".modal.is-open") || !!document.querySelector(".cart.is-open");
+      const chatOpen = $("#chatPanel") && !$("#chatPanel").hidden;
+      if (modalOpen || chatOpen) { setTimeout(tryShow, 6000); return; }
+      $("#newsletterPopup").hidden = false;
+    };
+    setTimeout(tryShow, 16000);
   }
 
   /* ---------- Cargar productos ---------- */
