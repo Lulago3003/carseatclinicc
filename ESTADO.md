@@ -39,7 +39,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] Conversaciones del chat (ver abajo).
 
 **Asistente con IA (estructura)**
-- [x] Chat flotante en la web. Guarda cada consulta. Sin IA: ofrece WhatsApp. (Guía: `CHATBOT.md`)
+- [x] Chat flotante en la web con asistente inteligente local: responde dudas comunes, pide datos si faltan y ofrece WhatsApp cuando hace falta asesor. (Guía: `CHATBOT.md`)
 - [x] Edge Function `asistente` (llama a Claude; clave secreta en Supabase).
 - [x] Pestaña "Conversaciones" en el CRM.
 

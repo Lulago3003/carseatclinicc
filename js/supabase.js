@@ -93,11 +93,13 @@ const DB = (function () {
   /* ---------- Chat con IA ---------- */
   // Guarda un mensaje del chat (lo usa para captar consultas aunque la IA no esté lista)
   async function guardarMensaje(session_id, rol, mensaje, nombre) {
+    if (!CONFIG.chat?.guardarConversaciones) return;
     if (!ready) return;
     try { await client.from("conversaciones").insert({ session_id, rol, mensaje, nombre: nombre || null }); } catch (e) {}
   }
   // Pregunta a la IA (vía Edge Function segura). Devuelve { answer }.
   async function preguntarIA(messages) {
+    if (!CONFIG.chat?.iaActiva) throw new Error("IA no activa");
     if (!ready) throw new Error("DEMO");
     const { data, error } = await client.functions.invoke("asistente", { body: { messages } });
     if (error) throw error;

@@ -762,14 +762,60 @@
     catch (e) { sid = "s" + Date.now(); }
     const history = [];
     let greeted = false;
-    function bubble(role, htmlStr) {
+    function bubble(role, htmlStr, extraClass = "") {
       const d = document.createElement("div");
-      d.className = "chat__bubble chat__bubble--" + (role === "user" ? "user" : "bot");
+      d.className = `chat__bubble chat__bubble--${role === "user" ? "user" : "bot"} ${extraClass}`.trim();
       d.innerHTML = htmlStr; msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d;
+    }
+    function waUrl(text) {
+      const msg = `Hola Car Seat Clinic, vengo del asistente web. Mi pregunta es: ${text}`;
+      return `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
+    }
+    function smartReply(text) {
+      if (window.ChatAssistant && typeof window.ChatAssistant.generateSmartReply === "function") {
+        return window.ChatAssistant.generateSmartReply(text, { whatsapp: CONFIG.whatsapp });
+      }
+      return {
+        intent: "unknown",
+        needsHuman: true,
+        answer: "Gracias por tu pregunta. Para responder bien necesito un poco más de información. Puedes continuar por WhatsApp y un asesor te ayuda.",
+      };
+    }
+    function answerHtml(answer, showWhatsapp, originalText) {
+      const safe = esc(answer || "").replace(/\n/g, "<br>");
+      if (!showWhatsapp) return safe;
+      return `${safe}<br><a class="chat__wa" href="${waUrl(originalText)}" target="_blank" rel="noopener">Continuar por WhatsApp</a>`;
+    }
+    function clearQuickActions() { $$(".chat__quick", msgs).forEach((el) => el.remove()); }
+    function quickActions() {
+      const wrap = document.createElement("div");
+      wrap.className = "chat__quick";
+      [
+        "¿Qué silla usa una niña de 5 años?",
+        "Quiero instalar una silla",
+        "Quiero cotizar un producto",
+      ].forEach((label) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = label;
+        btn.addEventListener("click", () => {
+          input.value = label;
+          clearQuickActions();
+          $("#chatForm").requestSubmit();
+        });
+        wrap.appendChild(btn);
+      });
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
     }
     function open() {
       panel.hidden = false; $("#chatLaunch").classList.add("is-open");
-      if (!greeted) { greeted = true; bubble("bot", "¡Hola! 👋 Soy el asistente de <strong>Car Seat Clinic</strong>. Te ayudo a elegir la silla correcta, con dudas de seguridad, servicios o tu cita. ¿En qué te ayudo?"); }
+      if (!greeted) {
+        greeted = true;
+        const hello = smartReply("hola");
+        bubble("bot", answerHtml(hello.answer, false, "hola"), "chat__bubble--smart");
+        quickActions();
+      }
       input.focus();
     }
     function close() { panel.hidden = true; $("#chatLaunch").classList.remove("is-open"); }
@@ -778,21 +824,22 @@
     $("#chatForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = input.value.trim(); if (!text) return; input.value = "";
+      clearQuickActions();
       bubble("user", esc(text)); history.push({ role: "user", content: text });
       DB.guardarMensaje(sid, "user", text);
       const typing = bubble("bot", '<span class="chat__typing">Escribiendo…</span>');
       let answer = "";
+      const local = smartReply(text);
       try { const r = await DB.preguntarIA(history); answer = (r && r.answer) ? r.answer : ""; } catch (err) { answer = ""; }
       typing.remove();
       if (answer) {
-        bubble("bot", esc(answer).replace(/\n/g, "<br>"));
+        bubble("bot", answerHtml(answer, !!local.needsHuman, text), "chat__bubble--ai");
         history.push({ role: "assistant", content: answer });
         DB.guardarMensaje(sid, "asistente", answer);
       } else {
-        const wa = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`;
-        const fb = "Gracias por tu pregunta 🙌 Un asesor te responderá pronto. ¿Prefieres hablar ahora por WhatsApp?";
-        bubble("bot", `${fb}<br><a class="chat__wa" href="${wa}" target="_blank" rel="noopener">💬 Continuar por WhatsApp</a>`);
-        DB.guardarMensaje(sid, "asistente", "[sin IA] " + fb);
+        bubble("bot", answerHtml(local.answer, !!local.needsHuman, text), "chat__bubble--smart");
+        history.push({ role: "assistant", content: local.answer });
+        DB.guardarMensaje(sid, "asistente", "[asistente local] " + local.answer);
       }
     });
   }

@@ -51,6 +51,16 @@ const CONFIG = {
     etiqueta: "Pagar con tarjeta",
   },
 
+  /* --- Chat / asistente ---
+     Hoy el sitio responde con el asistente inteligente local.
+     Cambia iaActiva a true cuando despliegues supabase/functions/asistente
+     y tengas ANTHROPIC_API_KEY configurada.
+     Cambia guardarConversaciones a true cuando corras supabase-chat.sql. */
+  chat: {
+    iaActiva: false,
+    guardarConversaciones: false,
+  },
+
   /* --- Administradores ---
      Cualquier persona que inicie sesión con uno de estos correos será
      administradora automáticamente (puede editar productos, stock y pedidos).

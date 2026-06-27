@@ -4,6 +4,8 @@ const files = {
   html: readFileSync("index.html", "utf8"),
   css: readFileSync("css/styles.css", "utf8"),
   js: readFileSync("js/store.js", "utf8"),
+  data: readFileSync("js/data.js", "utf8"),
+  chat: readFileSync("js/chat-assistant.js", "utf8"),
 };
 
 const checks = [
@@ -24,6 +26,10 @@ const checks = [
   ["featured product card", files.js.includes("card--featured")],
   ["premium card styles", files.css.includes(".card__peek") && files.css.includes(".card__thumbs")],
   ["featured card styles", files.css.includes(".card--featured")],
+  ["smart chat script", files.html.includes('src="js/chat-assistant.js"') && files.chat.includes("generateSmartReply")],
+  ["smart chat fallback", files.js.includes("smartReply(text)") && files.js.includes("answerHtml")],
+  ["smart chat quick actions", files.js.includes("quickActions") && files.css.includes(".chat__quick")],
+  ["chat activation flags", files.data.includes("iaActiva") && files.data.includes("guardarConversaciones")],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);
