@@ -5,6 +5,9 @@
 > **no técnico y habla español** — comunícate en español, simple y al grano, y
 > haz el trabajo de punta a punta (incluye pasos con clics para lo que solo él
 > puede hacer, como crear cuentas o pegar SQL).
+>
+> 👉 **Para ver qué está hecho y qué falta, lee [ESTADO.md](ESTADO.md)** (lista
+> de progreso). Actualízalo al terminar cada tanda de trabajo.
 
 ## 🧭 Qué es
 
