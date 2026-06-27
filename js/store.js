@@ -129,10 +129,28 @@
   }
 
   function catImage(cat) { return (typeof IMAGENES_CATEGORIA !== "undefined" && IMAGENES_CATEGORIA[cat]) || ""; }
+  function productImageList(p) {
+    const list = Array.isArray(p.imagenes) ? p.imagenes.filter(Boolean) : [];
+    if (p.imagen && !list.includes(p.imagen)) list.unshift(p.imagen);
+    const fallback = catImage(p.categoria);
+    if (!list.length && fallback) list.push(fallback);
+    return [...new Set(list)];
+  }
+
+  function fallbackMedia(p, extraClass = "") {
+    return `<div class="card__fallback ${extraClass}" aria-hidden="true"><span class="card__fallbackIcon">${svgFor(p.categoria)}</span></div>`;
+  }
+
   function media(p) {
-    const img = (p.imagen && p.imagen.trim()) || catImage(p.categoria);
-    if (img) return `<img src="${img}" alt="${p.nombre}" loading="lazy" decoding="async" />`;
-    return `<div style="width:100%;height:100%;display:grid;place-items:center;background:${bgFor(p.categoria)}">${svgFor(p.categoria)}</div>`;
+    const img = productImageList(p)[0];
+    if (img) return `${fallbackMedia(p)}<img src="${esc(img)}" alt="${esc(p.nombre)}" loading="lazy" decoding="async" />`;
+    return fallbackMedia(p, "card__fallback--visible");
+  }
+
+  function productThumbs(p) {
+    const imgs = productImageList(p).slice(0, 4);
+    if (imgs.length < 2) return "";
+    return `<div class="card__thumbs" aria-hidden="true">${imgs.map((img, i) => `<span class="card__thumb ${i === 0 ? "is-active" : ""}"><img src="${img}" alt="" loading="lazy" decoding="async" /></span>`).join("")}</div>`;
   }
 
   /* ---------- Carrito (estado + persistencia) ---------- */
@@ -169,27 +187,41 @@
   function renderProducts(list) {
     const grid = $("#productGrid");
     if (!list || !list.length) { grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay productos con esos filtros.</p>`; return; }
-    grid.innerHTML = list.map((p) => {
+    grid.innerHTML = list.map((p, index) => {
       const agotado = p.stock <= 0;
       const sinPrecio = !isPriced(p);
       const canBuy = !agotado && !sinPrecio;
       const desc = shortText(p.descripcion || p.recomendado || "", 118);
+      const imgs = productImageList(p);
+      const category = CAT_LABEL[p.categoria] || p.categoria || "Producto";
       let stockTag = "";
       if (agotado) stockTag = `<span class="card__stock card__stock--out">Agotado</span>`;
       else if (sinPrecio) stockTag = `<span class="card__stock card__stock--consult">Asesoría y cotización</span>`;
       else if (p.stock <= 5) stockTag = `<span class="card__stock card__stock--low">¡Solo quedan ${p.stock}!</span>`;
-      return `<article class="card ${agotado ? "card--out" : ""}">
+      else stockTag = `<span class="card__stock card__stock--ok">Disponible</span>`;
+      return `<article class="card ${index === 0 ? "card--featured" : ""} ${agotado ? "card--out" : ""}">
         <div class="card__media" data-detail="${p.id}">
+          <span class="card__shine" aria-hidden="true"></span>
           ${media(p)}
+          <span class="card__peek">Ver detalles</span>
+          <span class="card__imageCount">${imgs.length > 1 ? `${imgs.length} fotos` : "Foto principal"}</span>
           ${p.badge ? `<span class="card__badge">${p.badge}</span>` : ""}
           ${(p.antes && p.precio > 0 && p.antes > p.precio) ? `<span class="card__off">-${Math.round((1 - p.precio / p.antes) * 100)}%</span>` : ""}
+          ${productThumbs(p)}
         </div>
         <div class="card__body">
-          <span class="card__brand">${p.marca || CAT_LABEL[p.categoria] || ""}</span>
+          <div class="card__topline">
+            <span class="card__brand">${p.marca || category}</span>
+            <span class="card__cat">${category}</span>
+          </div>
           <h3 class="card__title" data-detail="${p.id}">${p.nombre}</h3>
           ${p.recomendado ? `<span class="card__fit">${esc(p.recomendado)}</span>` : ""}
           ${desc ? `<p class="card__desc">${esc(desc)}</p>` : ""}
-          ${stockTag}
+          <div class="card__promise">
+            <span>Compatibilidad guiada</span>
+            ${imgs.length > 1 ? `<span>Galería disponible</span>` : `<span>Foto editable</span>`}
+          </div>
+          <div class="card__status">${stockTag}</div>
           <div class="card__foot">
             <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
             ${canBuy
@@ -201,7 +233,28 @@
         </div>
       </article>`;
     }).join("");
+    setupMediaFallbacks();
     animateProductCards();
+  }
+
+  function setupMediaFallbacks() {
+    $$("#productGrid .card__media > img").forEach((img) => {
+      const markMissing = () => {
+        img.classList.add("is-missing");
+        img.hidden = true;
+        img.closest(".card__media")?.classList.add("card__media--fallback");
+      };
+      img.addEventListener("error", markMissing, { once: true });
+      if (img.complete && img.naturalWidth === 0) markMissing();
+    });
+    $$("#productGrid .card__thumb img").forEach((img) => {
+      const markMissing = () => {
+        img.hidden = true;
+        img.closest(".card__thumb")?.classList.add("is-missing");
+      };
+      img.addEventListener("error", markMissing, { once: true });
+      if (img.complete && img.naturalWidth === 0) markMissing();
+    });
   }
 
   function animateProductCards() {

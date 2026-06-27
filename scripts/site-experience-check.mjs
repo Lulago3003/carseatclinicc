@@ -18,6 +18,12 @@ const checks = [
   ["quiz progress script", files.js.includes("function updateFinderProgress")],
   ["contextual whatsapp script", files.js.includes("function updateFloatingWhatsApp")],
   ["product stagger animation", files.js.includes("animateProductCards")],
+  ["product image helper", files.js.includes("function productImageList")],
+  ["product image fallback", files.js.includes("function setupMediaFallbacks") && files.css.includes(".card__fallback")],
+  ["premium card markup", files.js.includes("card__peek") && files.js.includes("card__thumbs") && files.js.includes("card__thumb")],
+  ["featured product card", files.js.includes("card--featured")],
+  ["premium card styles", files.css.includes(".card__peek") && files.css.includes(".card__thumbs")],
+  ["featured card styles", files.css.includes(".card--featured")],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);

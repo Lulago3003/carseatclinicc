@@ -13,6 +13,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 ## ✅ HECHO
 
 **Tienda**
+- [x] Tarjetas de producto premium: primera tarjeta destacada, miniaturas visibles, contador de fotos, respaldo visual y animaciones.
 - [x] Catálogo desde Supabase (29 productos del inventario real: nombre, marca, stock, categoría, descripción, características).
 - [x] Fotos reales alojadas en el repo (`assets/productos/`, rutas relativas) + galerías por producto.
 - [x] Categorías: recién nacidos, convertibles, 360°, combinadas, booster, accesorios, limpieza, gift cards.
