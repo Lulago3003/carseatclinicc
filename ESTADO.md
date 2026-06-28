@@ -26,7 +26,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 **Confianza / contenido**
 - [x] Hero con carrusel de fotos (rota cada 4s, clickeable).
 - [x] 3 pilares, Servicios, Recursos de seguridad, Testimonios (de ejemplo), Nosotros.
-- [x] "Ruta segura" con tarjetas profesionales: visuales con ícono SVG, número, microanimación y diseño 2x2 en desktop; fácil de mejorar luego con fotos reales si se decide.
+- [x] "Ruta segura" con tarjetas profesionales: visuales con ícono SVG, número, línea activa, destellos sutiles y microanimaciones dinámicas; diseño 2x2 en desktop y fácil de mejorar luego con fotos reales si se decide.
 - [x] Reserva de cita (por WhatsApp), Newsletter (footer + pop-up).
 - [x] Contacto + mapa + **QR de Waze** ("cómo llegar").
 

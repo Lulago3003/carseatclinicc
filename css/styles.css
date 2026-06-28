@@ -223,6 +223,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   border: 1px solid rgba(255,255,255,.6); border-radius: 18px; padding: 18px;
   display: grid; grid-template-columns: 76px 1fr; gap: 16px; align-items: start; overflow: hidden;
   box-shadow: 0 16px 34px rgba(0,0,0,.16); transition: transform .24s var(--ease-out-quint), box-shadow .24s var(--ease-out-quint);
+  will-change: transform;
 }
 .route-card:nth-child(even) { transform: translateY(26px); }
 .route-card:hover { transform: translateY(-4px); box-shadow: 0 20px 42px rgba(0,0,0,.22); }
@@ -239,37 +240,99 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   border: 1px solid rgba(47,62,52,.13); transform: rotate(-4deg);
   transition: transform .35s var(--ease-out-quint), border-color .35s ease;
 }
+.route-card__visual::after {
+  content: ""; position: absolute; inset: -42% -72%; z-index: 1; pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.38) 50%, transparent 62%);
+  opacity: .5; transform: translateX(-45%) rotate(8deg);
+  animation: routeVisualSweep 7.2s var(--ease-out-quint) infinite;
+}
 .route-card__num {
   position: absolute; left: 10px; top: 10px; z-index: 2; display: grid; place-items: center;
   width: 34px; height: 34px; border-radius: 50%; background: var(--brand);
   color: #fff; font-size: .72rem; font-weight: 800; font-variant-numeric: tabular-nums;
   box-shadow: 0 8px 16px rgba(47,62,52,.18); transition: transform .3s var(--ease-out-quint), background .3s;
+  animation: routeBadgePulse 6.4s ease-in-out infinite;
 }
 .route-card__icon {
   position: absolute; right: 12px; bottom: 12px; z-index: 2; display: grid; place-items: center;
   width: 48px; height: 48px; border-radius: 16px; color: var(--brand-dark);
   background: rgba(255,255,255,.82); box-shadow: 0 12px 24px rgba(47,62,52,.14);
-  animation: routeIconFloat 5.8s var(--ease-out-quint) infinite;
   transition: transform .32s var(--ease-out-quint), color .25s ease, background .25s ease;
 }
-.route-card__icon svg { width: 25px; height: 25px; }
+.route-card__icon svg {
+  width: 25px; height: 25px; transform-origin: center;
+  animation: routeIconFloat 5.8s var(--ease-out-quint) infinite;
+}
 .route-card__line {
-  position: absolute; left: 22px; bottom: 21px; width: 34px; height: 2px; border-radius: 999px;
-  background: var(--accent); transform-origin: left; transition: transform .32s var(--ease-out-quint);
+  position: absolute; left: 22px; bottom: 21px; z-index: 2; width: 38px; height: 3px; border-radius: 999px;
+  background: rgba(216,167,167,.55); transform-origin: left; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.34);
+  transition: transform .32s var(--ease-out-quint), background .25s ease;
+}
+.route-card__line::before {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 18px; border-radius: inherit;
+  background: linear-gradient(90deg, transparent, #fff, var(--accent-dark));
+  transform: translateX(-24px);
+  animation: routePathDash 2.9s var(--ease-out-quint) infinite;
+}
+.route-card__spark {
+  position: absolute; z-index: 2; display: block; width: 7px; height: 7px; border-radius: 999px;
+  background: var(--accent); box-shadow: 0 0 0 5px rgba(216,167,167,.16), 0 0 18px rgba(216,167,167,.55);
+  opacity: .72; pointer-events: none;
+  animation: routeSpark 4.6s ease-in-out infinite;
+}
+.route-card__spark--one { left: 16px; bottom: 42px; }
+.route-card__spark--two {
+  right: 18px; top: 17px; width: 5px; height: 5px; background: var(--sage);
+  box-shadow: 0 0 0 5px rgba(122,143,124,.14), 0 0 18px rgba(122,143,124,.44);
+  animation-delay: 1.1s;
 }
 .route-card:hover .route-card__visual::before { transform: rotate(0deg) scale(1.03); border-color: rgba(169,112,111,.35); }
+.route-card:hover .route-card__visual::after { animation-duration: 1.6s; opacity: .78; }
 .route-card:hover .route-card__num { background: var(--accent-dark); transform: scale(1.06); }
-.route-card:hover .route-card__icon { transform: translateY(-3px) rotate(-4deg); color: var(--accent-dark); background: #fff; }
-.route-card:hover .route-card__line { transform: scaleX(1.55); }
+.route-card:hover .route-card__icon { transform: translateY(-5px) rotate(-6deg) scale(1.04); color: var(--accent-dark); background: #fff; }
+.route-card:hover .route-card__icon svg { animation: routeGlyphWiggle .52s var(--ease-out-quint) both; }
+.route-card:hover .route-card__line { transform: scaleX(1.65); background: rgba(216,167,167,.82); }
+.route-card:hover .route-card__line::before { animation-duration: .9s; }
+.route-card:hover .route-card__spark { opacity: 1; animation-duration: 1.65s; }
 .route-card__body { align-self: center; }
 .route-card h3 { color: var(--brand-dark); font-size: 1rem; margin-bottom: 7px; }
 .route-card p { color: var(--muted); font-size: .86rem; line-height: 1.45; }
 /* barra de acento que aparece al pasar el cursor */
 .route-card::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--accent); border-radius: 18px 18px 0 0; transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease-out-quint); }
 .route-card:hover::after { transform: scaleX(1); }
+.route-card:nth-child(2) .route-card__icon svg, .route-card:nth-child(2) .route-card__num, .route-card:nth-child(2) .route-card__line::before, .route-card:nth-child(2) .route-card__spark { animation-delay: .35s; }
+.route-card:nth-child(3) .route-card__icon svg, .route-card:nth-child(3) .route-card__num, .route-card:nth-child(3) .route-card__line::before, .route-card:nth-child(3) .route-card__spark { animation-delay: .7s; }
+.route-card:nth-child(4) .route-card__icon svg, .route-card:nth-child(4) .route-card__num, .route-card:nth-child(4) .route-card__line::before, .route-card:nth-child(4) .route-card__spark { animation-delay: 1.05s; }
 @keyframes routeIconFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  45% { transform: translateY(-4px) rotate(-2deg); }
+  72% { transform: translateY(1px) rotate(1deg); }
+}
+@keyframes routeGlyphWiggle {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  45% { transform: translateY(-2px) rotate(-8deg) scale(1.08); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+@keyframes routeBadgePulse {
+  0%, 100% { box-shadow: 0 8px 16px rgba(47,62,52,.18), 0 0 0 0 rgba(216,167,167,0); }
+  48% { box-shadow: 0 9px 18px rgba(47,62,52,.19), 0 0 0 7px rgba(216,167,167,.18); }
+}
+@keyframes routePathDash {
+  0% { transform: translateX(-24px); opacity: 0; }
+  22% { opacity: 1; }
+  74% { opacity: 1; }
+  100% { transform: translateX(46px); opacity: 0; }
+}
+@keyframes routeSpark {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(.78); opacity: .52; }
+  42% { transform: translate3d(4px, -6px, 0) scale(1.1); opacity: .98; }
+  68% { transform: translate3d(-2px, 2px, 0) scale(.92); opacity: .7; }
+}
+@keyframes routeVisualSweep {
+  0%, 58% { transform: translateX(-45%) rotate(8deg); opacity: 0; }
+  72% { opacity: .5; }
+  100% { transform: translateX(45%) rotate(8deg); opacity: 0; }
 }
 
 /* ---------- Secciones ---------- */
@@ -963,6 +1026,7 @@ body.admin [hidden] { display: none !important; }
 /* ---------- Animaciones / alma ---------- */
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity .64s var(--ease-out-quint), transform .64s var(--ease-out-quint); transition-delay: var(--reveal-delay, 0ms); }
 .reveal.is-visible { opacity: 1; transform: none; }
+.route-card.reveal.is-visible:hover { transform: translateY(-4px); }
 .route-card.reveal.is-visible:nth-child(even) { transform: translateY(26px); }
 .route-card.reveal.is-visible:nth-child(even):hover { transform: translateY(18px); }
 
@@ -993,6 +1057,8 @@ body.admin [hidden] { display: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; }
   .grid .card, .hero__text > *, .hero__blob, .hero__card, .motion-float, .finder__result, .route-card__icon { animation: none !important; }
+  .route-card__icon, .route-card__num, .route-card__line::before, .route-card__spark, .route-card__icon svg, .route-card__visual::after { animation: none !important; }
+  .route-card, .route-card__icon, .route-card__num, .route-card__line, .route-card__visual::before { transition-duration: .01ms !important; }
   * { scroll-behavior: auto !important; }
 }
 
