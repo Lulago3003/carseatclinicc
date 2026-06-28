@@ -40,6 +40,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 
 **Asistente con IA (estructura)**
 - [x] Chat flotante en la web con asistente inteligente local: responde dudas comunes, pide datos si faltan y ofrece WhatsApp cuando hace falta asesor. (Guía: `CHATBOT.md`)
+- [x] Motor local en `js/chat-assistant.js`: entiende intención básica (silla ideal, precio, instalación/servicios, choque, saludo), orienta por edad/peso/estatura y no inventa precios.
+- [x] Interruptores del chat en `js/data.js` → `CONFIG.chat.iaActiva=false` y `CONFIG.chat.guardarConversaciones=false` mientras no estén activados Supabase Chat y la API key.
+- [x] Prueba automática del asistente: `scripts/chat-assistant-check.mjs`; el chequeo general `scripts/site-experience-check.mjs` ya valida que el chat inteligente esté conectado.
 - [x] Edge Function `asistente` (llama a Claude; clave secreta en Supabase).
 - [x] Pestaña "Conversaciones" en el CRM.
 
@@ -91,6 +94,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 ## 🛠️ Notas para quien continúe
 
 - **Todo lo editable** del negocio está en `js/data.js` (CONFIG, SERVICIOS, TESTIMONIOS, IMAGENES_CATEGORIA, pago, wazeUrl).
+- **Chat actual:** funciona con respuestas inteligentes locales aunque la IA externa no esté activa. Para activar IA real: correr `supabase-chat.sql`, desplegar `supabase/functions/asistente`, guardar `ANTHROPIC_API_KEY` en Supabase y cambiar `CONFIG.chat.iaActiva=true` / `guardarConversaciones=true`.
 - **Cambios de datos/tablas en Supabase** se entregan como `.sql` para que el dueño los pegue (la IA no puede ejecutarlos).
 - **Probar siempre en incógnito** (la caché del navegador es agresiva con el JS/CSS).
 - **Al terminar:** `git add . && git commit && git push` y **actualizar este archivo**.
