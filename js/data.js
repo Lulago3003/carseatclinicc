@@ -61,6 +61,14 @@ const CONFIG = {
     guardarConversaciones: false,
   },
 
+  /* --- CRM inteligente / agenda ---
+     Cambia guardarSolicitudes a true cuando corras supabase-crm-atencion.sql.
+     Mientras este en false, las citas y casos se guardan en este navegador
+     para probar el flujo sin errores de Supabase. */
+  crm: {
+    guardarSolicitudes: false,
+  },
+
   /* --- Administradores ---
      Cualquier persona que inicie sesión con uno de estos correos será
      administradora automáticamente (puede editar productos, stock y pedidos).

@@ -409,29 +409,35 @@
         <p>Agenda una asesoría, instalación, revisión, limpieza, alquiler o charla. Te confirmamos por WhatsApp.</p>
       </div>
       <form class="cita__form" id="citaForm">
+        <div class="cita__stage col-full">
+          <div>
+            <span class="eyebrow">Agenda inteligente</span>
+            <h3>Elige servicio, fecha y horario</h3>
+          </div>
+          <p>Guardamos la solicitud para el CRM y abrimos WhatsApp con todo el resumen listo.</p>
+        </div>
         <label>Tipo de servicio
-          <select name="servicio" required>
-            <option value="">Selecciona…</option>
-            <option>Asesoría de compra</option>
-            <option>Instalación</option>
-            <option>Revisión de instalación</option>
-            <option>Limpieza</option>
+          <select name="servicio" id="citaServicio" required>
+            <option value="">Selecciona...</option>
+            <option>Asesoria de compra</option>
+            <option>Instalacion profesional</option>
+            <option>Revision de seguridad</option>
+            <option>Limpieza y desinfeccion</option>
             <option>Alquiler</option>
-            <option>Charla o capacitación</option>
+            <option>Charla o capacitacion</option>
           </select>
         </label>
-        <label>Fecha <input type="date" name="fecha" required /></label>
-        <label>Hora preferida
-          <select name="hora">
-            <option>Mañana (9–12)</option>
-            <option>Tarde (12–4)</option>
-            <option>Final de tarde (4–6)</option>
-          </select>
-        </label>
+        <label>Fecha <input type="date" name="fecha" id="citaFecha" required /></label>
+        <label>Zona o domicilio <input name="zona" placeholder="Ej. Costa del Este" /></label>
+        <div class="appointment-slots col-full" id="appointmentSlots" aria-label="Horarios disponibles"></div>
+        <input type="hidden" name="hora" id="citaHora" required />
         <label>Nombre <input name="nombre" required placeholder="Tu nombre" /></label>
-        <label>Teléfono / WhatsApp <input name="telefono" required placeholder="6000-0000" /></label>
-        <label class="col-full">Comentarios <input name="comentarios" placeholder="Cuéntanos lo que necesitas (opcional)" /></label>
-        <button class="btn btn--primary btn--block col-full" type="submit">Confirmar cita por WhatsApp</button>
+        <label>Telefono / WhatsApp <input name="telefono" required placeholder="6000-0000" /></label>
+        <label>Modelo de silla <input name="modelo_silla" placeholder="Si lo sabes, ej. Graco 4Ever" /></label>
+        <label>Modelo de auto <input name="modelo_auto" placeholder="Ej. Toyota Rav4 2022" /></label>
+        <label class="col-full">Comentarios <input name="comentarios" placeholder="Edad, peso, estatura, choque, lavado o duda principal" /></label>
+        <div class="cita-summary col-full" id="citaSummary">Selecciona un servicio, fecha y horario para armar tu solicitud.</div>
+        <button class="btn btn--primary btn--block col-full" type="submit">Guardar y continuar por WhatsApp</button>
       </form>
     </div>
   </section>

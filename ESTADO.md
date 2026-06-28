@@ -38,10 +38,14 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] Dashboard (resumen), Productos (lista + editor con varias fotos, características, stock), buscador, filtros.
 - [x] Pedidos con estados (nuevo → pagado → listo para instalar…) y contacto por WhatsApp.
 - [x] Conversaciones del chat (ver abajo).
+- [x] Nueva pestaña **Agenda IA**: calendario de solicitudes, filtros por tipo/estado, tarjetas de casos, cambio de estado, resumen copiable y botón de WhatsApp.
+- [x] Captura de leads/casos en `crm_leads`: citas, reservas sugeridas, consultas de IA, revisión de silla, lavado, instalación y cotización. Funciona con Supabase si se corre `supabase-crm-atencion.sql` y se activa `CONFIG.crm.guardarSolicitudes=true`; mientras tanto usa `localStorage`.
 
 **Asistente con IA (estructura)**
 - [x] Chat flotante en la web con asistente inteligente local: responde dudas comunes, pide datos si faltan y ofrece WhatsApp cuando hace falta asesor. (Guía: `CHATBOT.md`)
-- [x] Motor local en `js/chat-assistant.js`: entiende intención básica (silla ideal, precio, instalación/servicios, choque, saludo), orienta por edad/peso/estatura y no inventa precios.
+- [x] Motor local en `js/chat-assistant.js`: entiende silla ideal, precio, instalación/servicios, choque, saludo, lavado, revisión de vencimiento/uso y reservas; orienta por edad/peso/estatura y no inventa precios.
+- [x] Acciones dentro del chat: reservar horario, guardar caso/consulta en CRM y continuar por WhatsApp cuando la IA tiene dudas o requiere asesor.
+- [x] Interruptor del CRM inteligente en `js/data.js` → `CONFIG.crm.guardarSolicitudes=false` mientras no esté corrida la tabla `crm_leads`.
 - [x] Interruptores del chat en `js/data.js` → `CONFIG.chat.iaActiva=false` y `CONFIG.chat.guardarConversaciones=false` mientras no estén activados Supabase Chat y la API key.
 - [x] Prueba automática del asistente: `scripts/chat-assistant-check.mjs`; el chequeo general `scripts/site-experience-check.mjs` ya valida que el chat inteligente esté conectado.
 - [x] Edge Function `asistente` (llama a Claude; clave secreta en Supabase).
@@ -63,7 +67,8 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 
 - [ ] **Correr SQL pendientes en Supabase** (pegar y Run):
       `supabase-inventario.sql` (deja las fotos en rutas relativas) y
-      `supabase-chat.sql` (tabla de conversaciones).
+      `supabase-chat.sql` (tabla de conversaciones) y
+      `supabase-crm-atencion.sql` (agenda/casos del CRM inteligente).
 - [ ] **Activar pago** (BAC/Tilopay): cuenta de comercio → `supabase secrets set …`
       → `supabase functions deploy crear-pago` → `CONFIG.pago.activo=true`. Ver `PAGOS.md`.
 - [ ] **Activar IA del chat**: API key de Anthropic → secret → `deploy asistente`. Ver `CHATBOT.md`.
@@ -85,7 +90,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 ## ⬜ MEJORAS opcionales (cuando haya tiempo)
 
 - [ ] Blog / más recursos de seguridad (contenido educativo).
-- [ ] Reserva de citas con calendario real (hoy es por WhatsApp).
+- [x] Reserva de citas con calendario visual y guardado en CRM/WhatsApp.
 - [ ] Categoría "Juguetes/Regalos" (hoy los kits están como "Accesorio").
 - [x] Pop-up del newsletter menos intrusivo (16s y no sale sobre ventanas abiertas). ✅
 - [ ] Feed de Instagram embebido.

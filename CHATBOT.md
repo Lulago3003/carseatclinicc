@@ -3,8 +3,9 @@
 El chat flotante de la web ya está puesto. Funciona en 3 niveles:
 
 1. **Ahora (sin configurar nada):** responde con un asistente inteligente local
-   para dudas comunes de silla, edad/peso/talla, instalación, servicios, precios
-   y choque. Si faltan datos, ofrece seguir por WhatsApp.
+   para dudas comunes de silla, edad/peso/talla, instalación, servicios, precios,
+   lavado, revisión de uso/vencimiento, reservas y choque. Si faltan datos,
+   ofrece guardar caso, reservar horario o seguir por WhatsApp.
 2. **CRM de conversaciones (cuando lo actives):** guarda las preguntas de los
    clientes para verlas en el panel.
 3. **IA externa (cuando la actives):** usa la Edge Function `asistente` con una
@@ -15,6 +16,20 @@ El chat flotante de la web ya está puesto. Funciona en 3 niveles:
 Pega [supabase-chat.sql](supabase-chat.sql) en Supabase → SQL Editor → **Run**.
 Listo: las preguntas empiezan a guardarse y aparecen en el panel, pestaña
 **"Conversaciones"**.
+
+Para guardar citas, casos de seguridad y consultas IA en la nueva pestaña
+**"Agenda IA"**, pega también
+[supabase-crm-atencion.sql](supabase-crm-atencion.sql) en Supabase → SQL Editor
+→ **Run**. Si no lo corres todavía, la web usa `localStorage` como respaldo para
+probar el flujo en este mismo navegador.
+
+Después de correr ese SQL, cambia en [js/data.js](js/data.js):
+
+```js
+crm: {
+  guardarSolicitudes: true,
+}
+```
 
 Después de correr el SQL, cambia en [js/data.js](js/data.js):
 
@@ -58,3 +73,8 @@ La personalidad del asistente se edita en
 Panel → pestaña **"Conversaciones"**: ves cada charla agrupada
 (*"el cliente preguntó X, el asistente respondió Y"*). Te sirve para captar
 consultas y mejorar la atención.
+
+Panel → pestaña **"Agenda IA"**: ves citas del calendario, reservas sugeridas por
+el chat, consultas que necesitan asesor, revisión de sillas, lavado y casos de
+choque. Desde cada tarjeta puedes cambiar estado, copiar resumen o escribir por
+WhatsApp.

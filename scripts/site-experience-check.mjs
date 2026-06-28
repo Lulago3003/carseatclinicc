@@ -20,6 +20,9 @@ const checks = [
   ["safe route reduced dynamic motion", files.css.includes(".route-card__icon, .route-card__num, .route-card__line::before, .route-card__spark")],
   ["safe route no large photos", !files.html.includes("route-card__photo") && !files.css.includes("routePhotoDrift")],
   ["quiz progress markup", files.html.includes('id="finderProgress"')],
+  ["appointment planner markup", files.html.includes('id="appointmentSlots"') && files.html.includes("cita__stage")],
+  ["appointment lead capture", files.js.includes("function selectedAppointmentSlot") && files.js.includes("guardarLead")],
+  ["chat advisor actions", files.js.includes("renderAdvisorActions") && files.css.includes(".chat__actions")],
   ["safety tips strip", files.html.includes('class="safety-strip"')],
   ["contextual whatsapp data", files.html.includes('data-whatsapp-label')],
   ["motion tokens", files.css.includes("--ease-out-expo")],
@@ -38,6 +41,7 @@ const checks = [
   ["smart chat fallback", files.js.includes("smartReply(text)") && files.js.includes("answerHtml")],
   ["smart chat quick actions", files.js.includes("quickActions") && files.css.includes(".chat__quick")],
   ["chat activation flags", files.data.includes("iaActiva") && files.data.includes("guardarConversaciones")],
+  ["crm lead activation flag", files.data.includes("guardarSolicitudes")],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);

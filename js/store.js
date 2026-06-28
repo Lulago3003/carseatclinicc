@@ -710,6 +710,106 @@
   }
 
   /* ---------- Newsletter / Afiliación ---------- */
+  const APPOINTMENT_SLOTS = [
+    ["09:00", "Mañana", "9:00 a.m."],
+    ["11:00", "Mañana", "11:00 a.m."],
+    ["14:00", "Tarde", "2:00 p.m."],
+    ["16:30", "Final de tarde", "4:30 p.m."],
+  ];
+
+  function selectedAppointmentSlot() {
+    return $("#citaHora") ? $("#citaHora").value : "";
+  }
+
+  function servicePriority(service) {
+    const s = String(service || "").toLowerCase();
+    if (/choque|revision|seguridad/.test(s)) return "alta";
+    if (/limpieza|instalacion/.test(s)) return "media";
+    return "normal";
+  }
+
+  function updateCitaSummary() {
+    const box = $("#citaSummary");
+    if (!box) return;
+    const service = $("#citaServicio")?.value || "servicio";
+    const date = $("#citaFecha")?.value || "";
+    const slot = selectedAppointmentSlot();
+    if (!date || !slot || !$("#citaServicio")?.value) {
+      box.textContent = "Selecciona un servicio, fecha y horario para armar tu solicitud.";
+      return;
+    }
+    const dateText = new Date(`${date}T12:00:00`).toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long" });
+    box.textContent = `${service} - ${dateText} a las ${slot}. El CRM guardara esta solicitud y WhatsApp llevara el resumen.`;
+  }
+
+  function renderAppointmentSlots() {
+    const slots = $("#appointmentSlots");
+    if (!slots) return;
+    slots.innerHTML = APPOINTMENT_SLOTS.map(([value, label, display]) => `
+      <button class="slot-btn" type="button" data-slot="${value}">
+        <strong>${display}</strong>
+        <span>${label}</span>
+      </button>`).join("");
+    slots.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-slot]");
+      if (!btn) return;
+      $("#citaHora").value = btn.getAttribute("data-slot");
+      $$(".slot-btn", slots).forEach((item) => item.classList.toggle("is-selected", item === btn));
+      updateCitaSummary();
+    });
+  }
+
+  function setupAppointmentPlanner() {
+    const date = $("#citaFecha");
+    if (date) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      date.min = tomorrow.toISOString().slice(0, 10);
+      date.addEventListener("change", updateCitaSummary);
+    }
+    $("#citaServicio")?.addEventListener("change", updateCitaSummary);
+    renderAppointmentSlots();
+    updateCitaSummary();
+  }
+
+  async function handleCita(e) {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(e.target).entries());
+    if (!selectedAppointmentSlot()) {
+      toast("Selecciona un horario disponible");
+      return;
+    }
+    await DB.guardarLead({
+      type: "cita",
+      source: "calendario-web",
+      status: "nuevo",
+      priority: servicePriority(d.servicio),
+      service: d.servicio,
+      name: d.nombre,
+      phone: d.telefono,
+      date: d.fecha,
+      slot: d.hora,
+      message: d.comentarios,
+      details: {
+        zona: d.zona || "",
+        modelo_silla: d.modelo_silla || "",
+        modelo_auto: d.modelo_auto || "",
+      },
+    });
+    let msg = `*Nueva solicitud de cita - Car Seat Clinic*%0A%0A`;
+    msg += `Servicio: ${d.servicio}%0AFecha: ${d.fecha}%0AHora: ${d.hora}%0ANombre: ${d.nombre}%0ATelefono: ${d.telefono}`;
+    if (d.zona) msg += `%0AZona: ${d.zona}`;
+    if (d.modelo_silla) msg += `%0AModelo de silla: ${d.modelo_silla}`;
+    if (d.modelo_auto) msg += `%0AModelo de auto: ${d.modelo_auto}`;
+    if (d.comentarios) msg += `%0AComentarios: ${d.comentarios}`;
+    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, "_blank");
+    toast("Solicitud guardada. Te confirmamos por WhatsApp");
+    e.target.reset();
+    $("#citaHora").value = "";
+    $$("#appointmentSlots .slot-btn").forEach((item) => item.classList.remove("is-selected"));
+    updateCitaSummary();
+  }
+
   async function handleNewsletter(form, origen) {
     const d = Object.fromEntries(new FormData(form).entries());
     if (DB.ready) { try { await DB.subscribe({ name: d.nombre || null, email: d.email, source: origen }); } catch (e) {} }
@@ -786,6 +886,76 @@
       if (!showWhatsapp) return safe;
       return `${safe}<br><a class="chat__wa" href="${waUrl(originalText)}" target="_blank" rel="noopener">Continuar por WhatsApp</a>`;
     }
+    function serviceOptionFor(reply) {
+      const service = reply?.capture?.service || "";
+      const normalized = service.toLowerCase();
+      if (/limpieza/.test(normalized)) return "Limpieza y desinfeccion";
+      if (/instalacion/.test(normalized)) return "Instalacion profesional";
+      if (/alquiler/.test(normalized)) return "Alquiler";
+      if (/asesoria|compra|cotizacion/.test(normalized)) return "Asesoria de compra";
+      return "Revision de seguridad";
+    }
+    async function saveAdvisorLead(reply, originalText, status = "nuevo") {
+      if (!reply || !reply.needsHuman) return;
+      await DB.guardarLead({
+        type: reply.action === "book" ? "cita-sugerida" : "consulta-ia",
+        source: "asistente-web",
+        status,
+        priority: reply.capture?.priority || (reply.intent === "crash" ? "urgente" : "media"),
+        service: reply.capture?.service || "Consulta IA",
+        message: originalText,
+        session_id: sid,
+        details: {
+          intent: reply.intent,
+          confidence: reply.confidence,
+          answer: reply.answer,
+        },
+      });
+    }
+    function prefillAppointment(reply, originalText) {
+      const service = serviceOptionFor(reply);
+      const serviceSelect = $("#citaServicio");
+      if (serviceSelect) {
+        serviceSelect.value = service;
+        serviceSelect.dispatchEvent(new Event("change"));
+      }
+      const comments = $("input[name='comentarios']");
+      if (comments && !comments.value) comments.value = originalText;
+      close();
+      document.getElementById("citas")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      toast("El calendario quedo preparado con tu solicitud");
+    }
+    function renderAdvisorActions(reply, originalText) {
+      if (!reply || !reply.needsHuman) return;
+      const wrap = document.createElement("div");
+      wrap.className = "chat__actions";
+      if (reply.action === "book") {
+        const book = document.createElement("button");
+        book.type = "button";
+        book.textContent = "Reservar horario";
+        book.addEventListener("click", () => {
+          saveAdvisorLead(reply, originalText, "esperando_reserva");
+          prefillAppointment(reply, originalText);
+        });
+        wrap.appendChild(book);
+      }
+      const save = document.createElement("button");
+      save.type = "button";
+      save.textContent = reply.action === "case" ? "Guardar caso" : "Guardar consulta";
+      save.addEventListener("click", async () => {
+        await saveAdvisorLead(reply, originalText, "nuevo");
+        toast("Consulta guardada en el CRM");
+      });
+      wrap.appendChild(save);
+      const wa = document.createElement("a");
+      wa.href = waUrl(originalText);
+      wa.target = "_blank";
+      wa.rel = "noopener";
+      wa.textContent = "WhatsApp";
+      wrap.appendChild(wa);
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
     function clearQuickActions() { $$(".chat__quick", msgs).forEach((el) => el.remove()); }
     function quickActions() {
       const wrap = document.createElement("div");
@@ -836,10 +1006,14 @@
         bubble("bot", answerHtml(answer, !!local.needsHuman, text), "chat__bubble--ai");
         history.push({ role: "assistant", content: answer });
         DB.guardarMensaje(sid, "asistente", answer);
+        saveAdvisorLead({ ...local, answer }, text);
+        renderAdvisorActions({ ...local, answer }, text);
       } else {
         bubble("bot", answerHtml(local.answer, !!local.needsHuman, text), "chat__bubble--smart");
         history.push({ role: "assistant", content: local.answer });
         DB.guardarMensaje(sid, "asistente", "[asistente local] " + local.answer);
+        saveAdvisorLead(local, text);
+        renderAdvisorActions(local, text);
       }
     });
   }
@@ -1033,6 +1207,7 @@
   renderServices();
   renderTestimonios();
   fillContact();
+  setupAppointmentPlanner();
   loadProducts();
   maybeShowPopup();
   updateFinderProgress();

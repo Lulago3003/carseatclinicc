@@ -32,6 +32,59 @@ const DB = (function () {
     return [];
   }
 
+  const LEADS_KEY = "csc_service_leads";
+  function readLocalLeads() {
+    try {
+      const rows = JSON.parse(localStorage.getItem(LEADS_KEY) || "[]");
+      return Array.isArray(rows) ? rows : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  function writeLocalLeads(rows) {
+    try { localStorage.setItem(LEADS_KEY, JSON.stringify(rows)); } catch (e) {}
+  }
+  function normalizeLead(row) {
+    const details = row.details || row.detalles || {};
+    return {
+      id: row.id || `lead_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      type: row.type || row.tipo || "consulta",
+      status: row.status || row.estado || "nuevo",
+      source: row.source || row.origen || "web",
+      priority: row.priority || row.prioridad || "media",
+      service: row.service || row.servicio || "Consulta general",
+      name: row.name || row.nombre || "",
+      phone: row.phone || row.telefono || "",
+      date: row.date || row.fecha || "",
+      slot: row.slot || row.horario || "",
+      message: row.message || row.mensaje || "",
+      details,
+      session_id: row.session_id || "",
+      created_at: row.created_at || new Date().toISOString(),
+      updated_at: row.updated_at || row.created_at || new Date().toISOString(),
+    };
+  }
+  function leadToRow(lead) {
+    const normalized = normalizeLead(lead);
+    return {
+      id: normalized.id,
+      tipo: normalized.type,
+      estado: normalized.status,
+      origen: normalized.source,
+      prioridad: normalized.priority,
+      servicio: normalized.service,
+      nombre: normalized.name || null,
+      telefono: normalized.phone || null,
+      fecha: normalized.date || null,
+      horario: normalized.slot || null,
+      mensaje: normalized.message || null,
+      detalles: normalized.details || {},
+      session_id: normalized.session_id || null,
+      created_at: normalized.created_at,
+      updated_at: new Date().toISOString(),
+    };
+  }
+
   // Normaliza una fila de la base de datos al formato que usa la tienda
   function normalize(row) {
     const imagenes = toArr(row.images);
@@ -110,6 +163,51 @@ const DB = (function () {
     if (!ready) return [];
     const { data, error } = await client.from("conversaciones").select("*").order("created_at", { ascending: true });
     if (error) throw error; return data || [];
+  }
+
+  /* ---------- CRM inteligente: citas, revisiones y consultas IA ---------- */
+  async function guardarLead(lead) {
+    const normalized = normalizeLead(lead);
+    const row = leadToRow(normalized);
+    if (ready && CONFIG.crm?.guardarSolicitudes) {
+      try {
+        const { error } = await client.from("crm_leads").insert(row);
+        if (!error) return normalized;
+      } catch (e) {}
+    }
+    const rows = readLocalLeads();
+    const existing = rows.findIndex((item) => item.id === normalized.id);
+    if (existing >= 0) rows[existing] = normalized;
+    else rows.unshift(normalized);
+    writeLocalLeads(rows.slice(0, 80));
+    return normalized;
+  }
+
+  async function getServiceLeads() {
+    const localRows = readLocalLeads().map(normalizeLead);
+    if (!ready || !CONFIG.crm?.guardarSolicitudes) return localRows;
+    try {
+      const { data, error } = await client.from("crm_leads").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      const remoteRows = (data || []).map(normalizeLead);
+      const seen = new Set(remoteRows.map((row) => row.id));
+      return remoteRows.concat(localRows.filter((row) => !seen.has(row.id)));
+    } catch (e) {
+      return localRows;
+    }
+  }
+
+  async function updateLeadStatus(id, status) {
+    const rows = readLocalLeads();
+    const item = rows.find((row) => row.id === id);
+    if (item) {
+      item.status = status;
+      item.updated_at = new Date().toISOString();
+      writeLocalLeads(rows);
+    }
+    if (ready && CONFIG.crm?.guardarSolicitudes) {
+      try { await client.from("crm_leads").update({ estado: status, updated_at: new Date().toISOString() }).eq("id", id); } catch (e) {}
+    }
   }
 
   // Inicia un pago con la pasarela del banco (vía Edge Function segura).
@@ -208,6 +306,7 @@ const DB = (function () {
     getProducts, getProductsAdmin, saveProduct, deleteProduct, uploadImage,
     placeOrder, getMyOrders, updateOrderStatus, crearPago,
     guardarMensaje, preguntarIA, getConversaciones,
+    guardarLead, getServiceLeads, updateLeadStatus,
     signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };
 })();

@@ -63,11 +63,12 @@
       <aside class="admin-sidebar" aria-label="Navegación del CRM">
         <span class="admin-sidebar__eyebrow">CRM</span>
         <h1>Centro de control</h1>
-        <p>Inventario, pedidos y alertas de tienda en un solo lugar.</p>
+        <p>Inventario, pedidos, agenda y consultas de la IA en un solo lugar.</p>
         <div class="admin__tabs" role="tablist" aria-label="Secciones del panel">
           <button class="tab is-active" data-tab="dashboard" type="button">Resumen</button>
           <button class="tab" data-tab="productos" type="button">Productos</button>
           <button class="tab" data-tab="pedidos" type="button">Pedidos</button>
+          <button class="tab" data-tab="agenda" type="button">Agenda IA</button>
           <button class="tab" data-tab="conversaciones" type="button">Conversaciones</button>
         </div>
       </aside>
@@ -108,6 +109,17 @@
                 <button class="link-btn" type="button" data-jump-tab="pedidos">Ver pedidos</button>
               </div>
               <div id="dashboardOrders" class="admin-mini-list"></div>
+            </section>
+
+            <section class="admin-panel admin-panel--wide">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Atencion inteligente</span>
+                  <h3>Agenda y casos por atender</h3>
+                </div>
+                <button class="link-btn" type="button" data-jump-tab="agenda">Ver agenda</button>
+              </div>
+              <div id="dashboardLeads" class="admin-mini-list admin-mini-list--grid"></div>
             </section>
 
             <section class="admin-panel admin-panel--wide">
@@ -189,6 +201,52 @@
             <p class="muted">Usa WhatsApp para dar seguimiento sin salir del panel.</p>
           </div>
           <div id="ordersList" class="admin__list"></div>
+        </div>
+
+        <!-- Agenda IA -->
+        <div id="tab-agenda" class="tab-panel" hidden>
+          <div class="admin__bar">
+            <div>
+              <span class="eyebrow">Atencion inteligente</span>
+              <h2>Agenda, casos y consultas IA</h2>
+            </div>
+          </div>
+          <div class="ai-intake">
+            <div>
+              <span class="eyebrow">Flujo recomendado</span>
+              <h3>IA orienta, CRM prioriza, asesor confirma</h3>
+            </div>
+            <p>Las solicitudes del calendario y del asistente llegan aqui para que puedas responder, reservar o marcar como completado.</p>
+          </div>
+          <div class="schedule-board" id="scheduleBoard"></div>
+          <div class="admin-filters admin-filters--leads" aria-label="Filtros de agenda">
+            <label>Buscar
+              <input class="admin__search" id="leadSearch" type="search" placeholder="Cliente, telefono, servicio o mensaje" />
+            </label>
+            <label>Tipo
+              <select id="leadTypeFilter">
+                <option value="all">Todos</option>
+                <option value="cita">Citas</option>
+                <option value="consulta-ia">Consultas IA</option>
+                <option value="cita-sugerida">Reservas sugeridas</option>
+              </select>
+            </label>
+            <label>Estado
+              <select id="leadStatusFilter">
+                <option value="all">Todos</option>
+                <option value="nuevo">Nuevo</option>
+                <option value="esperando_reserva">Esperando reserva</option>
+                <option value="contactado">Contactado</option>
+                <option value="reservado">Reservado</option>
+                <option value="completado">Completado</option>
+              </select>
+            </label>
+          </div>
+          <div class="admin-list-head">
+            <p class="muted" id="leadsCount">Cargando agenda...</p>
+            <p class="muted">Prioriza seguridad, lavado, revisiones y citas del dia.</p>
+          </div>
+          <div id="leadList" class="admin__list"></div>
         </div>
 
         <div id="tab-conversaciones" class="tab-panel" hidden>

@@ -26,11 +26,22 @@
   ];
   const catLabel = (c) => (CATS.find((x) => x[0] === c) || [c, c])[1];
 
+  const LEAD_ESTADOS = [
+    ["nuevo", "Nuevo"],
+    ["esperando_reserva", "Esperando reserva"],
+    ["contactado", "Contactado"],
+    ["reservado", "Reservado"],
+    ["completado", "Completado"],
+    ["cancelado", "Cancelado"],
+  ];
+  const leadStatusLabel = (status) => (LEAD_ESTADOS.find(([value]) => value === status) || LEAD_ESTADOS[0])[1];
+
   const LOCAL_KEY = "csc_local_admin";
   let localAdmin = sessionStorage.getItem(LOCAL_KEY) === "1";
 
   let products = [];          // cache para el panel
   let orders = [];
+  let serviceLeads = [];
   let ordersCount = 0;
   let editingId = null;
   let editorImages = [];
@@ -93,6 +104,7 @@
     setupCategoryFilter();
     await renderProducts();
     await renderOrders();
+    await renderServiceLeads();
     renderDashboard();
   }
 
@@ -132,10 +144,11 @@
   /* ---------- Pestañas ---------- */
   function activateTab(name) {
     $$(".tab").forEach((x) => x.classList.toggle("is-active", x.dataset.tab === name));
-    ["dashboard", "productos", "pedidos", "conversaciones"].forEach((tab) => {
+    ["dashboard", "productos", "pedidos", "agenda", "conversaciones"].forEach((tab) => {
       const panel = $(`#tab-${tab}`);
       if (panel) panel.hidden = tab !== name;
     });
+    if (name === "agenda") renderServiceLeads();
     if (name === "conversaciones") renderConversaciones();
   }
 
@@ -322,11 +335,14 @@
     const noPrice = products.filter((p) => !Number(p.precio));
     const openOrders = orders.filter(orderIsOpen);
     const newOrders = orders.filter((o) => (o.status || "nuevo") === "nuevo");
+    const openLeads = serviceLeads.filter(leadIsOpen);
+    const todayLeads = serviceLeads.filter(isLeadToday);
 
     const stats = $("#dashboardStats");
     if (stats) {
       stats.innerHTML = `
         <article class="dash-card dash-card--primary"><span>Pedidos abiertos</span><b>${openOrders.length}</b><small>${newOrders.length} nuevos por contactar</small></article>
+        <article class="dash-card dash-card--rose"><span>Agenda IA</span><b>${openLeads.length}</b><small>${todayLeads.length} para hoy</small></article>
         <article class="dash-card"><span>Productos activos</span><b>${products.filter((p) => p.activo).length}</b><small>${products.length} total en inventario</small></article>
         <article class="dash-card dash-card--warn"><span>Stock bajo</span><b>${low.length}</b><small>${out.length} agotados</small></article>
         <article class="dash-card dash-card--rose"><span>Revisar ficha</span><b>${noPhoto.length + noPrice.length}</b><small>${noPhoto.length} sin foto · ${noPrice.length} sin precio</small></article>`;
@@ -334,6 +350,7 @@
 
     renderAlerts();
     renderDashboardOrders();
+    renderDashboardLeads();
     renderDashboardStock([...out, ...low].slice(0, 8));
   }
 
@@ -373,6 +390,41 @@
     }).join("");
   }
 
+  function leadIsOpen(lead) {
+    return !["completado", "cancelado"].includes(lead.status || "nuevo");
+  }
+
+  function isLeadToday(lead) {
+    if (!lead.date) return false;
+    return lead.date === new Date().toISOString().slice(0, 10);
+  }
+
+  function leadDateLabel(lead) {
+    if (!lead.date) return "Sin fecha";
+    const date = new Date(`${lead.date}T12:00:00`);
+    return date.toLocaleDateString("es-PA", { day: "numeric", month: "short" });
+  }
+
+  function leadTimeLabel(lead) {
+    return lead.slot ? `${leadDateLabel(lead)} - ${lead.slot}` : leadDateLabel(lead);
+  }
+
+  function renderDashboardLeads() {
+    const target = $("#dashboardLeads");
+    if (!target) return;
+    const list = serviceLeads.filter(leadIsOpen).slice(0, 6);
+    if (!list.length) {
+      target.innerHTML = `<p class="muted empty-state">Aun no hay citas ni consultas IA pendientes.</p>`;
+      return;
+    }
+    target.innerHTML = list.map((lead) => `
+      <button class="mini-product" type="button" data-jump-tab="agenda">
+        <span>${esc(leadStatusLabel(lead.status))} · ${esc(lead.priority || "media")}</span>
+        <strong>${esc(lead.service || "Consulta IA")}</strong>
+        <small>${esc(lead.name || lead.phone || "Cliente sin datos")} · ${esc(leadTimeLabel(lead))}</small>
+      </button>`).join("");
+  }
+
   function renderDashboardStock(list) {
     const target = $("#dashboardStock");
     if (!target) return;
@@ -393,6 +445,7 @@
     if (!btn) return;
     openEditor(products.find((p) => p.id === btn.getAttribute("data-alert-edit")));
   });
+  $("#dashboardLeads")?.addEventListener("click", () => activateTab("agenda"));
   $("#dashboardStock").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-alert-edit]");
     if (!btn) return;
@@ -400,6 +453,140 @@
   });
 
   /* ---------- Ventana de edición ---------- */
+  /* ---------- Agenda IA / leads ---------- */
+  function getFilteredLeads() {
+    const q = ($("#leadSearch")?.value || "").toLowerCase().trim();
+    const type = $("#leadTypeFilter")?.value || "all";
+    const status = $("#leadStatusFilter")?.value || "all";
+    return serviceLeads.filter((lead) => {
+      const details = lead.details || {};
+      const haystack = [
+        lead.name, lead.phone, lead.service, lead.message, lead.source,
+        details.modelo_silla, details.modelo_auto, details.zona,
+      ].filter(Boolean).join(" ").toLowerCase();
+      return (type === "all" || lead.type === type)
+        && (status === "all" || (lead.status || "nuevo") === status)
+        && (!q || haystack.includes(q));
+    });
+  }
+
+  function leadSummary(lead) {
+    const details = lead.details || {};
+    return [
+      "Hola, te escribimos de Car Seat Clinic Center.",
+      `Servicio: ${lead.service || "Consulta"}`,
+      lead.date ? `Fecha: ${lead.date}` : "",
+      lead.slot ? `Hora: ${lead.slot}` : "",
+      details.modelo_silla ? `Silla: ${details.modelo_silla}` : "",
+      details.modelo_auto ? `Auto: ${details.modelo_auto}` : "",
+      details.zona ? `Zona: ${details.zona}` : "",
+      lead.message ? `Consulta: ${lead.message}` : "",
+    ].filter(Boolean).join("\n");
+  }
+
+  function leadWhatsappUrl(lead) {
+    const phone = normalizePhone(lead.phone);
+    if (!phone) return "";
+    return `https://wa.me/${phone}?text=${encodeURIComponent(leadSummary(lead))}`;
+  }
+
+  async function renderServiceLeads() {
+    try { serviceLeads = await DB.getServiceLeads(); }
+    catch (e) { serviceLeads = []; }
+    renderScheduleBoard();
+    renderLeadList();
+    renderDashboard();
+  }
+
+  function renderScheduleBoard() {
+    const target = $("#scheduleBoard");
+    if (!target) return;
+    const days = Array.from({ length: 4 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      const iso = date.toISOString().slice(0, 10);
+      const leads = serviceLeads
+        .filter((lead) => lead.date === iso && leadIsOpen(lead))
+        .sort((a, b) => String(a.slot || "").localeCompare(String(b.slot || "")));
+      return { date, iso, leads };
+    });
+    target.innerHTML = days.map(({ date, leads }) => `
+      <article class="schedule-day">
+        <strong>${date.toLocaleDateString("es-PA", { weekday: "short", day: "numeric" })}</strong>
+        <span>${date.toLocaleDateString("es-PA", { month: "long" })}</span>
+        ${leads.length ? leads.map((lead) => `<b class="schedule-pill schedule-pill--${esc(lead.priority || "media")}">${esc(lead.slot || "Sin hora")} · ${esc(lead.service || "Consulta")}</b>`).join("") : '<em class="muted">Sin reservas</em>'}
+      </article>`).join("");
+  }
+
+  function renderLeadList() {
+    const list = getFilteredLeads();
+    const count = $("#leadsCount");
+    if (count) count.textContent = `${list.length} de ${serviceLeads.length} solicitudes visibles con estos filtros.`;
+    const target = $("#leadList");
+    if (!target) return;
+    if (!list.length) {
+      target.innerHTML = `<p class="muted empty-state">No hay solicitudes con estos filtros.</p>`;
+      return;
+    }
+    target.innerHTML = list.map((lead) => {
+      const details = lead.details || {};
+      const wa = leadWhatsappUrl(lead);
+      const opts = LEAD_ESTADOS.map(([value, label]) => `<option value="${value}" ${lead.status === value ? "selected" : ""}>${label}</option>`).join("");
+      return `<div class="lead-card" data-lead="${esc(lead.id)}">
+        <div class="lead-card__top">
+          <div>
+            <span class="lead-priority lead-priority--${esc(lead.priority || "media")}">${esc(lead.priority || "media")}</span>
+            <span class="lead-status">${esc(leadStatusLabel(lead.status))}</span>
+            <strong>${esc(lead.name || lead.phone || "Cliente pendiente")}</strong>
+            <small>${esc(lead.service || "Consulta IA")} · ${esc(leadTimeLabel(lead))}</small>
+          </div>
+          <small>${esc(lead.source || "web")}</small>
+        </div>
+        <div class="lead-meta">
+          <span>Telefono: ${esc(lead.phone || "No registrado")}</span>
+          <span>Tipo: ${esc(lead.type || "consulta")}</span>
+          <span>Silla: ${esc(details.modelo_silla || "No indicada")}</span>
+          <span>Auto: ${esc(details.modelo_auto || "No indicado")}</span>
+          <span>Zona: ${esc(details.zona || "No indicada")}</span>
+          <span>Creado: ${esc(new Date(lead.created_at).toLocaleString("es-PA"))}</span>
+        </div>
+        ${lead.message ? `<p class="lead-message">${esc(lead.message)}</p>` : ""}
+        <div class="admin__card-actions">
+          <label class="inline">Estado <select data-lead-status>${opts}</select></label>
+          ${wa ? `<a class="btn btn--whatsapp btn--sm lead-whatsapp" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+          <button class="btn btn--ghost btn--sm" type="button" data-copy-lead="${esc(lead.id)}">Copiar resumen</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  $("#leadList")?.addEventListener("change", async (e) => {
+    if (!e.target.matches("[data-lead-status]")) return;
+    const card = e.target.closest("[data-lead]");
+    const lead = serviceLeads.find((item) => item.id === card.dataset.lead);
+    if (lead) lead.status = e.target.value;
+    await DB.updateLeadStatus(card.dataset.lead, e.target.value);
+    renderLeadList();
+    renderScheduleBoard();
+    renderDashboard();
+    toast("Solicitud actualizada");
+  });
+
+  $("#leadList")?.addEventListener("click", async (e) => {
+    const copy = e.target.closest("[data-copy-lead]");
+    if (!copy) return;
+    const lead = serviceLeads.find((item) => item.id === copy.getAttribute("data-copy-lead"));
+    if (!lead || !navigator.clipboard) { toast("No se pudo copiar"); return; }
+    try { await navigator.clipboard.writeText(leadSummary(lead)); toast("Resumen copiado"); }
+    catch (err) { toast("No se pudo copiar"); }
+  });
+
+  ["leadSearch", "leadTypeFilter", "leadStatusFilter"].forEach((id) => {
+    const el = $(`#${id}`);
+    if (el) el.addEventListener("input", renderLeadList);
+    if (el) el.addEventListener("change", renderLeadList);
+  });
+
   function openEditor(p) {
     editingId = p ? p.id : null;
     editorImages = p && Array.isArray(p.imagenes) ? p.imagenes.slice() : [];
