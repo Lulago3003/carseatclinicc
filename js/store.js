@@ -728,6 +728,56 @@
     return "normal";
   }
 
+  function isRentalService(service) {
+    return /alquiler|renta/.test(String(service || "").toLowerCase());
+  }
+
+  function rentalDays(start, end) {
+    if (!start || !end) return 0;
+    const from = new Date(`${start}T12:00:00`);
+    const to = new Date(`${end}T12:00:00`);
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || to < from) return 0;
+    return Math.ceil((to - from) / 86400000) + 1;
+  }
+
+  function rentalDetailsFromData(d) {
+    return {
+      rental_equipment: d.rental_equipment || "",
+      rental_end_date: d.rental_end_date || "",
+      rental_days: rentalDays(d.fecha, d.rental_end_date),
+      delivery_location: d.delivery_location || d.zona || "",
+      pickup_location: d.pickup_location || "",
+      pickup_time: d.pickup_time || "",
+      rental_child: d.rental_child || "",
+      rental_installation: d.rental_installation || "No",
+    };
+  }
+
+  function updateRentalPanel() {
+    const panel = $("#rentalPanel");
+    if (!panel) return;
+    const service = $("#citaServicio")?.value || "";
+    const isRental = isRentalService(service);
+    panel.hidden = !isRental;
+    const required = ["rentalEquipment", "rentalEndDate", "deliveryLocation", "pickupLocation", "rentalChild"];
+    required.forEach((id) => {
+      const field = $(`#${id}`);
+      if (field) field.required = isRental;
+    });
+    const start = $("#citaFecha")?.value || "";
+    const end = $("#rentalEndDate")?.value || "";
+    const endDate = $("#rentalEndDate");
+    if (endDate && start) endDate.min = start;
+    const days = rentalDays(start, end);
+    const kpi = $("#rentalKpi");
+    if (kpi) {
+      kpi.textContent = days
+        ? `${days} dia${days === 1 ? "" : "s"} de alquiler para confirmar disponibilidad`
+        : "Elige fecha de inicio y devolucion para calcular el periodo.";
+    }
+    updateCitaSummary();
+  }
+
   function updateCitaSummary() {
     const box = $("#citaSummary");
     if (!box) return;
@@ -739,6 +789,13 @@
       return;
     }
     const dateText = new Date(`${date}T12:00:00`).toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long" });
+    if (isRentalService(service)) {
+      const equipment = $("#rentalEquipment")?.value || "equipo";
+      const days = rentalDays(date, $("#rentalEndDate")?.value || "");
+      const period = days ? `por ${days} dia${days === 1 ? "" : "s"}` : "con fechas por confirmar";
+      box.textContent = `Alquiler de ${equipment} ${period}. Entrega el ${dateText} a las ${slot}. El CRM guardara entrega, recogida y datos del nino.`;
+      return;
+    }
     box.textContent = `${service} - ${dateText} a las ${slot}. El CRM guardara esta solicitud y WhatsApp llevara el resumen.`;
   }
 
@@ -765,11 +822,22 @@
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       date.min = tomorrow.toISOString().slice(0, 10);
-      date.addEventListener("change", updateCitaSummary);
+      date.addEventListener("change", updateRentalPanel);
     }
-    $("#citaServicio")?.addEventListener("change", updateCitaSummary);
+    $("#citaServicio")?.addEventListener("change", updateRentalPanel);
+    ["rentalEndDate", "rentalEquipment", "deliveryLocation", "pickupLocation", "pickupTime", "rentalChild"].forEach((id) => {
+      $(`#${id}`)?.addEventListener("input", updateRentalPanel);
+      $(`#${id}`)?.addEventListener("change", updateRentalPanel);
+    });
+    $$("[data-rental-cta]").forEach((cta) => cta.addEventListener("click", () => {
+      setTimeout(() => {
+        const serviceSelect = $("#citaServicio");
+        if (serviceSelect) serviceSelect.value = "Alquiler";
+        updateRentalPanel();
+      }, 0);
+    }));
     renderAppointmentSlots();
-    updateCitaSummary();
+    updateRentalPanel();
   }
 
   async function handleCita(e) {
@@ -779,11 +847,17 @@
       toast("Selecciona un horario disponible");
       return;
     }
+    const isRental = isRentalService(d.servicio);
+    const rentalDetails = rentalDetailsFromData(d);
+    if (isRental && (!rentalDetails.rental_equipment || !rentalDetails.rental_end_date || !rentalDetails.delivery_location || !rentalDetails.pickup_location || !rentalDetails.rental_child || !rentalDetails.rental_days)) {
+      toast("Completa equipo, fechas, entrega, recogida y datos del nino");
+      return;
+    }
     await DB.guardarLead({
-      type: "cita",
+      type: isRental ? "alquiler" : "cita",
       source: "calendario-web",
       status: "nuevo",
-      priority: servicePriority(d.servicio),
+      priority: isRental ? "alta" : servicePriority(d.servicio),
       service: d.servicio,
       name: d.nombre,
       phone: d.telefono,
@@ -794,11 +868,22 @@
         zona: d.zona || "",
         modelo_silla: d.modelo_silla || "",
         modelo_auto: d.modelo_auto || "",
+        ...(isRental ? rentalDetails : {}),
       },
     });
     let msg = `*Nueva solicitud de cita - Car Seat Clinic*%0A%0A`;
     msg += `Servicio: ${d.servicio}%0AFecha: ${d.fecha}%0AHora: ${d.hora}%0ANombre: ${d.nombre}%0ATelefono: ${d.telefono}`;
     if (d.zona) msg += `%0AZona: ${d.zona}`;
+    if (isRental) {
+      msg += `%0AEquipo: ${rentalDetails.rental_equipment}`;
+      msg += `%0ADevolucion: ${rentalDetails.rental_end_date}`;
+      msg += `%0ADias: ${rentalDetails.rental_days}`;
+      msg += `%0AEntrega: ${rentalDetails.delivery_location}`;
+      msg += `%0ARecogida: ${rentalDetails.pickup_location}`;
+      if (rentalDetails.pickup_time) msg += `%0AHora de recogida: ${rentalDetails.pickup_time}`;
+      msg += `%0AEdad/peso: ${rentalDetails.rental_child}`;
+      msg += `%0AInstalacion al entregar: ${rentalDetails.rental_installation}`;
+    }
     if (d.modelo_silla) msg += `%0AModelo de silla: ${d.modelo_silla}`;
     if (d.modelo_auto) msg += `%0AModelo de auto: ${d.modelo_auto}`;
     if (d.comentarios) msg += `%0AComentarios: ${d.comentarios}`;
@@ -807,7 +892,7 @@
     e.target.reset();
     $("#citaHora").value = "";
     $$("#appointmentSlots .slot-btn").forEach((item) => item.classList.remove("is-selected"));
-    updateCitaSummary();
+    updateRentalPanel();
   }
 
   async function handleNewsletter(form, origen) {

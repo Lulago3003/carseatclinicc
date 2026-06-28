@@ -47,7 +47,7 @@
     if (/\b(vencid|vence|vencimiento|caduc|expir|etiqueta|fabricante|segunda mano|usada|modelo de la silla)\b/.test(text)) return "seat-review";
     if (/\b(mi|la|esta|esa)\s+silla\b.*\b(puede|sirve|usar|uso|segura)\b/.test(text)) return "seat-review";
     if (/\b(precio|cuanto|cuesta|vale|cotizar|cotizacion|costo|pagar|tarjeta|yappy)\b/.test(text)) return "price";
-    if (/\b(instalar|instalacion|revisar|revision|chequeo|asesoria|alquiler|renta|servicio)\b/.test(text)) return "service";
+    if (/\b(instalar|instalacion|revisar|revision|chequeo|asesoria|alquiler|alquilar|alquilo|renta|rentar|servicio)\b/.test(text)) return "service";
     if (/\b(silla|car seat|asiento|booster|bebe|nino|nina|hijo|hija|peso|talla|estatura|edad|anos|meses|kg|libras)\b/.test(text)) return "seat-fit";
     return "unknown";
   }
@@ -155,10 +155,19 @@
   function serviceReply(raw) {
     const text = normalizeText(raw);
     const service = /\blimpiez|lavado|desinfectar\b/.test(text) ? "Limpieza y desinfeccion"
-      : /\balquiler|renta\b/.test(text) ? "Alquiler"
+      : /\balquiler|alquilar|alquilo|renta|rentar\b/.test(text) ? "Alquiler"
         : /\brevis|cheque\b/.test(text) ? "Revision de seguridad"
           : /\basesoria|elegir|compra\b/.test(text) ? "Asesoria de compra"
             : "Instalacion profesional";
+    if (service === "Alquiler") {
+      return withAdvisorMeta({
+        intent: "service",
+        confidence: 0.88,
+        action: "book",
+        capture: { service: "Alquiler", priority: "alta" },
+        answer: "Si, podemos ayudarte con alquiler para viaje. Para confirmar disponibilidad necesito equipo, fecha de entrega, fecha de devolucion, lugar de entrega, lugar de recogida, edad y peso del nino. Puedes reservarlo en el calendario y dejar todo listo, o continuar por WhatsApp si tienes dudas antes de agendar.",
+      });
+    }
     return withAdvisorMeta({
       intent: "service",
       confidence: 0.86,

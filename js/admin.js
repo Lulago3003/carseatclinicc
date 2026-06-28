@@ -463,11 +463,51 @@
       const haystack = [
         lead.name, lead.phone, lead.service, lead.message, lead.source,
         details.modelo_silla, details.modelo_auto, details.zona,
+        details.rental_equipment, details.delivery_location, details.pickup_location, details.rental_child,
       ].filter(Boolean).join(" ").toLowerCase();
       return (type === "all" || lead.type === type)
         && (status === "all" || (lead.status || "nuevo") === status)
         && (!q || haystack.includes(q));
     });
+  }
+
+  function isRentalLead(lead) {
+    const details = lead.details || {};
+    return lead.type === "alquiler" || /alquiler|renta/i.test(lead.service || "") || !!details.rental_equipment;
+  }
+
+  function rentalSummary(lead) {
+    if (!isRentalLead(lead)) return "";
+    const details = lead.details || {};
+    return [
+      details.rental_equipment ? `Equipo: ${details.rental_equipment}` : "",
+      details.rental_end_date ? `Devolucion: ${details.rental_end_date}` : "",
+      details.rental_days ? `Dias: ${details.rental_days}` : "",
+      details.delivery_location ? `Entrega: ${details.delivery_location}` : "",
+      details.pickup_location ? `Recogida: ${details.pickup_location}` : "",
+      details.pickup_time ? `Hora recogida: ${details.pickup_time}` : "",
+      details.rental_child ? `Edad/peso: ${details.rental_child}` : "",
+      details.rental_installation ? `Instalacion: ${details.rental_installation}` : "",
+    ].filter(Boolean).join("\n");
+  }
+
+  function rentalCardHtml(lead) {
+    if (!isRentalLead(lead)) return "";
+    const details = lead.details || {};
+    const days = details.rental_days || "-";
+    return `<div class="lead-rental__box">
+      <div class="rental-kpi">
+        <span><b>${esc(days)}</b>dias</span>
+        <span><b>${esc(details.rental_equipment || "Equipo")}</b>solicitud</span>
+        <span><b>${esc(details.rental_installation || "No")}</b>instalacion</span>
+      </div>
+      <div class="lead-rental__grid">
+        <span>Entrega: ${esc(details.delivery_location || details.zona || "No indicada")}</span>
+        <span>Devolucion: ${esc(details.rental_end_date || "No indicada")}</span>
+        <span>Recogida: ${esc(details.pickup_location || "No indicada")}</span>
+        <span>Edad/peso: ${esc(details.rental_child || "No indicado")}</span>
+      </div>
+    </div>`;
   }
 
   function leadSummary(lead) {
@@ -480,6 +520,7 @@
       details.modelo_silla ? `Silla: ${details.modelo_silla}` : "",
       details.modelo_auto ? `Auto: ${details.modelo_auto}` : "",
       details.zona ? `Zona: ${details.zona}` : "",
+      rentalSummary(lead),
       lead.message ? `Consulta: ${lead.message}` : "",
     ].filter(Boolean).join("\n");
   }
@@ -514,7 +555,13 @@
       <article class="schedule-day">
         <strong>${date.toLocaleDateString("es-PA", { weekday: "short", day: "numeric" })}</strong>
         <span>${date.toLocaleDateString("es-PA", { month: "long" })}</span>
-        ${leads.length ? leads.map((lead) => `<b class="schedule-pill schedule-pill--${esc(lead.priority || "media")}">${esc(lead.slot || "Sin hora")} · ${esc(lead.service || "Consulta")}</b>`).join("") : '<em class="muted">Sin reservas</em>'}
+        ${leads.length ? leads.map((lead) => {
+          const rental = isRentalLead(lead);
+          const details = lead.details || {};
+          const label = rental ? `Alquiler ${details.rental_equipment || ""}` : (lead.service || "Consulta");
+          const cls = rental ? " schedule-pill--rental" : "";
+          return `<b class="schedule-pill schedule-pill--${esc(lead.priority || "media")}${cls}">${esc(lead.slot || "Sin hora")} - ${esc(label)}</b>`;
+        }).join("") : '<em class="muted">Sin reservas</em>'}
       </article>`).join("");
   }
 
@@ -530,13 +577,15 @@
     }
     target.innerHTML = list.map((lead) => {
       const details = lead.details || {};
+      const rental = isRentalLead(lead);
       const wa = leadWhatsappUrl(lead);
       const opts = LEAD_ESTADOS.map(([value, label]) => `<option value="${value}" ${lead.status === value ? "selected" : ""}>${label}</option>`).join("");
-      return `<div class="lead-card" data-lead="${esc(lead.id)}">
+      return `<div class="lead-card ${rental ? "lead-rental" : ""}" data-lead="${esc(lead.id)}">
         <div class="lead-card__top">
           <div>
             <span class="lead-priority lead-priority--${esc(lead.priority || "media")}">${esc(lead.priority || "media")}</span>
             <span class="lead-status">${esc(leadStatusLabel(lead.status))}</span>
+            ${rental ? '<span class="lead-rental__badge">Alquiler</span>' : ""}
             <strong>${esc(lead.name || lead.phone || "Cliente pendiente")}</strong>
             <small>${esc(lead.service || "Consulta IA")} · ${esc(leadTimeLabel(lead))}</small>
           </div>
@@ -550,6 +599,7 @@
           <span>Zona: ${esc(details.zona || "No indicada")}</span>
           <span>Creado: ${esc(new Date(lead.created_at).toLocaleString("es-PA"))}</span>
         </div>
+        ${rentalCardHtml(lead)}
         ${lead.message ? `<p class="lead-message">${esc(lead.message)}</p>` : ""}
         <div class="admin__card-actions">
           <label class="inline">Estado <select data-lead-status>${opts}</select></label>

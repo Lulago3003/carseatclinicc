@@ -4,8 +4,8 @@ El chat flotante de la web ya está puesto. Funciona en 3 niveles:
 
 1. **Ahora (sin configurar nada):** responde con un asistente inteligente local
    para dudas comunes de silla, edad/peso/talla, instalación, servicios, precios,
-   lavado, revisión de uso/vencimiento, reservas y choque. Si faltan datos,
-   ofrece guardar caso, reservar horario o seguir por WhatsApp.
+   lavado, revisión de uso/vencimiento, alquiler por fechas, reservas y choque.
+   Si faltan datos, ofrece guardar caso, reservar horario o seguir por WhatsApp.
 2. **CRM de conversaciones (cuando lo actives):** guarda las preguntas de los
    clientes para verlas en el panel.
 3. **IA externa (cuando la actives):** usa la Edge Function `asistente` con una
@@ -78,3 +78,8 @@ Panel → pestaña **"Agenda IA"**: ves citas del calendario, reservas sugeridas
 el chat, consultas que necesitan asesor, revisión de sillas, lavado y casos de
 choque. Desde cada tarjeta puedes cambiar estado, copiar resumen o escribir por
 WhatsApp.
+
+Para **alquileres**, el calendario pide equipo, fecha de entrega, fecha de
+devolucion, lugar de entrega, lugar de recogida, edad/peso del nino y si necesita
+instalacion. En el CRM aparece como tipo `alquiler`, con badge propio y resumen
+listo para WhatsApp.

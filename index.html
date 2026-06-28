@@ -401,6 +401,27 @@
     </div>
   </section>
 
+  <!-- ===================== ALQUILER PARA VIAJES ===================== -->
+  <section class="rental-showcase" id="alquiler-viajes" data-whatsapp-label="Alquiler para viajes" data-whatsapp-message="Hola Car Seat Clinic, quiero alquilar equipo para mi viaje.">
+    <div class="container rental-showcase__inner">
+      <div class="rental-showcase__media" aria-hidden="true">
+        <img src="assets/hero/servicios.jpg" alt="" loading="lazy" />
+        <span class="rental-showcase__badge">Reserva por fechas</span>
+      </div>
+      <div class="rental-showcase__content">
+        <span class="eyebrow">Alquiler para viajes</span>
+        <h2>Equipo seguro listo cuando llegas a Panama.</h2>
+        <p>Reserva silla, coche o corral por rango de fechas. Coordinamos entrega, recogida y una revision de ajuste antes de usar.</p>
+        <div class="rental-showcase__steps" aria-label="Pasos para alquilar">
+          <span><b>1</b> Elige equipo</span>
+          <span><b>2</b> Define fechas</span>
+          <span><b>3</b> Entrega y recogida</span>
+        </div>
+        <a href="#citas" class="btn btn--primary" data-rental-cta>Reservar alquiler</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== RESERVA TU CITA ===================== -->
   <section class="section" id="citas" data-whatsapp-label="Reservar cita" data-whatsapp-message="Hola Car Seat Clinic, quiero reservar una cita.">
     <div class="container">
@@ -429,6 +450,45 @@
         </label>
         <label>Fecha <input type="date" name="fecha" id="citaFecha" required /></label>
         <label>Zona o domicilio <input name="zona" placeholder="Ej. Costa del Este" /></label>
+        <div class="rental-panel col-full" id="rentalPanel" hidden>
+          <div class="rental-panel__head">
+            <div>
+              <span class="eyebrow">Plan de alquiler</span>
+              <h3>Fechas, entrega y recogida</h3>
+            </div>
+            <p>Completa estos datos para que el asesor confirme disponibilidad y logistica por WhatsApp.</p>
+          </div>
+          <div class="rental-panel__grid">
+            <label>Equipo a alquilar
+              <select name="rental_equipment" id="rentalEquipment">
+                <option value="">Selecciona equipo</option>
+                <option>Silla de carro</option>
+                <option>Booster</option>
+                <option>Coche / stroller</option>
+                <option>Corral / pack n play</option>
+                <option>Varios equipos</option>
+              </select>
+            </label>
+            <label>Fecha de devolucion <input type="date" name="rental_end_date" id="rentalEndDate" /></label>
+            <label>Lugar de entrega <input name="delivery_location" id="deliveryLocation" placeholder="Aeropuerto, hotel o domicilio" /></label>
+            <label>Lugar de recogida <input name="pickup_location" id="pickupLocation" placeholder="Puede ser distinto a la entrega" /></label>
+            <label>Hora de recogida
+              <select name="pickup_time" id="pickupTime">
+                <option value="">Por confirmar</option>
+                <option>8:00 a.m. - 10:00 a.m.</option>
+                <option>10:00 a.m. - 12:00 p.m.</option>
+                <option>2:00 p.m. - 4:00 p.m.</option>
+                <option>4:00 p.m. - 6:00 p.m.</option>
+              </select>
+            </label>
+            <label>Edad y peso del nino <input name="rental_child" id="rentalChild" placeholder="Ej. 2 anos, 13 kg" /></label>
+            <label class="check rental-panel__install">
+              <input type="checkbox" name="rental_installation" value="Si" />
+              Necesito instalacion o revision al entregar
+            </label>
+            <div class="rental-kpi" id="rentalKpi">Elige fecha de inicio y devolucion para calcular el periodo.</div>
+          </div>
+        </div>
         <div class="appointment-slots col-full" id="appointmentSlots" aria-label="Horarios disponibles"></div>
         <input type="hidden" name="hora" id="citaHora" required />
         <label>Nombre <input name="nombre" required placeholder="Tu nombre" /></label>

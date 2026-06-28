@@ -29,6 +29,14 @@ assert.match(serviceReply.answer, /instalaci[oó]n|revisi[oó]n/i);
 assert.equal(serviceReply.action, "book");
 assert.ok(serviceReply.capture?.service);
 
+const rentalReply = reply("Necesito alquilar una silla para 8 dias en Panama");
+assert.equal(rentalReply.intent, "service");
+assert.equal(rentalReply.needsHuman, true);
+assert.equal(rentalReply.action, "book");
+assert.match(rentalReply.answer, /alquiler|reservar|calendario/i);
+assert.match(rentalReply.answer, /entrega|devoluci[oÃ³]n|recogida/i);
+assert.match(rentalReply.capture?.service || "", /Alquiler/i);
+
 const washReply = reply("Puedo lavar las correas de la silla con jabon?");
 assert.equal(washReply.intent, "cleaning");
 assert.equal(washReply.needsHuman, true);

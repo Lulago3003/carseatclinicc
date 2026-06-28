@@ -581,6 +581,56 @@ input:focus, textarea:focus { outline: none; border-color: var(--brand); }
 select { width: 100%; margin-top: 7px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 16px; background: #fff; color: var(--ink); }
 select:focus { outline: none; border-color: var(--brand); }
 
+/* ---------- Alquiler para viajes ---------- */
+.rental-showcase {
+  background: linear-gradient(180deg, #fff 0%, var(--bg-alt) 100%);
+  padding: 68px 0;
+  overflow: hidden;
+}
+.rental-showcase__inner {
+  display: grid; grid-template-columns: minmax(280px, .92fr) minmax(320px, 1fr);
+  gap: clamp(26px, 5vw, 58px); align-items: center;
+}
+.rental-showcase__media {
+  position: relative; min-height: 360px; border-radius: 24px; overflow: hidden;
+  background: var(--brand-soft); box-shadow: var(--shadow-lg);
+}
+.rental-showcase__media::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(47,62,52,0) 42%, rgba(47,62,52,.52) 100%);
+  pointer-events: none;
+}
+.rental-showcase__media img {
+  width: 100%; height: 100%; min-height: 360px; object-fit: cover;
+  transform: scale(1.04); animation: rentalPhotoDrift 14s ease-in-out infinite alternate;
+}
+.rental-showcase__badge {
+  position: absolute; left: 18px; bottom: 18px; z-index: 1; padding: 9px 13px; border-radius: 999px;
+  background: rgba(255,255,255,.92); color: var(--brand-dark); font-size: .78rem; font-weight: 800;
+  box-shadow: var(--shadow-sm);
+}
+.rental-showcase__content h2 {
+  max-width: 12em; font-size: clamp(2rem, 4.2vw, 3.4rem); color: var(--brand-dark);
+  margin-bottom: 14px;
+}
+.rental-showcase__content p { max-width: 40em; color: var(--muted); margin-bottom: 18px; }
+.rental-showcase__steps {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 22px 0;
+}
+.rental-showcase__steps span {
+  display: flex; align-items: center; gap: 9px; min-height: 62px; padding: 12px;
+  border: 1px solid var(--line); border-radius: 16px; background: #fff; color: var(--brand-dark);
+  font-weight: 700; box-shadow: var(--shadow-sm);
+}
+.rental-showcase__steps b {
+  display: grid; place-items: center; width: 28px; height: 28px; flex: 0 0 28px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: .82rem;
+}
+@keyframes rentalPhotoDrift {
+  from { transform: scale(1.04) translate3d(0, 0, 0); }
+  to { transform: scale(1.12) translate3d(-14px, -10px, 0); }
+}
+
 /* ---------- Reserva tu cita ---------- */
 .cita__form {
   max-width: 920px; margin: 0 auto; background: #fff; border: 1px solid var(--line);
@@ -612,13 +662,48 @@ select:focus { outline: none; border-color: var(--brand); }
 .slot-btn strong, .slot-btn span { display: block; }
 .slot-btn strong { font-size: .95rem; }
 .slot-btn span { color: inherit; opacity: .78; font-size: .76rem; margin-top: 2px; }
+.rental-panel {
+  padding: 18px; border: 1px solid rgba(122,143,124,.28); border-radius: 20px;
+  background: linear-gradient(135deg, #fbfaf7 0%, #eef4ee 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+}
+.rental-panel[hidden] { display: none; }
+.rental-panel__head {
+  display: flex; justify-content: space-between; align-items: flex-end; gap: 18px; margin-bottom: 14px;
+}
+.rental-panel__head h3 { color: var(--brand-dark); font-size: 1.08rem; margin-top: 2px; }
+.rental-panel__head p { color: var(--muted); font-size: .86rem; max-width: 34em; margin: 0; }
+.rental-panel__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.rental-panel__grid label { margin-bottom: 0; }
+.rental-panel__install {
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--brand-dark);
+}
+.rental-panel__install input { width: auto; margin: 0; accent-color: var(--brand); }
+.rental-kpi {
+  display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 14px;
+  border-radius: 14px; background: var(--brand); color: #fff; font-weight: 800; text-align: center;
+}
 .cita-summary {
   min-height: 48px; padding: 13px 15px; border: 1px dashed var(--line); border-radius: 14px;
   background: var(--bg-alt); color: var(--muted); font-size: .9rem;
 }
 @media (max-width: 720px) { .cita__form { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 720px) { .appointment-slots { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cita__stage { align-items: flex-start; flex-direction: column; } }
-@media (max-width: 460px) { .cita__form { grid-template-columns: 1fr; padding: 20px; } .appointment-slots { grid-template-columns: 1fr; } }
+@media (max-width: 860px) {
+  .rental-showcase__inner { grid-template-columns: 1fr; }
+  .rental-showcase__media, .rental-showcase__media img { min-height: 300px; }
+}
+@media (max-width: 720px) {
+  .appointment-slots, .rental-panel__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cita__stage, .rental-panel__head { align-items: flex-start; flex-direction: column; }
+  .rental-showcase__steps { grid-template-columns: 1fr; }
+}
+@media (max-width: 460px) {
+  .cita__form { grid-template-columns: 1fr; padding: 20px; }
+  .appointment-slots, .rental-panel__grid { grid-template-columns: 1fr; }
+  .rental-showcase { padding: 48px 0; }
+  .rental-showcase__media, .rental-showcase__media img { min-height: 240px; }
+}
 
 /* ---------- Newsletter (footer) ---------- */
 .newsletter { display: flex; align-items: center; justify-content: space-between; gap: 26px; padding-bottom: 30px; margin-bottom: 26px; border-bottom: 1px solid rgba(255,255,255,.14); flex-wrap: wrap; }
@@ -953,6 +1038,7 @@ body.admin [hidden] { display: none !important; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .schedule-pill--urgent { background: var(--rose-soft); color: var(--accent-dark); }
+.schedule-pill--rental { background: #fff1e3; color: #8a5d25; border: 1px solid #eed5b5; }
 .lead-card {
   background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: var(--shadow-sm);
 }
@@ -971,7 +1057,36 @@ body.admin [hidden] { display: none !important; }
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; color: var(--muted); font-size: .86rem;
   padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
 }
+.lead-rental {
+  border-color: #efd3b1;
+  background: linear-gradient(180deg, #fff 0%, #fff9f1 100%);
+}
+.lead-rental__badge {
+  display: inline-flex; align-items: center; min-height: 24px; margin-left: 6px; padding: 0 9px;
+  border-radius: 999px; background: #fff1e3; color: #8a5d25; font-size: .7rem; font-weight: 800;
+}
+.lead-rental__box {
+  margin: 12px 0 0; padding: 12px; border: 1px solid #efd3b1; border-radius: 14px; background: rgba(255,255,255,.78);
+}
+.lead-rental .rental-kpi {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-height: 0; padding: 0;
+  background: transparent; color: var(--brand-dark); text-align: left;
+}
+.lead-rental .rental-kpi span {
+  display: block; padding: 10px; border-radius: 12px; background: var(--surface-warm);
+  color: var(--muted); font-size: .72rem; font-weight: 700;
+}
+.lead-rental .rental-kpi b {
+  display: block; color: var(--brand-dark); font-size: .92rem; overflow-wrap: anywhere;
+}
+.lead-rental__grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; margin-top: 10px;
+  color: var(--muted); font-size: .84rem;
+}
 .lead-message { color: var(--ink); font-size: .9rem; margin-top: 12px; overflow-wrap: anywhere; }
+@media (max-width: 620px) {
+  .lead-rental .rental-kpi, .lead-rental__grid { grid-template-columns: 1fr; }
+}
 
 /* ---------- CRM: pedidos ---------- */
 .order-card {
@@ -1131,7 +1246,7 @@ body.admin [hidden] { display: none !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; }
-  .grid .card, .hero__text > *, .hero__blob, .hero__card, .motion-float, .finder__result, .route-card__icon { animation: none !important; }
+  .grid .card, .hero__text > *, .hero__blob, .hero__card, .motion-float, .finder__result, .route-card__icon, .rental-showcase__media img { animation: none !important; }
   .route-card__icon, .route-card__num, .route-card__line::before, .route-card__spark, .route-card__icon svg, .route-card__visual::after { animation: none !important; }
   .route-card, .route-card__icon, .route-card__num, .route-card__line, .route-card__visual::before { transition-duration: .01ms !important; }
   * { scroll-behavior: auto !important; }

@@ -28,6 +28,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] 3 pilares, Servicios, Recursos de seguridad, Testimonios (de ejemplo), Nosotros.
 - [x] "Ruta segura" con tarjetas profesionales: visuales con ícono SVG, número, línea activa, destellos sutiles y microanimaciones dinámicas; diseño 2x2 en desktop y fácil de mejorar luego con fotos reales si se decide.
 - [x] Reserva de cita (por WhatsApp), Newsletter (footer + pop-up).
+- [x] Seccion **Alquiler para viajes** inspirada en flujo tipo reserva: imagen real, pasos, CTA y formulario con equipo, fecha de entrega, devolucion, entrega, recogida, edad/peso e instalacion opcional.
 - [x] Contacto + mapa + **QR de Waze** ("cómo llegar").
 
 **Cuenta / auth**
@@ -40,10 +41,12 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] Conversaciones del chat (ver abajo).
 - [x] Nueva pestaña **Agenda IA**: calendario de solicitudes, filtros por tipo/estado, tarjetas de casos, cambio de estado, resumen copiable y botón de WhatsApp.
 - [x] Captura de leads/casos en `crm_leads`: citas, reservas sugeridas, consultas de IA, revisión de silla, lavado, instalación y cotización. Funciona con Supabase si se corre `supabase-crm-atencion.sql` y se activa `CONFIG.crm.guardarSolicitudes=true`; mientras tanto usa `localStorage`.
+- [x] CRM reconoce solicitudes de **alquiler** como tipo propio: badge, dias, equipo, entrega, devolucion, recogida, edad/peso y resumen listo para WhatsApp.
 
 **Asistente con IA (estructura)**
 - [x] Chat flotante en la web con asistente inteligente local: responde dudas comunes, pide datos si faltan y ofrece WhatsApp cuando hace falta asesor. (Guía: `CHATBOT.md`)
 - [x] Motor local en `js/chat-assistant.js`: entiende silla ideal, precio, instalación/servicios, choque, saludo, lavado, revisión de vencimiento/uso y reservas; orienta por edad/peso/estatura y no inventa precios.
+- [x] El asistente entiende alquiler/renta y pide datos de reserva: equipo, fechas, entrega, recogida, edad/peso y si necesita instalacion.
 - [x] Acciones dentro del chat: reservar horario, guardar caso/consulta en CRM y continuar por WhatsApp cuando la IA tiene dudas o requiere asesor.
 - [x] Interruptor del CRM inteligente en `js/data.js` → `CONFIG.crm.guardarSolicitudes=false` mientras no esté corrida la tabla `crm_leads`.
 - [x] Interruptores del chat en `js/data.js` → `CONFIG.chat.iaActiva=false` y `CONFIG.chat.guardarConversaciones=false` mientras no estén activados Supabase Chat y la API key.

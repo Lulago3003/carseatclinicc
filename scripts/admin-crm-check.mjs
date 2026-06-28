@@ -19,6 +19,8 @@ const checks = [
   ["whatsapp order action", files.js.includes("wa.me") && files.js.includes("order-whatsapp")],
   ["lead renderer", files.js.includes("function renderServiceLeads") && files.js.includes("lead-whatsapp")],
   ["calendar board", files.js.includes("function renderScheduleBoard") && files.css.includes(".schedule-board")],
+  ["rental crm rendering", files.js.includes("function rentalSummary") && files.js.includes("lead-rental")],
+  ["rental crm styles", files.css.includes(".lead-rental") && files.css.includes(".rental-kpi")],
   ["dashboard styles", files.css.includes(".admin-dashboard")],
   ["crm shell styles", files.css.includes(".admin-shell")],
   ["lead card styles", files.css.includes(".lead-card") && files.css.includes(".ai-intake")],
