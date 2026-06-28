@@ -11,9 +11,9 @@ const files = {
 const checks = [
   ["scroll progress markup", files.html.includes('id="scrollProgress"')],
   ["safe route section", files.html.includes('id="ruta-segura"')],
-  ["safe route photo cards", files.html.includes("route-card__photo") && files.html.includes("assets/hero/")],
-  ["safe route moving media", files.css.includes("@keyframes routePhotoDrift") && files.css.includes(".route-card__photo")],
-  ["safe route reduced motion", files.css.includes("routePhotoDrift") && files.css.includes("prefers-reduced-motion")],
+  ["safe route professional cards", files.html.includes("route-card__visual") && files.html.includes("route-card__icon")],
+  ["safe route professional motion", files.css.includes("@keyframes routeIconFloat") && files.css.includes(".route-card__line")],
+  ["safe route no large photos", !files.html.includes("route-card__photo") && !files.css.includes("routePhotoDrift")],
   ["quiz progress markup", files.html.includes('id="finderProgress"')],
   ["safety tips strip", files.html.includes('class="safety-strip"')],
   ["contextual whatsapp data", files.html.includes('data-whatsapp-label')],
