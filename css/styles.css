@@ -232,6 +232,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 .route-card h3 { color: var(--brand-dark); font-size: 1rem; margin-bottom: 7px; }
 .route-card p { color: var(--muted); font-size: .86rem; line-height: 1.45; }
+/* fila superior: número + ícono */
+.route-card__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.route-card__top span { margin-bottom: 0; }
+.route-card__ic { width: 40px; height: 40px; border-radius: 12px; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; flex-shrink: 0; transition: transform .35s var(--ease-out-quint), background .3s, color .3s; }
+.route-card__ic svg { width: 22px; height: 22px; }
+.route-card:hover .route-card__ic { transform: rotate(-8deg) scale(1.12); background: var(--accent); color: var(--brand-dark); }
+.route-card:hover span { background: var(--brand-dark); transform: scale(1.06); }
+.route-card span { transition: transform .3s var(--ease-out-quint), background .3s; }
+/* barra de acento que aparece al pasar el cursor */
+.route-card::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--accent); border-radius: 18px 18px 0 0; transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease-out-quint); }
+.route-card:hover::after { transform: scaleX(1); }
 
 /* ---------- Secciones ---------- */
 .section { padding: 76px 0; }
