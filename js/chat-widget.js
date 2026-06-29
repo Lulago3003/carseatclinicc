@@ -66,8 +66,10 @@
       if (/asesoria|compra|cotizacion/.test(normalized)) return "Asesoria de compra";
       return "Revision de seguridad";
     }
+    // Se guarda en el CRM toda pregunta real (no saludos ni "gracias").
+    const NO_GUARDAR = ["greeting", "thanks", "empty"];
     async function saveAdvisorLead(reply, originalText, status = "nuevo") {
-      if (!reply || !reply.needsHuman || !hasDB) return;
+      if (!reply || !hasDB || NO_GUARDAR.includes(reply.intent)) return;
       await DB.guardarLead({
         type: reply.action === "book" ? "cita-sugerida" : "consulta-ia",
         source: "asistente-web",
