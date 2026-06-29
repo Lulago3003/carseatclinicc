@@ -1108,7 +1108,7 @@
   // Aparición suave de secciones al hacer scroll
   function setupReveal() {
     if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const sel = ".section__head, .pillar, .tcard, .rcard, .feature, .service, .about__text, .about__art, .finder, .cita__form, .map, .newsletter, .route-card, .safe-route__intro, .safety-strip";
+    const sel = ".section__head, .pillar, .tcard, .rcard, .feature, .service, .about__text, .about__art, .finder, .cita__form, .map, .newsletter, .rstep, .safe-route__intro, .safety-strip";
     const els = $$(sel);
     if (!els.length) return;
     const reveal = (el) => el.classList.add("is-visible");
