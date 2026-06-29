@@ -60,6 +60,7 @@ const CONFIG = {
   chat: {
     iaActiva: true,
     guardarConversaciones: true,
+    funcion: "super-api", // nombre de la Edge Function en Supabase
   },
 
   /* --- CRM inteligente / agenda ---

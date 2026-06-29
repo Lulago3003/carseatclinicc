@@ -5,16 +5,16 @@
 // SEGURA: la clave de la IA va en los "secrets" de Supabase, nunca en el
 // sitio (que es público). Devuelve { answer }.
 //
-// Soporta DOS proveedores de IA. Usa el primero que tenga clave:
-//   1) GEMINI_API_KEY  -> Google Gemini (tiene plan GRATIS). Recomendado.
-//   2) ANTHROPIC_API_KEY -> Claude (de pago).
+// Soporta TRES proveedores de IA. Usa el primero que tenga clave (en este orden):
+//   1) GROQ_API_KEY     -> Groq (GRATIS, funciona en todo el mundo). Recomendado.
+//   2) GEMINI_API_KEY   -> Google Gemini (gratis, pero NO en todos los países).
+//   3) ANTHROPIC_API_KEY -> Claude (de pago).
 //
-// CÓMO ACTIVAR CON GEMINI (gratis):
-//   1) Consigue una API key gratis en https://aistudio.google.com/apikey
-//   2) supabase secrets set GEMINI_API_KEY=AIza...
-//   3) supabase functions deploy asistente
-//   4) En js/data.js pon CONFIG.chat.iaActiva = true
-//   Listo: el chat de la web responderá con IA.
+// CÓMO ACTIVAR CON GROQ (gratis):
+//   1) Saca una API key gratis en https://console.groq.com/keys
+//   2) En Supabase -> Edge Functions -> Secrets, agrega GROQ_API_KEY = gsk_...
+//   3) Despliega esta función (Deploy).
+//   4) En js/data.js, CONFIG.chat.iaActiva = true (ya está).
 //   (Sin clave, el chat sigue funcionando con el asistente local + WhatsApp.)
 // =====================================================================
 
@@ -48,22 +48,38 @@ serve(async (req) => {
     const { messages } = await req.json();
     const recent = (messages || []).slice(-12);
 
+    const groqKey = Deno.env.get("GROQ_API_KEY");
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
 
-    if (geminiKey) {
-      const answer = await askGemini(geminiKey, recent);
-      return json({ answer });
-    }
-    if (anthropicKey) {
-      const answer = await askClaude(anthropicKey, recent);
-      return json({ answer });
-    }
+    if (groqKey) return json({ answer: await askGroq(groqKey, recent) });
+    if (geminiKey) return json({ answer: await askGemini(geminiKey, recent) });
+    if (anthropicKey) return json({ answer: await askClaude(anthropicKey, recent) });
     return json({ error: "IA no configurada" }, 501);
   } catch (e) {
     return json({ error: String((e as Error)?.message ?? e) }, 500);
   }
 });
+
+// --- Groq (plan gratuito, OpenAI-compatible) ---
+async function askGroq(apiKey: string, messages: Array<{ role: string; content: string }>) {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + apiKey, "content-type": "application/json" },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.6,
+      max_tokens: 500,
+      messages: [
+        { role: "system", content: SYSTEM },
+        ...messages.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content ?? "") })),
+      ],
+    }),
+  });
+  if (!res.ok) throw new Error("Groq: " + (await res.text()));
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content ?? "";
+}
 
 // --- Google Gemini (plan gratuito) ---
 async function askGemini(apiKey: string, messages: Array<{ role: string; content: string }>) {

@@ -154,7 +154,9 @@ const DB = (function () {
   async function preguntarIA(messages) {
     if (!CONFIG.chat?.iaActiva) throw new Error("IA no activa");
     if (!ready) throw new Error("DEMO");
-    const { data, error } = await client.functions.invoke("asistente", { body: { messages } });
+    // Nombre de la Edge Function (en Supabase quedó como "super-api").
+    const fnName = CONFIG.chat?.funcion || "asistente";
+    const { data, error } = await client.functions.invoke(fnName, { body: { messages } });
     if (error) throw error;
     return data;
   }

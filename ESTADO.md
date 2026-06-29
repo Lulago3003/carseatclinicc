@@ -56,7 +56,8 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] Interruptor del CRM inteligente en `js/data.js` → `CONFIG.crm.guardarSolicitudes=false` mientras no esté corrida la tabla `crm_leads`.
 - [x] **IA activada**: `CONFIG.chat.iaActiva=true`, `guardarConversaciones=true`, `crm.guardarSolicitudes=true`. Tablas `conversaciones` y `crm_leads` creadas en Supabase.
 - [x] **Chat en TODAS las páginas**: extraído a `js/chat-widget.js` (autocontenido, se auto-inicia). Está en `index.html`, `servicios.html`, `terminos.html` y `privacidad.html`. La copia vieja en `store.js` quedó como obsoleta (no se llama). Nota: `DB` es `const` (no `window.DB`); el módulo lo referencia directo.
-- [ ] **Pendiente del dueño**: desplegar la Edge Function con nombre EXACTO `asistente` (hoy responde 404 / "NOT_FOUND"). Mientras tanto el chat usa el asistente local como respaldo.
+- [x] La Edge Function quedó desplegada como **`super-api`** (no `asistente`). El sitio ya apunta ahí via `CONFIG.chat.funcion="super-api"`. La función soporta **Groq / Gemini / Claude** (usa el secret que exista, en ese orden).
+- [ ] **Pendiente del dueño**: la llave de **Gemini da 0 cuota gratis** (limit:0, no disponible en su región). Solución: sacar llave gratis en console.groq.com/keys, agregar secret `GROQ_API_KEY` y redeploy de `super-api` con el código nuevo. Mientras tanto el chat usa el asistente local.
 - [x] Prueba automática del asistente: `scripts/chat-assistant-check.mjs`; el chequeo general `scripts/site-experience-check.mjs` ya valida que el chat inteligente esté conectado.
 - [x] Edge Function `asistente` soporta **Gemini (gratis)** o Claude (de pago): usa `GEMINI_API_KEY` si existe, si no `ANTHROPIC_API_KEY`. Para activar gratis: llave en aistudio.google.com/apikey -> `supabase secrets set GEMINI_API_KEY=...` -> `supabase functions deploy asistente` -> `CONFIG.chat.iaActiva=true`.
 - [x] Pestaña "Conversaciones" en el CRM.
