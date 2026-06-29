@@ -940,7 +940,8 @@
     }, 4000);
   }
 
-  // Asistente / chat con IA (guarda las consultas en el CRM)
+  // OBSOLETO: el chat se movió a js/chat-widget.js (sirve en todas las páginas).
+  // Esta función ya no se llama; se conserva solo como referencia.
   function setupChat() {
     const panel = $("#chatPanel"), msgs = $("#chatMsgs"), input = $("#chatInput");
     if (!panel) return;
@@ -1301,7 +1302,7 @@
   setupScrollProgress();
   setupReveal();
   setupHeroSlider();
-  setupChat();
+  // El chat ahora lo maneja js/chat-widget.js (se auto-inicia en todas las páginas).
   setupFloatingWhatsApp();
   if (DB.ready) {
     refreshAuthUI();

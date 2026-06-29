@@ -58,8 +58,8 @@ const CONFIG = {
      `supabase functions deploy asistente` y pon iaActiva en true.
      Cambia guardarConversaciones a true cuando corras supabase-chat.sql. */
   chat: {
-    iaActiva: false,
-    guardarConversaciones: false,
+    iaActiva: true,
+    guardarConversaciones: true,
   },
 
   /* --- CRM inteligente / agenda ---
@@ -67,7 +67,7 @@ const CONFIG = {
      Mientras este en false, las citas y casos se guardan en este navegador
      para probar el flujo sin errores de Supabase. */
   crm: {
-    guardarSolicitudes: false,
+    guardarSolicitudes: true,
   },
 
   /* --- Administradores ---

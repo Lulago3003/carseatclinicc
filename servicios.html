@@ -268,8 +268,34 @@
     <span>WhatsApp</span>
   </a>
 
+  <!-- Asistente / chat con IA -->
+  <div class="chat" id="chatWidget">
+    <button class="chat__launch" id="chatLaunch" aria-label="Abrir asistente">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-11.5 7.2L4 20.5l1.3-4.1A8 8 0 1 1 21 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>
+      <span>Asistente</span>
+    </button>
+    <div class="chat__panel" id="chatPanel" hidden>
+      <div class="chat__head">
+        <div><strong>Asistente Car Seat</strong><small>Seguridad infantil · te ayudamos</small></div>
+        <button class="chat__close" id="chatClose" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="chat__msgs" id="chatMsgs"></div>
+      <form class="chat__form" id="chatForm">
+        <input id="chatInput" placeholder="Ej: niña de 5 años, peso 20 kg…" autocomplete="off" />
+        <button type="submit" aria-label="Enviar">➤</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notificación flotante -->
+  <div class="toast" id="toast"></div>
+
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/data.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/chat-assistant.js"></script>
+  <script src="js/chat-widget.js"></script>
   <script src="js/servicios.js"></script>
 </body>
 </html>
