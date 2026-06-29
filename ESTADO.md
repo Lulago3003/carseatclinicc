@@ -26,6 +26,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 **Confianza / contenido**
 - [x] Hero con carrusel de fotos (rota cada 4s, clickeable).
 - [x] 3 pilares, Servicios, Recursos de seguridad, Testimonios (de ejemplo), Nosotros.
+- [x] Seccion **Limpieza: antes y despues** con comparador deslizable (imagen sucia -> limpia): se autoanima al entrar en pantalla (barre de sucia a limpia y se queda al centro), se arrastra con mouse/dedo, soporta teclado y respeta "reducir movimiento". CTA "Contactanos para tu limpieza" (WhatsApp) + enlace a agendar. Imagenes en `assets/limpieza/`.
 - [x] "Ruta segura" con tarjetas profesionales: visuales con ícono SVG, número, línea activa, destellos sutiles y microanimaciones dinámicas; diseño 2x2 en desktop y fácil de mejorar luego con fotos reales si se decide.
 - [x] Reserva de cita (por WhatsApp), Newsletter (footer + pop-up).
 - [x] Seccion **Alquiler para viajes** inspirada en flujo tipo reserva: imagen real, pasos, CTA y formulario con equipo, fecha de entrega, devolucion, entrega, recogida, edad/peso e instalacion opcional.
