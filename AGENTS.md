@@ -36,8 +36,10 @@ Cloudflare Email Routing (recibir, gratis) + Zoho/Google Workspace (enviar).
 
 ```
 index.html              → la tienda (home: hero, catálogo, servicios en tarjetas, etc.)
-servicios.html          → página aparte de servicios (Venta, Alquiler, Limpieza con
-                          comparador antes/después); usa js/servicios.js (script ligero)
+servicios.html          → página aparte de servicios (Venta, Alquiler, Instalación,
+                          Limpieza con comparador antes/después); usa js/servicios.js
+faq.html                → preguntas frecuentes (acordeón <details>); usa js/servicios.js
+js/chat-widget.js       → chat/asistente IA reutilizable (en TODAS las páginas)
 admin.html              → panel de administración (CRM)
 css/styles.css          → todos los estilos (paleta + responsive + animaciones)
 js/data.js              → ⭐ CONFIGURACIÓN editable: CONFIG (supabase keys, whatsapp,
