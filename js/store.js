@@ -960,7 +960,7 @@
     }
     function smartReply(text) {
       if (window.ChatAssistant && typeof window.ChatAssistant.generateSmartReply === "function") {
-        return window.ChatAssistant.generateSmartReply(text, { whatsapp: CONFIG.whatsapp });
+        return window.ChatAssistant.generateSmartReply(text, { whatsapp: CONFIG.whatsapp, horario: CONFIG.horario, ubicacion: CONFIG.ubicacion, email: CONFIG.email, instagram: CONFIG.instagram });
       }
       return {
         intent: "unknown",

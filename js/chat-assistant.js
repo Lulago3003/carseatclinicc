@@ -40,13 +40,20 @@
   function detectIntent(raw) {
     const text = normalizeText(raw);
     if (!text) return "empty";
-    if (/^(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|hello)\b/.test(text)) return "greeting";
+    if (/^(hola|buenas|buenos dias|buenas tardes|buenas noches|hey|hello|que tal)\b/.test(text)) return "greeting";
+    if (/\bgracias\b/.test(text) && text.length <= 30) return "thanks";
     if (/\b(choque|accidente|impacto|chocaron|colision|crash)\b/.test(text)) return "crash";
-    if (/\b(reservar|reserva|agendar|agenda|cita|calendario|horario|disponible|manana|mañana)\b/.test(text)) return "booking";
+    if (/\b(horario|abren|cierran|abierto|atienden|a que hora|que hora|dias atienden|que dias)\b/.test(text)) return "hours";
+    if (/\b(donde estan|donde quedan|ubicacion|ubicados|ubicado|direccion|como llego|como llegar|tienda fisica|sucursal)\b/.test(text)) return "location";
+    if (/\b(envio|envios|envian|envias|enviar|envia|delivery|domicilio|mandan|despacho|llega a|a domicilio)\b/.test(text)) return "shipping";
+    if (/\b(yappy|efectivo|transferencia|metodos de pago|metodo de pago|formas de pago|forma de pago|tarjeta|pagar|como pago|cuotas)\b/.test(text)) return "payment";
+    if (/\b(garantia|original|originales|autentic|falsific|que marcas|cuales marcas|marca tienen|son nuevas|son nuevos)\b/.test(text)) return "warranty";
+    if (/\b(como instalar|como se instala|como instalo|como la instalo|como se pone|como pongo|como la pongo|isofix|latch|anclaje|contramarcha|a contramarcha|mirando atras|hacia atras|girar|voltear|dar vuelta)\b/.test(text)) return "install-how";
+    if (/\b(reservar|reserva|agendar|agenda|cita|calendario|disponible|manana|mañana)\b/.test(text)) return "booking";
     if (/\b(lavar|lavado|limpiar|limpieza|desinfectar|mancha|sucio|correas|arnes)\b/.test(text)) return "cleaning";
     if (/\b(vencid|vence|vencimiento|caduc|expir|etiqueta|fabricante|segunda mano|usada|modelo de la silla)\b/.test(text)) return "seat-review";
     if (/\b(mi|la|esta|esa)\s+silla\b.*\b(puede|sirve|usar|uso|segura)\b/.test(text)) return "seat-review";
-    if (/\b(precio|cuanto|cuesta|vale|cotizar|cotizacion|costo|pagar|tarjeta|yappy)\b/.test(text)) return "price";
+    if (/\b(precio|cuanto|cuesta|vale|cotizar|cotizacion|costo)\b/.test(text)) return "price";
     if (/\b(instalar|instalacion|revisar|revision|chequeo|asesoria|alquiler|alquilar|alquilo|renta|rentar|servicio)\b/.test(text)) return "service";
     if (/\b(silla|car seat|asiento|booster|bebe|nino|nina|hijo|hija|peso|talla|estatura|edad|anos|meses|kg|libras)\b/.test(text)) return "seat-fit";
     return "unknown";
@@ -187,6 +194,57 @@
     });
   }
 
+  function thanksReply() {
+    return {
+      intent: "thanks", confidence: 0.8, needsHuman: false, action: "guide", capture: {},
+      answer: "Con gusto. Si te queda otra duda sobre sillas, instalacion, alquiler o limpieza, aqui estoy. Y cuando quieras, puedes cotizar o reservar por WhatsApp.",
+    };
+  }
+
+  function hoursReply(ctx) {
+    const h = (ctx && ctx.horario) ? ctx.horario : "Lunes a Sabado, horario de oficina";
+    return {
+      intent: "hours", confidence: 0.9, needsHuman: false, action: "guide", capture: {},
+      answer: `Nuestro horario de atencion es: ${h}. Puedes agendar una cita en la pagina o escribirnos por WhatsApp para coordinar.`,
+    };
+  }
+
+  function locationReply(ctx) {
+    const u = (ctx && ctx.ubicacion) ? ctx.ubicacion : "Ciudad de Panama";
+    return {
+      intent: "location", confidence: 0.88, needsHuman: false, action: "guide", capture: {},
+      answer: `Estamos en ${u}. En la seccion de Contacto de la pagina tienes el mapa y un codigo de Waze para llegar. Tambien coordinamos instalacion y entrega; escribenos por WhatsApp y confirmamos la zona.`,
+    };
+  }
+
+  function shippingReply() {
+    return {
+      intent: "shipping", confidence: 0.85, needsHuman: false, action: "guide", capture: { service: "Envio" },
+      answer: "Si, hacemos envios a todo el pais. El costo y el tiempo dependen de la zona y del producto. Dime que producto te interesa y a donde lo necesitas, y lo confirmamos por WhatsApp.",
+    };
+  }
+
+  function paymentReply() {
+    return {
+      intent: "payment", confidence: 0.82, needsHuman: false, action: "whatsapp", capture: { service: "Consulta de pago" },
+      answer: "El pago lo coordinamos al cerrar tu pedido por WhatsApp y te indicamos las opciones disponibles (por ejemplo transferencia, Yappy o efectivo, segun acordemos). Pronto habilitaremos el pago con tarjeta directo en la web.",
+    };
+  }
+
+  function warrantyReply() {
+    return {
+      intent: "warranty", confidence: 0.82, needsHuman: false, action: "guide", capture: { service: "Consulta de producto" },
+      answer: "Trabajamos sillas de marcas con normas internacionales de seguridad, nuevas y garantizadas. La garantia exacta depende del modelo; dime cual te interesa y confirmamos marca, garantia y disponibilidad por WhatsApp.",
+    };
+  }
+
+  function installHowReply() {
+    return withAdvisorMeta({
+      intent: "install-how", confidence: 0.8, action: "book", capture: { service: "Instalacion profesional", priority: "media" },
+      answer: "La instalacion correcta depende de la silla y del auto (ISOFIX/LATCH o cinturon de seguridad). Como guia general: la silla debe quedar firme (que no se mueva mas de 2-3 cm), el arnes ajustado sin holgura y el broche del pecho a la altura de las axilas. Los bebes deben ir a contramarcha (mirando hacia atras) el mayor tiempo posible. Nosotros te la instalamos y te enseñamos a usarla: puedes reservar una instalacion o continuar por WhatsApp con foto de la silla y del asiento del carro.",
+    });
+  }
+
   function greetingReply() {
     return {
       intent: "greeting",
@@ -194,7 +252,7 @@
       needsHuman: false,
       action: "guide",
       capture: {},
-      answer: "Hola, soy el asistente de Car Seat Clinic. Te puedo orientar con silla ideal, instalacion, revision, limpieza o cotizacion. Para elegir silla, dime edad, peso, estatura y modelo del auto.",
+      answer: "Hola, soy el asistente de Car Seat Clinic. Te puedo orientar con silla ideal, instalacion, revision, limpieza, alquiler, envios, horario o cotizacion. Para elegir silla, dime edad, peso, estatura y modelo del auto.",
     };
   }
 
@@ -204,13 +262,20 @@
       confidence: 0.35,
       action: "whatsapp",
       capture: { service: "Consulta general", priority: "media" },
-      answer: "Puedo ayudarte con dudas sobre sillas de carro, boosters, instalacion, revision, limpieza, alquiler y citas. No quiero adivinar si faltan datos, asi que tambien puedes continuar por WhatsApp con un asesor.",
+      answer: "Puedo ayudarte con dudas sobre sillas de carro, boosters, instalacion, revision, limpieza, alquiler, envios, horario, ubicacion, formas de pago y citas. No quiero adivinar si faltan datos, asi que tambien puedes continuar por WhatsApp con un asesor.",
     });
   }
 
-  function generateSmartReply(text) {
+  function generateSmartReply(text, ctx) {
     const intent = detectIntent(text);
     if (intent === "greeting") return greetingReply();
+    if (intent === "thanks") return thanksReply();
+    if (intent === "hours") return hoursReply(ctx);
+    if (intent === "location") return locationReply(ctx);
+    if (intent === "shipping") return shippingReply();
+    if (intent === "payment") return paymentReply();
+    if (intent === "warranty") return warrantyReply();
+    if (intent === "install-how") return installHowReply();
     if (intent === "booking") return bookingReply();
     if (intent === "cleaning") return cleaningReply();
     if (intent === "seat-review") return seatReviewReply();

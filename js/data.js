@@ -52,9 +52,10 @@ const CONFIG = {
   },
 
   /* --- Chat / asistente ---
-     Hoy el sitio responde con el asistente inteligente local.
-     Cambia iaActiva a true cuando despliegues supabase/functions/asistente
-     y tengas ANTHROPIC_API_KEY configurada.
+     Hoy el sitio responde con el asistente inteligente local (gratis, sin llave).
+     Para la IA real GRATIS: saca una llave en https://aistudio.google.com/apikey,
+     corre `supabase secrets set GEMINI_API_KEY=AIza...`, luego
+     `supabase functions deploy asistente` y pon iaActiva en true.
      Cambia guardarConversaciones a true cuando corras supabase-chat.sql. */
   chat: {
     iaActiva: false,

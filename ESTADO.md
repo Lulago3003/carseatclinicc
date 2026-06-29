@@ -50,13 +50,13 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 
 **Asistente con IA (estructura)**
 - [x] Chat flotante en la web con asistente inteligente local: responde dudas comunes, pide datos si faltan y ofrece WhatsApp cuando hace falta asesor. (Guía: `CHATBOT.md`)
-- [x] Motor local en `js/chat-assistant.js`: entiende silla ideal, precio, instalación/servicios, choque, saludo, lavado, revisión de vencimiento/uso y reservas; orienta por edad/peso/estatura y no inventa precios.
+- [x] Motor local en `js/chat-assistant.js`: entiende silla ideal, precio, instalación/servicios, choque, saludo, lavado, revisión de vencimiento/uso y reservas; orienta por edad/peso/estatura y no inventa precios. **Ampliado**: horario, ubicación, envíos, formas de pago, garantía/marcas, cómo instalar (ISOFIX/contramarcha) y agradecimientos. Usa datos de CONFIG (horario, ubicación) via `ctx`.
 - [x] El asistente entiende alquiler/renta y pide datos de reserva: equipo, fechas, entrega, recogida, edad/peso y si necesita instalacion.
 - [x] Acciones dentro del chat: reservar horario, guardar caso/consulta en CRM y continuar por WhatsApp cuando la IA tiene dudas o requiere asesor.
 - [x] Interruptor del CRM inteligente en `js/data.js` → `CONFIG.crm.guardarSolicitudes=false` mientras no esté corrida la tabla `crm_leads`.
 - [x] Interruptores del chat en `js/data.js` → `CONFIG.chat.iaActiva=false` y `CONFIG.chat.guardarConversaciones=false` mientras no estén activados Supabase Chat y la API key.
 - [x] Prueba automática del asistente: `scripts/chat-assistant-check.mjs`; el chequeo general `scripts/site-experience-check.mjs` ya valida que el chat inteligente esté conectado.
-- [x] Edge Function `asistente` (llama a Claude; clave secreta en Supabase).
+- [x] Edge Function `asistente` soporta **Gemini (gratis)** o Claude (de pago): usa `GEMINI_API_KEY` si existe, si no `ANTHROPIC_API_KEY`. Para activar gratis: llave en aistudio.google.com/apikey -> `supabase secrets set GEMINI_API_KEY=...` -> `supabase functions deploy asistente` -> `CONFIG.chat.iaActiva=true`.
 - [x] Pestaña "Conversaciones" en el CRM.
 
 **Pago (estructura)**
@@ -82,7 +82,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [ ] **Activar IA del chat**: API key de Anthropic → secret → `deploy asistente`. Ver `CHATBOT.md`.
 - [ ] **Precios reales**: ponerlos en el panel (hoy dice "Consultar").
 - [ ] **Corregir fotos mal asignadas**: el .docx ancla imágenes fuera de orden, algunas no son el modelo exacto → ajustar por producto en el CRM.
-- [ ] **Testimonios reales** (reemplazar los de ejemplo en `js/data.js` → `TESTIMONIOS`).
+- [x] **Testimonios reales**: 3 reseñas reales de Google (Ivohne Jensen, Ana María Paredes, Gianfranco Lo Medico) en `js/data.js` → `TESTIMONIOS`.
 - [ ] **Historia + foto de la fundadora/equipo** y **certificación CPST visible**.
 - [ ] **Dirección exacta** del local → `CONFIG.mapsQuery` y `CONFIG.wazeUrl`.
 
