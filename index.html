@@ -47,7 +47,7 @@
 
       <nav class="nav" id="nav">
         <a href="#productos">Productos</a>
-        <a href="#servicios">Servicios</a>
+        <a href="servicios.html">Servicios</a>
         <a href="#recursos">Recursos</a>
         <a href="#citas">Reserva tu cita</a>
         <a href="#nosotros">Nosotros</a>
@@ -89,7 +89,7 @@
         </div>
         <ul class="hero__trust">
           <li><strong>+500</strong> familias protegidas</li>
-          <li><strong>1:1</strong> asesoría antes de comprar</li>
+          <li><strong>Asesoría</strong> personal antes de comprar</li>
           <li><strong>Panamá</strong> atención local y cercana</li>
         </ul>
       </div>
@@ -101,8 +101,8 @@
           <a class="hero__slide" href="#encuentra" style="background-image:url('assets/hero/encuentra.jpg')">
             <span class="hero__cap"><strong>Encuentra tu silla ideal</strong><span>Hacer el test →</span></span>
           </a>
-          <a class="hero__slide" href="#servicios" style="background-image:url('assets/hero/servicios.jpg')">
-            <span class="hero__cap"><strong>Instalación, revisión y limpieza</strong><span>Nuestros servicios →</span></span>
+          <a class="hero__slide" href="servicios.html" style="background-image:url('assets/hero/servicios.jpg')">
+            <span class="hero__cap"><strong>Venta, alquiler y limpieza</strong><span>Nuestros servicios →</span></span>
           </a>
         </div>
         <div class="hero__assist motion-float">
@@ -145,7 +145,7 @@
         <span class="eyebrow">Ruta segura</span>
         <h2>Una compra acompañada de principio a fin.</h2>
         <p>La silla no termina en la caja. Revisamos compatibilidad, etapa de uso, instalación y seguimiento para que viajes con tranquilidad real.</p>
-        <a href="#citas" class="btn btn--primary">Agendar guía 1:1</a>
+        <a href="#citas" class="btn btn--primary">Agendar mi asesoría</a>
       </div>
       <div class="safe-route__track" aria-label="Ruta de asesoría segura">
         <article class="route-card">
@@ -340,57 +340,42 @@
     </div>
   </section>
 
-  <!-- ===================== SERVICIOS ===================== -->
-  <section class="section section--alt" id="servicios" data-whatsapp-label="Consultar servicio" data-whatsapp-message="Hola Car Seat Clinic, quiero información sobre sus servicios.">
+  <!-- ===================== SERVICIOS (tarjetas → servicios.html) ===================== -->
+  <section class="section section--alt" id="servicios">
     <div class="container">
       <div class="section__head">
-        <h2>Servicios</h2>
-        <p>No solo vendemos: te acompañamos para que la silla cumpla su función.</p>
+        <h2>Nuestros servicios</h2>
+        <p>No solo vendemos: te acompañamos para que la silla cumpla su función. Toca un servicio para ver el detalle.</p>
       </div>
-      <div class="services" id="serviceGrid"><!-- servicios generados por JS --></div>
-    </div>
-  </section>
-
-  <!-- ===================== LIMPIEZA: ANTES Y DESPUÉS ===================== -->
-  <section class="cleanshow" id="limpieza" data-whatsapp-label="Limpieza de silla" data-whatsapp-message="Hola Car Seat Clinic, quiero información sobre la limpieza profunda de mi silla.">
-    <div class="container cleanshow__inner">
-      <div class="cleanshow__content">
-        <span class="eyebrow">Limpieza profunda</span>
-        <h2>De vuelta a como el primer día.</h2>
-        <p>Desarmamos la silla pieza por pieza, lavamos las telas, desinfectamos el arnés y la base, y la devolvemos lista para usar con tu bebé. Mira el resultado: desliza para comparar.</p>
-        <ul class="cleanshow__points">
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-            <span>Lavado y desinfección de telas, arnés y broches</span>
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-            <span>Productos seguros para la piel del bebé</span>
-          </li>
-          <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-            <span>Revisión de ajuste e instalación al entregarla</span>
-          </li>
-        </ul>
-        <a class="btn btn--primary" id="limpiezaWhatsBtn" href="#citas">Contáctanos para tu limpieza</a>
-        <p class="cleanshow__alt">o <a href="#citas">agéndala en línea</a> y te confirmamos por WhatsApp.</p>
+      <div class="svc-cards">
+        <a class="svc-card" href="servicios.html#venta">
+          <img class="svc-card__media" src="assets/hero/sillas.jpg" alt="" loading="lazy" />
+          <span class="svc-card__body">
+            <span class="svc-card__tag">Venta</span>
+            <strong class="svc-card__title">Sillas, bases y boosters</strong>
+            <span class="svc-card__desc">Marcas seguras con asesoría para elegir según edad, peso y tu auto.</span>
+            <span class="svc-card__link">Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </span>
+        </a>
+        <a class="svc-card" href="servicios.html#alquiler">
+          <img class="svc-card__media" src="assets/hero/servicios.jpg" alt="" loading="lazy" />
+          <span class="svc-card__body">
+            <span class="svc-card__tag">Alquiler</span>
+            <strong class="svc-card__title">Alquiler para viajes</strong>
+            <span class="svc-card__desc">Reserva silla, coche o corral por fechas, como en un hotel. Entrega y recogida.</span>
+            <span class="svc-card__link">Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </span>
+        </a>
+        <a class="svc-card" href="servicios.html#limpieza">
+          <img class="svc-card__media" src="assets/limpieza/silla-limpia.png" alt="" loading="lazy" />
+          <span class="svc-card__body">
+            <span class="svc-card__tag">Limpieza</span>
+            <strong class="svc-card__title">Limpieza profunda</strong>
+            <span class="svc-card__desc">Lavamos y desinfectamos cada pieza. Mira el antes y después.</span>
+            <span class="svc-card__link">Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </span>
+        </a>
       </div>
-
-      <figure class="ba" aria-label="Comparación de una silla antes y después de la limpieza">
-        <div class="ba__frame" style="--pos:50%">
-          <img class="ba__img ba__img--after" src="assets/limpieza/silla-limpia.png" alt="Silla de carro limpia y desinfectada" loading="lazy" decoding="async" />
-          <div class="ba__before">
-            <img class="ba__img" src="assets/limpieza/silla-sucia.png" alt="Silla de carro sucia antes de la limpieza" loading="lazy" decoding="async" />
-          </div>
-          <span class="ba__tag ba__tag--before">Antes</span>
-          <span class="ba__tag ba__tag--after">Después</span>
-          <div class="ba__divider" aria-hidden="true"></div>
-          <button type="button" class="ba__handle" role="slider" aria-label="Deslizar para comparar antes y después" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 7-5 5 5 5"/><path d="m15 7 5 5-5 5"/></svg>
-          </button>
-        </div>
-        <figcaption class="ba__caption">Arrastra el control para ver la diferencia.</figcaption>
-      </figure>
     </div>
   </section>
 
@@ -402,6 +387,27 @@
         <p>Lo que dicen los papás y mamás que confiaron en nosotros.</p>
       </div>
       <div class="tgrid" id="testimonios-grid"><!-- generado por JS --></div>
+    </div>
+  </section>
+
+  <!-- ===================== ALQUILER PARA VIAJES ===================== -->
+  <section class="rental-showcase" id="alquiler-viajes" data-whatsapp-label="Alquiler para viajes" data-whatsapp-message="Hola Car Seat Clinic, quiero alquilar equipo para mi viaje.">
+    <div class="container rental-showcase__inner">
+      <div class="rental-showcase__media" aria-hidden="true">
+        <img src="assets/hero/servicios.jpg" alt="" loading="lazy" />
+        <span class="rental-showcase__badge">Reserva por fechas</span>
+      </div>
+      <div class="rental-showcase__content">
+        <span class="eyebrow">Alquiler para viajes</span>
+        <h2>Equipo seguro listo cuando llegas a Panama.</h2>
+        <p>Reserva silla, coche o corral por rango de fechas. Coordinamos entrega, recogida y una revision de ajuste antes de usar.</p>
+        <div class="rental-showcase__steps" aria-label="Pasos para alquilar">
+          <span><b>1</b> Elige equipo</span>
+          <span><b>2</b> Define fechas</span>
+          <span><b>3</b> Entrega y recogida</span>
+        </div>
+        <a href="#citas" class="btn btn--primary" data-rental-cta>Reservar alquiler</a>
+      </div>
     </div>
   </section>
 
@@ -440,27 +446,6 @@
         <strong>Broche al pecho</strong>
         <strong>Silla firme</strong>
         <strong>Sin abrigos gruesos</strong>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== ALQUILER PARA VIAJES ===================== -->
-  <section class="rental-showcase" id="alquiler-viajes" data-whatsapp-label="Alquiler para viajes" data-whatsapp-message="Hola Car Seat Clinic, quiero alquilar equipo para mi viaje.">
-    <div class="container rental-showcase__inner">
-      <div class="rental-showcase__media" aria-hidden="true">
-        <img src="assets/hero/servicios.jpg" alt="" loading="lazy" />
-        <span class="rental-showcase__badge">Reserva por fechas</span>
-      </div>
-      <div class="rental-showcase__content">
-        <span class="eyebrow">Alquiler para viajes</span>
-        <h2>Equipo seguro listo cuando llegas a Panama.</h2>
-        <p>Reserva silla, coche o corral por rango de fechas. Coordinamos entrega, recogida y una revision de ajuste antes de usar.</p>
-        <div class="rental-showcase__steps" aria-label="Pasos para alquilar">
-          <span><b>1</b> Elige equipo</span>
-          <span><b>2</b> Define fechas</span>
-          <span><b>3</b> Entrega y recogida</span>
-        </div>
-        <a href="#citas" class="btn btn--primary" data-rental-cta>Reservar alquiler</a>
       </div>
     </div>
   </section>
@@ -626,7 +611,7 @@
       <p class="footer__copy">© <span id="year"></span> Car Seat Clinic Center. Hecho con cuidado para las familias.</p>
       <div class="footer__links">
         <a href="#productos">Productos</a>
-        <a href="#servicios">Servicios</a>
+        <a href="servicios.html">Servicios</a>
         <a href="#contacto">Contacto</a>
         <a href="terminos.html">Términos</a>
         <a href="privacidad.html">Privacidad</a>
