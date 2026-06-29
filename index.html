@@ -122,25 +122,6 @@
     </div>
   </section>
 
-  <!-- ===================== NOSOTROS ===================== -->
-  <section class="section" id="nosotros">
-    <div class="container about">
-      <div class="about__art">
-        <img src="logo.jpg" alt="Car Seat Clinic Center" class="about__logo" />
-      </div>
-      <div class="about__text">
-        <h2>Hola, somos Car Seat Clinic Center</h2>
-        <p>Sabemos lo que es sentir esa duda: <em>"¿estará bien puesta la silla?"</em>. Nacimos para quitarte esa preocupación. Somos técnicos certificados en seguridad infantil aquí en Panamá, y nuestra misión es simple: que ningún niño viaje sin la protección que merece.</p>
-        <p>Te acompañamos sin juicios y sin tecnicismos: desde elegir la silla correcta hasta instalarla bien y enseñarte a usarla con confianza. De familia a familia.</p>
-        <div class="stats">
-          <div class="stat"><strong>+500</strong><span>familias atendidas</span></div>
-          <div class="stat"><strong>100%</strong><span>sillas revisadas</span></div>
-          <div class="stat"><strong>4.9★</strong><span>satisfacción</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ===================== PRODUCTOS ===================== -->
   <section class="section section--alt" id="productos" data-whatsapp-label="Cotizar producto" data-whatsapp-message="Hola Car Seat Clinic, estoy viendo productos y quiero cotizar una silla.">
     <div class="container">
@@ -177,6 +158,64 @@
           </div>
           <div class="grid" id="productGrid"><!-- productos generados por JS --></div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ENCUENTRA TU SILLA IDEAL ===================== -->
+  <section class="section" id="encuentra" data-whatsapp-label="Test de silla" data-whatsapp-message="Hola Car Seat Clinic, quiero hacer el test y recibir una recomendación de silla.">
+    <div class="container">
+      <div class="section__head">
+        <h2>Encuentra tu silla ideal</h2>
+        <p>Responde unas preguntas rápidas y te decimos qué tipo de silla es la más adecuada y segura para tu pequeño.</p>
+      </div>
+      <div class="finder">
+        <div class="finder__progress" id="finderProgress" aria-hidden="true">
+          <span class="finder__progressText" id="finderProgressText">0 de 6 respuestas</span>
+          <span class="finder__progressTrack"><span id="finderProgressBar"></span></span>
+        </div>
+        <form class="finder__form" id="finderForm">
+          <label>Edad del niño
+            <select name="edad" required>
+              <option value="">Selecciona…</option>
+              <option>0 a 12 meses</option>
+              <option>1 a 3 años</option>
+              <option>4 a 7 años</option>
+              <option>8 a 12 años</option>
+            </select>
+          </label>
+          <label>Peso aproximado (kg)
+            <input type="number" name="peso" min="0" step="0.5" placeholder="Ej. 12" />
+          </label>
+          <label>Talla / estatura (cm)
+            <input type="number" name="talla" min="0" placeholder="Opcional" />
+          </label>
+          <label>Tipo de vehículo
+            <select name="vehiculo">
+              <option>Auto / Sedán</option>
+              <option>SUV</option>
+              <option>Camioneta / Pickup</option>
+              <option>Otro</option>
+            </select>
+          </label>
+          <label>¿Cuántos niños viajan?
+            <select name="ninos">
+              <option>1</option>
+              <option>2</option>
+              <option>3 o más</option>
+            </select>
+          </label>
+          <label>Presupuesto aproximado
+            <select name="presupuesto">
+              <option>Sin preferencia</option>
+              <option>Económico</option>
+              <option>Intermedio</option>
+              <option>Premium</option>
+            </select>
+          </label>
+          <button class="btn btn--primary btn--block finder__submit" type="submit">Ver mi silla recomendada</button>
+        </form>
+        <div class="finder__result" id="finderResult" hidden></div>
       </div>
     </div>
   </section>
@@ -265,66 +304,8 @@
     </div>
   </section>
 
-  <!-- ===================== ENCUENTRA TU SILLA IDEAL ===================== -->
-  <section class="section section--alt" id="encuentra" data-whatsapp-label="Test de silla" data-whatsapp-message="Hola Car Seat Clinic, quiero hacer el test y recibir una recomendación de silla.">
-    <div class="container">
-      <div class="section__head">
-        <h2>Encuentra tu silla ideal</h2>
-        <p>Responde unas preguntas rápidas y te decimos qué tipo de silla es la más adecuada y segura para tu pequeño.</p>
-      </div>
-      <div class="finder">
-        <div class="finder__progress" id="finderProgress" aria-hidden="true">
-          <span class="finder__progressText" id="finderProgressText">0 de 6 respuestas</span>
-          <span class="finder__progressTrack"><span id="finderProgressBar"></span></span>
-        </div>
-        <form class="finder__form" id="finderForm">
-          <label>Edad del niño
-            <select name="edad" required>
-              <option value="">Selecciona…</option>
-              <option>0 a 12 meses</option>
-              <option>1 a 3 años</option>
-              <option>4 a 7 años</option>
-              <option>8 a 12 años</option>
-            </select>
-          </label>
-          <label>Peso aproximado (kg)
-            <input type="number" name="peso" min="0" step="0.5" placeholder="Ej. 12" />
-          </label>
-          <label>Talla / estatura (cm)
-            <input type="number" name="talla" min="0" placeholder="Opcional" />
-          </label>
-          <label>Tipo de vehículo
-            <select name="vehiculo">
-              <option>Auto / Sedán</option>
-              <option>SUV</option>
-              <option>Camioneta / Pickup</option>
-              <option>Otro</option>
-            </select>
-          </label>
-          <label>¿Cuántos niños viajan?
-            <select name="ninos">
-              <option>1</option>
-              <option>2</option>
-              <option>3 o más</option>
-            </select>
-          </label>
-          <label>Presupuesto aproximado
-            <select name="presupuesto">
-              <option>Sin preferencia</option>
-              <option>Económico</option>
-              <option>Intermedio</option>
-              <option>Premium</option>
-            </select>
-          </label>
-          <button class="btn btn--primary btn--block finder__submit" type="submit">Ver mi silla recomendada</button>
-        </form>
-        <div class="finder__result" id="finderResult" hidden></div>
-      </div>
-    </div>
-  </section>
-
   <!-- ===================== SERVICIOS (tarjetas → servicios.html) ===================== -->
-  <section class="section" id="servicios">
+  <section class="section section--alt" id="servicios">
     <div class="container">
       <div class="section__head">
         <h2>Nuestros servicios</h2>
@@ -362,8 +343,27 @@
     </div>
   </section>
 
+  <!-- ===================== NOSOTROS ===================== -->
+  <section class="section" id="nosotros">
+    <div class="container about">
+      <div class="about__art">
+        <img src="logo.jpg" alt="Car Seat Clinic Center" class="about__logo" />
+      </div>
+      <div class="about__text">
+        <h2>Hola, somos Car Seat Clinic Center</h2>
+        <p>Sabemos lo que es sentir esa duda: <em>"¿estará bien puesta la silla?"</em>. Nacimos para quitarte esa preocupación. Somos técnicos certificados en seguridad infantil aquí en Panamá, y nuestra misión es simple: que ningún niño viaje sin la protección que merece.</p>
+        <p>Te acompañamos sin juicios y sin tecnicismos: desde elegir la silla correcta hasta instalarla bien y enseñarte a usarla con confianza. De familia a familia.</p>
+        <div class="stats">
+          <div class="stat"><strong>+500</strong><span>familias atendidas</span></div>
+          <div class="stat"><strong>100%</strong><span>sillas revisadas</span></div>
+          <div class="stat"><strong>4.9★</strong><span>satisfacción</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== TESTIMONIOS ===================== -->
-  <section class="section" id="testimonios">
+  <section class="section section--alt" id="testimonios">
     <div class="container">
       <div class="section__head">
         <h2>Familias que ya viajan tranquilas</h2>
