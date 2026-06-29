@@ -129,9 +129,9 @@ const SERVICIOS = [
    TESTIMONIOS  (edita libremente: nombre, ciudad y texto)
    ===================================================================== */
 const TESTIMONIOS = [
-  { nombre: "María G.", ciudad: "Ciudad de Panamá", texto: "Me ayudaron a elegir la silla correcta y me la instalaron explicándome cada paso. Viajo mucho más tranquila con mi bebé." },
-  { nombre: "Carlos y Andrea", ciudad: "Costa del Este", texto: "Pensábamos que la silla estaba bien puesta… hasta que la revisaron. Encontraron varias cosas y nos lo dejaron perfecto." },
-  { nombre: "Daniela R.", ciudad: "Chorrera", texto: "El acompañamiento fue increíble, sin presión y con mucha paciencia. Se nota que saben de seguridad infantil." },
+  { nombre: "Ivohne Jensen", ciudad: "Reseña de Google", texto: "Excelente atención, productos de calidad y la chica es muy versada en el tema. La recomiendo mil por ciento." },
+  { nombre: "Ana María Paredes", ciudad: "Reseña de Google", texto: "Me encantó la experiencia, servicio personalizado y de la mejor calidad. Regresaremos seguro." },
+  { nombre: "Gianfranco Lo Medico", ciudad: "Reseña de Google", texto: "Muchísimas gracias, de mucha ayuda la mentoría de seguridad vial y sillas para bebés." },
 ];
 
 /* =====================================================================
