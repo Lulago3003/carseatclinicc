@@ -123,6 +123,65 @@
     </div>
   </section>
 
+  <!-- ===================== NOSOTROS ===================== -->
+  <section class="section" id="nosotros">
+    <div class="container about">
+      <div class="about__art">
+        <img src="logo.jpg" alt="Car Seat Clinic Center" class="about__logo" />
+      </div>
+      <div class="about__text">
+        <h2>Hola, somos Car Seat Clinic Center</h2>
+        <p>Sabemos lo que es sentir esa duda: <em>"¿estará bien puesta la silla?"</em>. Nacimos para quitarte esa preocupación. Somos técnicos certificados en seguridad infantil aquí en Panamá, y nuestra misión es simple: que ningún niño viaje sin la protección que merece.</p>
+        <p>Te acompañamos sin juicios y sin tecnicismos: desde elegir la silla correcta hasta instalarla bien y enseñarte a usarla con confianza. De familia a familia.</p>
+        <div class="stats">
+          <div class="stat"><strong>+500</strong><span>familias atendidas</span></div>
+          <div class="stat"><strong>100%</strong><span>sillas revisadas</span></div>
+          <div class="stat"><strong>4.9★</strong><span>satisfacción</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRODUCTOS ===================== -->
+  <section class="section section--alt" id="productos" data-whatsapp-label="Cotizar producto" data-whatsapp-message="Hola Car Seat Clinic, estoy viendo productos y quiero cotizar una silla.">
+    <div class="container">
+      <div class="section__head section__head--shop">
+        <span class="eyebrow">Inventario disponible</span>
+        <h2>Productos para cotizar con asesoría.</h2>
+        <p>Elige el producto que te interesa y te confirmamos precio, disponibilidad y compatibilidad por WhatsApp.</p>
+      </div>
+
+      <div class="shop">
+        <aside class="shop__filters" id="shopFilters">
+          <button class="shop__filtersToggle" id="filtersToggle">Filtros ▾</button>
+          <div class="shop__filtersBody" id="filtersBody">
+            <div class="fgroup"><h4>Tipo de producto</h4><ul class="flist" id="fTypes"></ul></div>
+            <div class="fgroup"><h4>Marca</h4><ul class="flist" id="fBrands"></ul></div>
+            <div class="fgroup"><h4>Precio</h4><ul class="flist" id="fPrices"></ul></div>
+          </div>
+        </aside>
+        <div class="shop__main">
+          <div class="shop__bar">
+            <span class="shop__count" id="shopCount"></span>
+            <label class="shop__sortwrap">Ordenar:
+              <select id="sortSelect" class="shop__sort">
+                <option value="destacados">Destacados</option>
+                <option value="precio-asc">Precio: menor a mayor</option>
+                <option value="precio-desc">Precio: mayor a menor</option>
+                <option value="nombre">Nombre (A–Z)</option>
+              </select>
+            </label>
+          </div>
+          <div class="shop__notice">
+            <strong>¿No sabes cuál elegir?</strong>
+            <span>Haz el test rápido o escríbenos por WhatsApp y te guiamos según edad, peso y vehículo.</span>
+          </div>
+          <div class="grid" id="productGrid"><!-- productos generados por JS --></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== RUTA SEGURA ===================== -->
   <section class="safe-route" id="ruta-segura" data-whatsapp-label="Ruta segura" data-whatsapp-message="Hola Car Seat Clinic, quiero que me guíen con la ruta segura para elegir e instalar una silla.">
     <div class="container safe-route__inner">
@@ -265,48 +324,8 @@
     </div>
   </section>
 
-  <!-- ===================== PRODUCTOS ===================== -->
-  <section class="section" id="productos" data-whatsapp-label="Cotizar producto" data-whatsapp-message="Hola Car Seat Clinic, estoy viendo productos y quiero cotizar una silla.">
-    <div class="container">
-      <div class="section__head section__head--shop">
-        <span class="eyebrow">Inventario disponible</span>
-        <h2>Productos para cotizar con asesoría.</h2>
-        <p>Elige el producto que te interesa y te confirmamos precio, disponibilidad y compatibilidad por WhatsApp.</p>
-      </div>
-
-      <div class="shop">
-        <aside class="shop__filters" id="shopFilters">
-          <button class="shop__filtersToggle" id="filtersToggle">Filtros ▾</button>
-          <div class="shop__filtersBody" id="filtersBody">
-            <div class="fgroup"><h4>Tipo de producto</h4><ul class="flist" id="fTypes"></ul></div>
-            <div class="fgroup"><h4>Marca</h4><ul class="flist" id="fBrands"></ul></div>
-            <div class="fgroup"><h4>Precio</h4><ul class="flist" id="fPrices"></ul></div>
-          </div>
-        </aside>
-        <div class="shop__main">
-          <div class="shop__bar">
-            <span class="shop__count" id="shopCount"></span>
-            <label class="shop__sortwrap">Ordenar:
-              <select id="sortSelect" class="shop__sort">
-                <option value="destacados">Destacados</option>
-                <option value="precio-asc">Precio: menor a mayor</option>
-                <option value="precio-desc">Precio: mayor a menor</option>
-                <option value="nombre">Nombre (A–Z)</option>
-              </select>
-            </label>
-          </div>
-          <div class="shop__notice">
-            <strong>¿No sabes cuál elegir?</strong>
-            <span>Haz el test rápido o escríbenos por WhatsApp y te guiamos según edad, peso y vehículo.</span>
-          </div>
-          <div class="grid" id="productGrid"><!-- productos generados por JS --></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ===================== SERVICIOS (tarjetas → servicios.html) ===================== -->
-  <section class="section section--alt" id="servicios">
+  <section class="section" id="servicios">
     <div class="container">
       <div class="section__head">
         <h2>Nuestros servicios</h2>
@@ -492,25 +511,6 @@
         <div class="cita-summary col-full" id="citaSummary">Selecciona un servicio, fecha y horario para armar tu solicitud.</div>
         <button class="btn btn--primary btn--block col-full" type="submit">Guardar y continuar por WhatsApp</button>
       </form>
-    </div>
-  </section>
-
-  <!-- ===================== NOSOTROS ===================== -->
-  <section class="section" id="nosotros">
-    <div class="container about">
-      <div class="about__art">
-        <img src="logo.jpg" alt="Car Seat Clinic Center" class="about__logo" />
-      </div>
-      <div class="about__text">
-        <h2>Hola, somos Car Seat Clinic Center</h2>
-        <p>Sabemos lo que es sentir esa duda: <em>"¿estará bien puesta la silla?"</em>. Nacimos para quitarte esa preocupación. Somos técnicos certificados en seguridad infantil aquí en Panamá, y nuestra misión es simple: que ningún niño viaje sin la protección que merece.</p>
-        <p>Te acompañamos sin juicios y sin tecnicismos: desde elegir la silla correcta hasta instalarla bien y enseñarte a usarla con confianza. De familia a familia.</p>
-        <div class="stats">
-          <div class="stat"><strong>+500</strong><span>familias atendidas</span></div>
-          <div class="stat"><strong>100%</strong><span>sillas revisadas</span></div>
-          <div class="stat"><strong>4.9★</strong><span>satisfacción</span></div>
-        </div>
-      </div>
     </div>
   </section>
 
