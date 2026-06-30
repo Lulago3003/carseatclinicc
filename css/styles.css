@@ -361,7 +361,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   background: #f7eeee; color: var(--accent-dark); font-size: .72rem; font-weight: 800;
 }
 .card__promise span:first-child { background: var(--brand-soft); color: var(--brand-dark); }
-.card__status { min-height: 20px; }
+.card__status { min-height: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.card__rent {
+  display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px;
+  background: var(--brand-soft); color: var(--brand); font-size: .7rem; font-weight: 700;
+}
 .card__foot { display: flex; align-items: flex-end; justify-content: space-between; margin-top: auto; gap: 10px; padding-top: 6px; }
 .card__price { display: flex; flex-direction: column; }
 .card__price b { font-size: 1.25rem; font-family: "Poppins"; color: var(--brand-dark); }
@@ -748,6 +752,10 @@ select:focus { outline: none; border-color: var(--brand); }
   min-height: 48px; padding: 13px 15px; border: 1px dashed var(--line); border-radius: 14px;
   background: var(--bg-alt); color: var(--muted); font-size: .9rem;
 }
+.cita-summary--ok {
+  border-style: solid; border-color: #bfe3cd; background: #eaf6ef; color: #1d7a4d;
+}
+.cita-summary--ok strong { color: #145c39; }
 
 /* ---------- Calendario de rango para alquiler ---------- */
 .rcal {

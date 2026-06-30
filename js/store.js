@@ -190,6 +190,7 @@
       const agotado = p.stock <= 0;
       const sinPrecio = !isPriced(p);
       const canBuy = !agotado;
+      const rentable = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster"].includes(p.categoria);
       const desc = shortText(p.descripcion || p.recomendado || "", 118);
       const imgs = productImageList(p);
       const category = CAT_LABEL[p.categoria] || p.categoria || "Producto";
@@ -220,7 +221,7 @@
             <span>Compatibilidad guiada</span>
             ${imgs.length > 1 ? `<span>Galería disponible</span>` : `<span>Foto editable</span>`}
           </div>
-          <div class="card__status">${stockTag}</div>
+          <div class="card__status">${stockTag}${rentable ? `<span class="card__rent">📅 También en alquiler</span>` : ""}</div>
           <div class="card__foot">
             <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
             ${canBuy
@@ -1007,6 +1008,11 @@
     $("#citaHora").value = "";
     $$("#appointmentSlots .slot-btn").forEach((item) => item.classList.remove("is-selected"));
     updateRentalPanel();
+    const box = $("#citaSummary");
+    if (box) {
+      box.classList.add("cita-summary--ok");
+      box.innerHTML = `✅ <strong>¡Recibimos tu solicitud, ${esc((d.nombre || "").split(" ")[0] || "gracias")}!</strong> La guardamos y te confirmamos por WhatsApp lo antes posible. Si no se abrió WhatsApp, usa el botón verde de abajo.`;
+    }
   }
 
   async function handleNewsletter(form, origen) {

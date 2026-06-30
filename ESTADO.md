@@ -25,6 +25,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] **Barra de búsqueda** en el catálogo (`#shopSearch`): filtra por nombre, marca, etapa o recomendado.
 - [x] **Comprar o Alquilar por producto**: en la ficha de cada silla (categorías de sillas/booster) hay botón "🛒 Agregar a mi cotización/carrito" y "📅 Alquilar esta silla por fechas" (abre el calendario de alquiler con el modelo pre-llenado → llega al CRM). Nota visible de "🔧 incluye opción de instalación".
 - [x] **Íconos de contacto** con SVG (ubicación, horario, email y **logo de Instagram**) en lugar de emojis.
+- [x] Etiqueta **"📅 También en alquiler"** en las tarjetas de sillas/booster del catálogo.
+- [x] **Confirmación visible** al reservar cita/alquiler (banner verde "¡Recibimos tu solicitud!") además del WhatsApp.
+- [x] Revisado **responsive (teléfono)**: catálogo, ficha (comprar/alquilar), calendario de alquiler, buscador y CRM (embudo/estadísticas) sin desbordes en 390px.
 - [x] **El asistente recomienda con modelos + enlace**: tras una respuesta sobre sillas, muestra los **nombres reales del catálogo** y un botón "Ver [tipo] →" que abre el catálogo filtrado por esa etapa (`window.CSC_showCatalog` / `window.CSC_PRODUCTS`).
 - [x] Precios en modo "Consultar / Cotizar por WhatsApp" + etiqueta de descuento "-X%" automática.
 
