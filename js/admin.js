@@ -28,13 +28,20 @@
 
   const LEAD_ESTADOS = [
     ["nuevo", "Nuevo"],
-    ["esperando_reserva", "Esperando reserva"],
     ["contactado", "Contactado"],
+    ["cotizado", "Cotizado"],
+    ["ganado", "Ganado"],
+    ["perdido", "Perdido"],
+    // compatibilidad con estados antiguos
+    ["esperando_reserva", "Esperando reserva"],
     ["reservado", "Reservado"],
     ["completado", "Completado"],
     ["cancelado", "Cancelado"],
   ];
   const leadStatusLabel = (status) => (LEAD_ESTADOS.find(([value]) => value === status) || LEAD_ESTADOS[0])[1];
+  // Embudo de ventas (orden de etapas)
+  const PIPELINE = ["nuevo", "contactado", "cotizado", "ganado", "perdido"];
+  let convGroups = {}; // transcripciones del chat por sesión (para el resumen IA)
 
   const LOCAL_KEY = "csc_local_admin";
   let localAdmin = sessionStorage.getItem(LOCAL_KEY) === "1";
@@ -106,6 +113,7 @@
     await renderOrders();
     await renderServiceLeads();
     renderDashboard();
+    updateConvBadge();
   }
 
   /* ---------- Login ---------- */
@@ -161,13 +169,51 @@
     if (!rows.length) { cont.innerHTML = `<p class="muted">Aún no hay conversaciones. Aparecerán cuando los clientes usen el chat.</p>`; return; }
     const groups = {};
     rows.forEach((r) => { (groups[r.session_id] = groups[r.session_id] || []).push(r); });
+    convGroups = groups;
     const order = Object.keys(groups).sort((a, b) => new Date(groups[b][0].created_at) - new Date(groups[a][0].created_at));
+    const todayIso = new Date().toISOString().slice(0, 10);
+    setBadge("badge-conversaciones", order.filter((sid) => (groups[sid][0].created_at || "").slice(0, 10) === todayIso).length);
     cont.innerHTML = order.map((sid) => {
       const msgs = groups[sid];
       const fecha = new Date(msgs[0].created_at).toLocaleString("es-PA");
       const body = msgs.map((m) => `<div class="conv__msg conv__msg--${m.rol === "user" ? "user" : "bot"}"><b>${m.rol === "user" ? "Cliente" : "Asistente"}:</b> ${esc(m.mensaje)}</div>`).join("");
-      return `<div class="admin__card"><div class="conv__head"><strong>Consulta</strong> · <span class="muted">${fecha}</span></div>${body}</div>`;
+      return `<div class="admin__card" data-conv="${esc(sid)}">
+        <div class="conv__head"><strong>Consulta</strong> · <span class="muted">${fecha}</span>
+          <button class="btn btn--ghost btn--sm" type="button" data-summarize="${esc(sid)}">✨ Resumen IA</button>
+        </div>
+        <div class="conv__summary" hidden></div>
+        ${body}</div>`;
     }).join("");
+  }
+
+  // Resumen con IA de una conversación
+  $("#convList")?.addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-summarize]");
+    if (!btn) return;
+    const sid = btn.getAttribute("data-summarize");
+    const msgs = convGroups[sid] || [];
+    const card = btn.closest("[data-conv]");
+    const box = card ? card.querySelector(".conv__summary") : null;
+    if (!box) return;
+    box.hidden = false; box.textContent = "Resumiendo…";
+    const transcript = msgs.map((m) => (m.rol === "user" ? "Cliente" : "Asistente") + ": " + m.mensaje).join("\n");
+    try {
+      const r = await DB.preguntarIA([{ role: "user", content: "Resume en UNA sola frase, en español, qué necesita o busca este cliente (incluye edad, peso o zona si aparecen). No saludes, solo el resumen:\n\n" + transcript }]);
+      box.textContent = (r && r.answer) ? "📝 " + r.answer : "No se pudo resumir.";
+    } catch (err) {
+      box.textContent = "No se pudo resumir (la IA no respondió).";
+    }
+  });
+
+  async function updateConvBadge() {
+    try {
+      const rows = await DB.getConversaciones();
+      const groups = {};
+      rows.forEach((r) => { (groups[r.session_id] = groups[r.session_id] || []).push(r); });
+      const todayIso = new Date().toISOString().slice(0, 10);
+      const today = Object.keys(groups).filter((sid) => (groups[sid][0].created_at || "").slice(0, 10) === todayIso).length;
+      setBadge("badge-conversaciones", today);
+    } catch (e) {}
   }
 
   $$(".tab").forEach((t) => t.addEventListener("click", () => {
@@ -352,6 +398,7 @@
     renderDashboardOrders();
     renderDashboardLeads();
     renderDashboardStock([...out, ...low].slice(0, 8));
+    updateBadges();
   }
 
   function renderAlerts() {
@@ -391,7 +438,7 @@
   }
 
   function leadIsOpen(lead) {
-    return !["completado", "cancelado"].includes(lead.status || "nuevo");
+    return !["ganado", "perdido", "completado", "cancelado"].includes(lead.status || "nuevo");
   }
 
   function isLeadToday(lead) {
@@ -534,9 +581,107 @@
   async function renderServiceLeads() {
     try { serviceLeads = await DB.getServiceLeads(); }
     catch (e) { serviceLeads = []; }
+    renderPipeline();
+    renderLeadStats();
     renderScheduleBoard();
     renderLeadList();
     renderDashboard();
+  }
+
+  /* ---------- Embudo de ventas (pipeline) ---------- */
+  function renderPipeline() {
+    const target = $("#leadPipeline");
+    if (!target) return;
+    const counts = {};
+    PIPELINE.forEach((s) => { counts[s] = 0; });
+    serviceLeads.forEach((l) => { const s = l.status || "nuevo"; if (counts[s] !== undefined) counts[s]++; });
+    const activeFilter = $("#leadStatusFilter")?.value || "all";
+    target.innerHTML = PIPELINE.map((s, i) => `
+      <button class="pipe pipe--${s} ${activeFilter === s ? "is-active" : ""}" type="button" data-pipe="${s}">
+        <b>${counts[s]}</b><span>${leadStatusLabel(s)}</span>
+      </button>${i < PIPELINE.length - 1 ? '<span class="pipe-arrow">›</span>' : ""}`).join("");
+  }
+
+  /* ---------- Estadísticas de consultas ---------- */
+  function renderLeadStats() {
+    const target = $("#leadStats");
+    if (!target) return;
+    const now = new Date();
+    const todayIso = now.toISOString().slice(0, 10);
+    const weekAgo = new Date(now.getTime() - 6 * 86400000);
+    const total = serviceLeads.length;
+    const hoy = serviceLeads.filter((l) => (l.created_at || "").slice(0, 10) === todayIso).length;
+    const semana = serviceLeads.filter((l) => new Date(l.created_at) >= weekAgo).length;
+    const citas = serviceLeads.filter((l) => l.date).length;
+    const ganados = serviceLeads.filter((l) => l.status === "ganado").length;
+    const temas = {};
+    serviceLeads.forEach((l) => { const t = l.service || "Consulta"; temas[t] = (temas[t] || 0) + 1; });
+    const topTemas = Object.entries(temas).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 86400000);
+      const iso = d.toISOString().slice(0, 10);
+      const n = serviceLeads.filter((l) => (l.created_at || "").slice(0, 10) === iso).length;
+      days.push({ label: d.toLocaleDateString("es-PA", { weekday: "short" }), n });
+    }
+    const maxN = Math.max(1, ...days.map((d) => d.n));
+    target.innerHTML = `
+      <div class="lstat-cards">
+        <div class="lstat"><b>${total}</b><span>consultas en total</span></div>
+        <div class="lstat"><b>${hoy}</b><span>hoy</span></div>
+        <div class="lstat"><b>${semana}</b><span>últimos 7 días</span></div>
+        <div class="lstat"><b>${citas}</b><span>con cita/fecha</span></div>
+        <div class="lstat lstat--win"><b>${ganados}</b><span>ganados</span></div>
+      </div>
+      <div class="lstat-cols">
+        <div class="lstat-block">
+          <strong>Consultas por día</strong>
+          <div class="lstat-bars" aria-label="Consultas por día">
+            ${days.map((d) => `<div class="lbar"><b>${d.n}</b><span class="lbar__fill" style="height:${Math.round(d.n / maxN * 100)}%"></span><small>${d.label}</small></div>`).join("")}
+          </div>
+        </div>
+        <div class="lstat-block">
+          <strong>Temas más preguntados</strong>
+          ${topTemas.length ? topTemas.map(([t, n]) => `<div class="ltop"><span>${esc(t)}</span><b>${n}</b></div>`).join("") : '<p class="muted">Sin datos aún.</p>'}
+        </div>
+      </div>`;
+  }
+
+  /* ---------- Avisos (badges) en pestañas ---------- */
+  function setBadge(id, n) {
+    const el = $("#" + id);
+    if (!el) return;
+    if (n > 0) { el.textContent = n; el.hidden = false; } else { el.hidden = true; }
+  }
+  function updateBadges() {
+    setBadge("badge-agenda", serviceLeads.filter((l) => (l.status || "nuevo") === "nuevo").length);
+    setBadge("badge-pedidos", orders.filter((o) => (o.status || "nuevo") === "nuevo").length);
+  }
+
+  /* ---------- Exportar a CSV/Excel ---------- */
+  function downloadCSV(filename, rows) {
+    const csv = rows.map((r) => r.map((c) => `"${String(c == null ? "" : c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  }
+  function exportLeadsCSV() {
+    if (!serviceLeads.length) { toast("No hay consultas para exportar"); return; }
+    const header = ["Creado", "Estado", "Prioridad", "Tipo", "Servicio", "Nombre", "Telefono", "Fecha", "Hora", "Mensaje", "Nota", "Seguimiento"];
+    const rows = serviceLeads.map((l) => {
+      const d = l.details || {};
+      return [
+        new Date(l.created_at).toLocaleString("es-PA"),
+        leadStatusLabel(l.status), l.priority || "", l.type || "", l.service || "",
+        l.name || "", l.phone || "", l.date || "", l.slot || "",
+        (l.message || "").replace(/\s+/g, " "), d.notas || "", d.seguimiento || "",
+      ];
+    });
+    downloadCSV("consultas-crm.csv", [header, ...rows]);
+    toast("Archivo descargado");
   }
 
   function renderScheduleBoard() {
@@ -580,12 +725,18 @@
       const rental = isRentalLead(lead);
       const wa = leadWhatsappUrl(lead);
       const opts = LEAD_ESTADOS.map(([value, label]) => `<option value="${value}" ${lead.status === value ? "selected" : ""}>${label}</option>`).join("");
-      return `<div class="lead-card ${rental ? "lead-rental" : ""}" data-lead="${esc(lead.id)}">
+      const notas = esc(details.notas || "");
+      const seg = esc(details.seguimiento || "");
+      const overdue = details.seguimiento && details.seguimiento < new Date().toISOString().slice(0, 10) && leadIsOpen(lead);
+      const idx = PIPELINE.indexOf(lead.status || "nuevo");
+      const next = idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : null;
+      return `<div class="lead-card ${rental ? "lead-rental" : ""} ${overdue ? "is-overdue" : ""}" data-lead="${esc(lead.id)}">
         <div class="lead-card__top">
           <div>
             <span class="lead-priority lead-priority--${esc(lead.priority || "media")}">${esc(lead.priority || "media")}</span>
-            <span class="lead-status">${esc(leadStatusLabel(lead.status))}</span>
+            <span class="lead-status lead-status--${esc(lead.status || "nuevo")}">${esc(leadStatusLabel(lead.status))}</span>
             ${rental ? '<span class="lead-rental__badge">Alquiler</span>' : ""}
+            ${overdue ? '<span class="lead-overdue">Seguimiento vencido</span>' : ""}
             <strong>${esc(lead.name || lead.phone || "Cliente pendiente")}</strong>
             <small>${esc(lead.service || "Consulta IA")} · ${esc(leadTimeLabel(lead))}</small>
           </div>
@@ -601,8 +752,14 @@
         </div>
         ${rentalCardHtml(lead)}
         ${lead.message ? `<p class="lead-message">${esc(lead.message)}</p>` : ""}
+        <div class="lead-followup">
+          <label>Nota interna <input type="text" data-lead-note value="${notas}" placeholder="Ej: le interesa la Joie 360, recontactar" /></label>
+          <label>Seguir el <input type="date" data-lead-followup value="${seg}" /></label>
+          <button class="btn btn--ghost btn--sm" type="button" data-save-note="${esc(lead.id)}">Guardar nota</button>
+        </div>
         <div class="admin__card-actions">
           <label class="inline">Estado <select data-lead-status>${opts}</select></label>
+          ${next ? `<button class="btn btn--primary btn--sm" type="button" data-advance="${esc(lead.id)}">Avanzar a ${leadStatusLabel(next)} →</button>` : ""}
           ${wa ? `<a class="btn btn--whatsapp btn--sm lead-whatsapp" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
           <button class="btn btn--ghost btn--sm" type="button" data-copy-lead="${esc(lead.id)}">Copiar resumen</button>
         </div>
@@ -624,17 +781,62 @@
 
   $("#leadList")?.addEventListener("click", async (e) => {
     const copy = e.target.closest("[data-copy-lead]");
-    if (!copy) return;
-    const lead = serviceLeads.find((item) => item.id === copy.getAttribute("data-copy-lead"));
-    if (!lead || !navigator.clipboard) { toast("No se pudo copiar"); return; }
-    try { await navigator.clipboard.writeText(leadSummary(lead)); toast("Resumen copiado"); }
-    catch (err) { toast("No se pudo copiar"); }
+    if (copy) {
+      const lead = serviceLeads.find((item) => item.id === copy.getAttribute("data-copy-lead"));
+      if (!lead || !navigator.clipboard) { toast("No se pudo copiar"); return; }
+      try { await navigator.clipboard.writeText(leadSummary(lead)); toast("Resumen copiado"); }
+      catch (err) { toast("No se pudo copiar"); }
+      return;
+    }
+    // Guardar nota + fecha de seguimiento
+    const save = e.target.closest("[data-save-note]");
+    if (save) {
+      const card = save.closest("[data-lead]");
+      const lead = serviceLeads.find((item) => item.id === save.getAttribute("data-save-note"));
+      if (!lead || !card) return;
+      const details = { ...(lead.details || {}) };
+      details.notas = card.querySelector("[data-lead-note]").value.trim();
+      details.seguimiento = card.querySelector("[data-lead-followup]").value || "";
+      lead.details = details;
+      save.disabled = true; save.textContent = "Guardando…";
+      await DB.updateLead(lead.id, { details });
+      save.disabled = false; save.textContent = "Guardar nota";
+      renderLeadList();
+      toast("Nota guardada");
+      return;
+    }
+    // Avanzar de etapa en el embudo
+    const adv = e.target.closest("[data-advance]");
+    if (adv) {
+      const lead = serviceLeads.find((item) => item.id === adv.getAttribute("data-advance"));
+      if (!lead) return;
+      const idx = PIPELINE.indexOf(lead.status || "nuevo");
+      const next = idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : null;
+      if (!next) return;
+      lead.status = next;
+      await DB.updateLeadStatus(lead.id, next);
+      renderPipeline(); renderLeadStats(); renderLeadList(); renderScheduleBoard(); renderDashboard();
+      toast("Movido a " + leadStatusLabel(next));
+    }
   });
+
+  // Embudo: clic en una etapa filtra por ese estado
+  $("#leadPipeline")?.addEventListener("click", (e) => {
+    const pipe = e.target.closest("[data-pipe]");
+    if (!pipe) return;
+    const stage = pipe.getAttribute("data-pipe");
+    const filter = $("#leadStatusFilter");
+    if (filter) { filter.value = filter.value === stage ? "all" : stage; }
+    renderPipeline();
+    renderLeadList();
+  });
+
+  $("#exportLeads")?.addEventListener("click", exportLeadsCSV);
 
   ["leadSearch", "leadTypeFilter", "leadStatusFilter"].forEach((id) => {
     const el = $(`#${id}`);
-    if (el) el.addEventListener("input", renderLeadList);
-    if (el) el.addEventListener("change", renderLeadList);
+    if (el) el.addEventListener("input", () => { renderLeadList(); renderPipeline(); });
+    if (el) el.addEventListener("change", () => { renderLeadList(); renderPipeline(); });
   });
 
   function openEditor(p) {

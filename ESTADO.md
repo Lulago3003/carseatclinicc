@@ -46,6 +46,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] Pedidos con estados (nuevo → pagado → listo para instalar…) y contacto por WhatsApp.
 - [x] Conversaciones del chat (ver abajo).
 - [x] Nueva pestaña **Agenda IA**: calendario de solicitudes, filtros por tipo/estado, tarjetas de casos, cambio de estado, resumen copiable y botón de WhatsApp.
+- [x] **CRM potenciado (6 mejoras)**: (1) **Embudo de ventas** Nuevo→Contactado→Cotizado→Ganado/Perdido con conteos y botón "Avanzar"; (2) **Notas + fecha de seguimiento** por consulta (guarda en `details`, marca "vencido"); (3) **Resumen IA** de cada conversación (botón que llama a la Edge Function); (4) **Estadísticas** (consultas total/hoy/semana, ganados, barras por día, temas top); (5) **Badges de "nuevos"** en pestañas Agenda/Pedidos/Conversaciones; (6) **Exportar a Excel/CSV**. Código en `js/admin.js` + `DB.updateLead` en `supabase.js` + estilos en `styles.css`.
 - [x] Captura de leads/casos en `crm_leads`: citas, reservas sugeridas, consultas de IA, revisión de silla, lavado, instalación y cotización. Funciona con Supabase si se corre `supabase-crm-atencion.sql` y se activa `CONFIG.crm.guardarSolicitudes=true`; mientras tanto usa `localStorage`.
 - [x] CRM reconoce solicitudes de **alquiler** como tipo propio: badge, dias, equipo, entrega, devolucion, recogida, edad/peso y resumen listo para WhatsApp.
 

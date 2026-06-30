@@ -67,9 +67,9 @@
         <div class="admin__tabs" role="tablist" aria-label="Secciones del panel">
           <button class="tab is-active" data-tab="dashboard" type="button">Resumen</button>
           <button class="tab" data-tab="productos" type="button">Productos</button>
-          <button class="tab" data-tab="pedidos" type="button">Pedidos</button>
-          <button class="tab" data-tab="agenda" type="button">Agenda IA</button>
-          <button class="tab" data-tab="conversaciones" type="button">Conversaciones</button>
+          <button class="tab" data-tab="pedidos" type="button">Pedidos <span class="tab__badge" id="badge-pedidos" hidden></span></button>
+          <button class="tab" data-tab="agenda" type="button">Agenda IA <span class="tab__badge" id="badge-agenda" hidden></span></button>
+          <button class="tab" data-tab="conversaciones" type="button">Conversaciones <span class="tab__badge" id="badge-conversaciones" hidden></span></button>
         </div>
       </aside>
 
@@ -210,14 +210,16 @@
               <span class="eyebrow">Atencion inteligente</span>
               <h2>Agenda, casos y consultas IA</h2>
             </div>
+            <button class="btn btn--ghost btn--sm" id="exportLeads" type="button">⬇ Exportar a Excel</button>
           </div>
-          <div class="ai-intake">
-            <div>
-              <span class="eyebrow">Flujo recomendado</span>
-              <h3>IA orienta, CRM prioriza, asesor confirma</h3>
-            </div>
-            <p>Las solicitudes del calendario y del asistente llegan aqui para que puedas responder, reservar o marcar como completado.</p>
-          </div>
+
+          <span class="eyebrow">Embudo de ventas</span>
+          <div class="lead-pipeline" id="leadPipeline"></div>
+
+          <span class="eyebrow">Estadísticas</span>
+          <div class="lead-stats" id="leadStats"></div>
+
+          <span class="eyebrow">Próximos días</span>
           <div class="schedule-board" id="scheduleBoard"></div>
           <div class="admin-filters admin-filters--leads" aria-label="Filtros de agenda">
             <label>Buscar
@@ -236,10 +238,10 @@
               <select id="leadStatusFilter">
                 <option value="all">Todos</option>
                 <option value="nuevo">Nuevo</option>
-                <option value="esperando_reserva">Esperando reserva</option>
                 <option value="contactado">Contactado</option>
-                <option value="reservado">Reservado</option>
-                <option value="completado">Completado</option>
+                <option value="cotizado">Cotizado</option>
+                <option value="ganado">Ganado</option>
+                <option value="perdido">Perdido</option>
               </select>
             </label>
           </div>

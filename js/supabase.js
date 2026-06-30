@@ -200,15 +200,26 @@ const DB = (function () {
   }
 
   async function updateLeadStatus(id, status) {
+    return updateLead(id, { status });
+  }
+
+  // Actualiza campos de una solicitud (estado, notas/seguimiento en details, etc.)
+  async function updateLead(id, patch) {
     const rows = readLocalLeads();
     const item = rows.find((row) => row.id === id);
     if (item) {
-      item.status = status;
+      if (patch.status !== undefined) item.status = patch.status;
+      if (patch.details !== undefined) item.details = patch.details;
+      if (patch.priority !== undefined) item.priority = patch.priority;
       item.updated_at = new Date().toISOString();
       writeLocalLeads(rows);
     }
     if (ready && CONFIG.crm?.guardarSolicitudes) {
-      try { await client.from("crm_leads").update({ estado: status, updated_at: new Date().toISOString() }).eq("id", id); } catch (e) {}
+      const row = { updated_at: new Date().toISOString() };
+      if (patch.status !== undefined) row.estado = patch.status;
+      if (patch.details !== undefined) row.detalles = patch.details;
+      if (patch.priority !== undefined) row.prioridad = patch.priority;
+      try { await client.from("crm_leads").update(row).eq("id", id); } catch (e) {}
     }
   }
 
@@ -308,7 +319,7 @@ const DB = (function () {
     getProducts, getProductsAdmin, saveProduct, deleteProduct, uploadImage,
     placeOrder, getMyOrders, updateOrderStatus, crearPago,
     guardarMensaje, preguntarIA, getConversaciones,
-    guardarLead, getServiceLeads, updateLeadStatus,
+    guardarLead, getServiceLeads, updateLeadStatus, updateLead,
     signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };
 })();
