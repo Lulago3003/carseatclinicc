@@ -21,6 +21,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] Ficha de producto: galería con miniaturas, cantidad, miga de pan, características.
 - [x] "Encuentra tu silla ideal" (cuestionario que recomienda silla).
 - [x] Carrito persistente + checkout. Login obligatorio para comprar.
+- [x] **Carrito de cotización**: ahora se puede **agregar al carrito cualquier producto aunque diga "Consultar"** (sin precio). El carrito muestra "Consultar"/"A cotizar" y el botón pasa a **"Solicitar cotización por WhatsApp"** (manda la lista, sin pago/login). Cuando haya precios reales, vuelve al checkout normal.
+- [x] **Barra de búsqueda** en el catálogo (`#shopSearch`): filtra por nombre, marca, etapa o recomendado.
+- [x] **El asistente recomienda con modelos + enlace**: tras una respuesta sobre sillas, muestra los **nombres reales del catálogo** y un botón "Ver [tipo] →" que abre el catálogo filtrado por esa etapa (`window.CSC_showCatalog` / `window.CSC_PRODUCTS`).
 - [x] Precios en modo "Consultar / Cotizar por WhatsApp" + etiqueta de descuento "-X%" automática.
 
 **Confianza / contenido**

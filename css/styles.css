@@ -248,6 +248,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .fcheck { display: flex; align-items: center; gap: 9px; font-size: .9rem; color: var(--ink); cursor: pointer; font-weight: 400; margin: 0; }
 .fcheck input { width: auto; margin: 0; }
 .shop__bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 14px; flex-wrap: wrap; }
+.shop__search {
+  flex: 1 1 280px; min-width: 0; margin: 0; padding: 11px 16px; border: 1.5px solid var(--line);
+  border-radius: 999px; background: #fff; font-family: inherit; font-size: .92rem; color: var(--ink);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.shop__search:focus { outline: none; border-color: var(--sage); box-shadow: 0 0 0 3px var(--focus); }
 .shop__count { color: var(--muted); font-size: .9rem; }
 .shop__sortwrap { display: flex; align-items: center; gap: 8px; font-size: .86rem; color: var(--muted); margin: 0; font-weight: 500; }
 .shop__sort { width: auto; margin: 0; padding: 9px 12px; }
@@ -1412,6 +1418,14 @@ body.admin [hidden] { display: none !important; }
   transition: background .16s ease, transform .16s ease, border-color .16s ease;
 }
 .chat__quick button:hover { background: var(--brand-soft); border-color: var(--sage); transform: translateY(-1px); }
+.chat__reco { display: flex; flex-direction: column; gap: 6px; max-width: 92%; margin-top: 2px; }
+.chat__reco small { color: var(--muted); font-size: .76rem; }
+.chat__recobtn {
+  align-self: flex-start; padding: 9px 15px; border-radius: 999px; border: 1.5px solid var(--brand);
+  background: #fff; color: var(--brand-dark); font-family: inherit; font-weight: 700; font-size: .85rem;
+  cursor: pointer; text-decoration: none; transition: background .18s ease, transform .18s ease;
+}
+.chat__recobtn:hover { background: var(--brand-soft); transform: translateY(-1px); }
 .chat__actions {
   display: flex; flex-wrap: wrap; gap: 8px; max-width: 94%; margin-top: -4px;
 }

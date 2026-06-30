@@ -117,7 +117,7 @@
     let changed = false;
     Object.keys(cart).forEach((id) => {
       const p = productById(id);
-      if (!p || !isPriced(p) || p.stock <= 0) {
+      if (!p || p.stock <= 0) {
         delete cart[id];
         changed = true;
       } else if (cart[id] > p.stock) {
@@ -161,27 +161,26 @@
   function add(id, qty = 1) {
     const p = productById(id);
     if (!p) return;
-    if (!isPriced(p)) { consultProduct(p); toast("Te abrimos WhatsApp para cotizar"); return; }
     if (p.stock <= 0) { toast("Producto agotado"); return; }
     const current = cart[id] || 0;
     if (current + qty > p.stock) { toast("No hay suficiente stock disponible"); return; }
     cart[id] = current + qty;
     save(); renderCart(); openCart();
     const cc = $("#cartCount"); if (cc) { cc.classList.remove("pop"); void cc.offsetWidth; cc.classList.add("pop"); }
-    toast("Agregado al carrito ✓");
+    toast(isPriced(p) ? "Agregado al carrito ✓" : "Agregado para cotizar ✓");
   }
   function setQty(id, qty) {
     const p = productById(id);
-    if (p && !isPriced(p)) { delete cart[id]; save(); renderCart(); return; }
-    if (p && qty > p.stock) { toast(`Solo quedan ${p.stock}`); qty = p.stock; }
+    if (p && p.stock > 0 && qty > p.stock) { toast(`Solo quedan ${p.stock}`); qty = p.stock; }
     if (qty <= 0) delete cart[id]; else cart[id] = qty;
     save(); renderCart();
   }
   function cartList() {
-    return Object.entries(cart).map(([id, qty]) => ({ id, qty, p: productById(id) })).filter((i) => i.p && isPriced(i.p));
+    return Object.entries(cart).map(([id, qty]) => ({ id, qty, p: productById(id) })).filter((i) => i.p);
   }
   function itemsCount() { return cartList().reduce((a, i) => a + i.qty, 0); }
-  function total() { return cartList().reduce((s, { qty, p }) => s + p.precio * qty, 0); }
+  function total() { return cartList().reduce((s, { qty, p }) => s + (isPriced(p) ? p.precio * qty : 0), 0); }
+  function cartHasUnpriced() { return cartList().some(({ p }) => !isPriced(p)); }
 
   /* ---------- Render: productos ---------- */
   function renderProducts(list) {
@@ -190,7 +189,7 @@
     grid.innerHTML = list.map((p, index) => {
       const agotado = p.stock <= 0;
       const sinPrecio = !isPriced(p);
-      const canBuy = !agotado && !sinPrecio;
+      const canBuy = !agotado;
       const desc = shortText(p.descripcion || p.recomendado || "", 118);
       const imgs = productImageList(p);
       const category = CAT_LABEL[p.categoria] || p.categoria || "Producto";
@@ -279,6 +278,8 @@
 
   function applyFilters() {
     let list = products.slice();
+    const q = ($("#shopSearch")?.value || "").toLowerCase().trim();
+    if (q) list = list.filter((p) => `${p.nombre} ${p.marca || ""} ${CAT_LABEL[p.categoria] || ""} ${p.recomendado || ""}`.toLowerCase().includes(q));
     if (fCat !== "todos") list = list.filter((p) => p.categoria === fCat);
     if (fBrands.size) list = list.filter((p) => fBrands.has(p.marca));
     const pr = PRICE_RANGES.find((r) => r[0] === fPrice); if (pr) list = list.filter(pr[2]);
@@ -322,7 +323,7 @@
         <div class="cart-item__media">${media(p, true)}</div>
         <div class="cart-item__info">
           <div class="cart-item__name">${p.nombre}</div>
-          <div class="cart-item__price">${money(p.precio * qty)}</div>
+          <div class="cart-item__price">${isPriced(p) ? money(p.precio * qty) : "Consultar"}</div>
           <div class="cart-item__qty">
             <button data-dec="${id}" aria-label="Quitar uno">−</button>
             <span>${qty}</span>
@@ -331,7 +332,10 @@
         </div>
         <button class="cart-item__remove" data-rm="${id}">Eliminar</button>
       </div>`).join("");
-    $("#cartTotal").textContent = money(total());
+    const unpriced = cartHasUnpriced();
+    $("#cartTotal").textContent = unpriced ? "A cotizar" : money(total());
+    const checkoutBtn = $("#goCheckout");
+    if (checkoutBtn) checkoutBtn.textContent = unpriced ? "Solicitar cotización por WhatsApp" : "Finalizar compra";
   }
 
   function openCart() { $("#cart").classList.add("is-open"); $("#overlay").classList.add("is-open"); }
@@ -364,12 +368,9 @@
         ${feats}
         ${agotado
           ? `<button class="btn btn--primary btn--block" disabled>Agotado</button>`
-          : sinPrecio
-            ? `<a class="btn btn--whatsapp btn--block" href="${consultUrl(p)}" target="_blank" rel="noopener">Consultar por WhatsApp</a>
-              <p class="detail__hint">Te confirmamos precio, disponibilidad y compatibilidad con tu auto.</p>`
-            : `<div class="detail__buy">
+          : `<div class="detail__buy">
               <div class="detail__qty"><button data-detqty="-1" aria-label="Menos">−</button><span id="detQty">1</span><button data-detqty="1" aria-label="Más">+</button></div>
-              <button class="btn btn--primary detail__addbtn" id="detailAdd">Agregar al carrito</button>
+              <button class="btn btn--primary detail__addbtn" id="detailAdd">${sinPrecio ? "Agregar a mi cotización" : "Agregar al carrito"}</button>
             </div>`}
       </div>`;
     $("#detailModal").classList.add("is-open");
@@ -379,7 +380,14 @@
   /* ---------- Checkout ---------- */
   function goCheckout() {
     if (itemsCount() === 0) { toast("Tu carrito está vacío"); return; }
-    if (total() <= 0) { toast("Consulta precios por WhatsApp antes de finalizar"); return; }
+    // Si hay productos sin precio, mandamos la lista para cotizar por WhatsApp.
+    if (cartHasUnpriced()) {
+      const lineas = cartList().map(({ qty, p }) => `• ${qty}x ${p.nombre}${isPriced(p) ? " — " + money(p.precio * qty) : ""}`).join("%0A");
+      const msg = `Hola Car Seat Clinic 👋 Quiero cotizar estos productos:%0A%0A${lineas}%0A%0A¿Me confirman precio, disponibilidad y compatibilidad?`;
+      window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, "_blank");
+      toast("Te abrimos WhatsApp con tu lista para cotizar");
+      return;
+    }
     // En modo real, hay que iniciar sesión para comprar
     if (DB.ready && !currentUser) {
       pendingCheckout = true;
@@ -1012,7 +1020,15 @@
     buildFilters();
     applyFilters();
     renderCart();
+    // Disponible para el asistente (mostrar modelos recomendados)
+    window.CSC_PRODUCTS = products;
   }
+
+  // El chat usa esto para llevar al cliente al catálogo filtrado por etapa
+  window.CSC_showCatalog = function (cat) {
+    if (cat && cat !== "todos") applyFilter(cat);
+    else document.getElementById("productos")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   // Carrusel del hero (cambia cada 4s)
   function setupHeroSlider() {
@@ -1312,6 +1328,7 @@
     }
   });
   $("#sortSelect").addEventListener("change", (e) => { fSort = e.target.value; applyFilters(); });
+  $("#shopSearch")?.addEventListener("input", applyFilters);
   $("#filtersToggle").addEventListener("click", () => $("#filtersBody").classList.toggle("is-open"));
 
   $("#openCart").addEventListener("click", openCart);

@@ -117,6 +117,36 @@
       wrap.appendChild(wa);
       msgs.appendChild(wrap); msgs.scrollTop = msgs.scrollHeight;
     }
+    // Recomendación: tras una respuesta sobre sillas, sugiere ver el catálogo filtrado
+    function recommendCategory(t) {
+      t = (t || "").toLowerCase();
+      if (/recien nacid|reci[eé]n nacid|porta ?beb|grupo 0|0 a 12 mes/.test(t)) return ["recien-nacidos", "sillas para recién nacido"];
+      if (/360|giratori/.test(t)) return ["giro-360", "sillas giratorias 360°"];
+      if (/booster|elevador/.test(t)) return ["booster", "boosters"];
+      if (/combinad/.test(t)) return ["combinadas", "sillas combinadas"];
+      if (/convertibl/.test(t)) return ["convertibles", "sillas convertibles"];
+      if (/silla|asiento|car ?seat|beb[eé]/.test(t)) return ["todos", "nuestras sillas"];
+      return null;
+    }
+    function recoActions(text) {
+      const rec = recommendCategory(text);
+      if (!rec) return;
+      const [cat, label] = rec;
+      const prods = (Array.isArray(window.CSC_PRODUCTS) ? window.CSC_PRODUCTS : [])
+        .filter((p) => (cat === "todos" || p.categoria === cat) && p.activo !== false).slice(0, 3);
+      const wrap = document.createElement("div");
+      wrap.className = "chat__reco";
+      if (prods.length) wrap.innerHTML = `<small>En el catálogo: ${prods.map((p) => esc(p.nombre)).join(" · ")}</small>`;
+      const onIndex = typeof window.CSC_showCatalog === "function";
+      const btn = document.createElement(onIndex ? "button" : "a");
+      btn.className = "chat__recobtn";
+      btn.textContent = "🔎 Ver " + label + " →";
+      if (onIndex) { btn.type = "button"; btn.addEventListener("click", () => { close(); window.CSC_showCatalog(cat); }); }
+      else { btn.href = "index.html#productos"; btn.target = "_top"; }
+      wrap.appendChild(btn);
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
     function clearQuickActions() { $$(".chat__quick", msgs).forEach((el) => el.remove()); }
     function quickActions() {
       const wrap = document.createElement("div");
@@ -166,6 +196,7 @@
         saveAdvisorLead(local, text);
         renderAdvisorActions(local, text);
       }
+      recoActions((answer || local.answer || "") + " " + text);
     });
   }
 
