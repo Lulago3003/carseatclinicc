@@ -17,11 +17,11 @@ const CONFIG = {
   whatsapp: "50766743012",
   email: "hola@carseatclinic.com",
   instagram: "https://www.instagram.com/carseatclinicc",
-  ubicacion: "Ciudad de Panamá, Panamá",
+  ubicacion: "PH City Towers, Vía España · Ciudad de Panamá",
   horario: "Lun a Sáb · 9:00 a.m. – 6:00 p.m.",
   // Dirección que se muestra en el mapa. Cambia por la dirección real
   // (puedes poner el nombre del local o una dirección exacta).
-  mapsQuery: "Ciudad de Panamá, Panamá",
+  mapsQuery: "Car Seat Clinic Center, PH City Towers, Vía España, Panamá",
   // Enlace de Waze para "cómo llegar" (QR junto al mapa). Si lo dejas vacío,
   // se arma con la ubicación. Lo ideal: pon el enlace exacto de tu local
   // (en Waze: compartir → copiar enlace) o coordenadas.

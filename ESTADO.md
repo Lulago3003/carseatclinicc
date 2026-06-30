@@ -101,7 +101,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [ ] **Corregir fotos mal asignadas**: el .docx ancla imágenes fuera de orden, algunas no son el modelo exacto → ajustar por producto en el CRM.
 - [x] **Testimonios reales**: 3 reseñas reales de Google (Ivohne Jensen, Ana María Paredes, Gianfranco Lo Medico) en `js/data.js` → `TESTIMONIOS`.
 - [ ] **Historia + foto de la fundadora/equipo** y **certificación CPST visible**.
-- [ ] **Dirección exacta** del local → `CONFIG.mapsQuery` y `CONFIG.wazeUrl`.
+- [x] **Dirección exacta** del local cargada: PH City Towers, Vía España (a un costado de Taller Rayo Import), Ciudad de Panamá. En `CONFIG.ubicacion` y `CONFIG.mapsQuery` (mapa + Waze).
 
 ## ⬜ PENDIENTE — antes de LANZAR al público
 
