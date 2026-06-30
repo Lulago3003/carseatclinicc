@@ -34,6 +34,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] **Alquiler para viajes** y **Recursos de seguridad** estan OCULTAS en la home (guardadas como comentario `GUARDADO ... FIN GUARDADO` en `index.html`, faciles de reactivar). El alquiler completo sigue en `servicios.html`. Se quito el enlace "Recursos" del menu.
 - [x] "Ruta segura" rediseñada limpia: 4 tarjetas alineadas (Paso 1-4: Diagnostico, Compatibilidad, Instalacion, Seguimiento) con icono + etiqueta + titulo + texto, sobre banda verde. Clases `.route-steps`/`.rstep` (se quitaron las `.route-card` recargadas con destellos/lineas).
 - [x] Reserva de cita (por WhatsApp), Newsletter (footer + pop-up).
+- [x] **Calendario visual de rango** para el alquiler (estilo reserva de hotel): el cliente toca el día de entrega y el de devolución, se marca el rango y muestra "X noches"; rellena `#citaFecha` y `#rentalEndDate` automáticamente. Código en `setupRentalCalendar()` (store.js), estilos `.rcal` en styles.css.
 - [x] Seccion **Alquiler para viajes** inspirada en flujo tipo reserva: imagen real, pasos, CTA y formulario con equipo, fecha de entrega, devolucion, entrega, recogida, edad/peso e instalacion opcional.
 - [x] Contacto + mapa + **QR de Waze** ("cómo llegar").
 

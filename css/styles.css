@@ -738,6 +738,46 @@ select:focus { outline: none; border-color: var(--brand); }
   min-height: 48px; padding: 13px 15px; border: 1px dashed var(--line); border-radius: 14px;
   background: var(--bg-alt); color: var(--muted); font-size: .9rem;
 }
+
+/* ---------- Calendario de rango para alquiler ---------- */
+.rcal {
+  margin-bottom: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 18px;
+  background: #fff; box-shadow: var(--shadow-sm);
+}
+.rcal__info {
+  display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.rcal__info strong { color: var(--brand-dark); font-size: 1.1rem; }
+.rcal__info span { color: var(--muted); font-size: .85rem; }
+.rcal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.rcal__head strong { color: var(--brand-dark); font-size: 1rem; text-transform: capitalize; }
+.rcal__nav {
+  width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: #fff;
+  color: var(--brand-dark); font-size: 1.2rem; line-height: 1; cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.rcal__nav:hover { background: var(--surface-warm); border-color: var(--sage); }
+.rcal__dow {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px;
+  text-align: center; color: var(--muted); font-size: .72rem; font-weight: 700;
+}
+.rcal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.rcal__day {
+  aspect-ratio: 1 / 1; display: grid; place-items: center; border: 0; background: transparent;
+  border-radius: 50%; font-family: inherit; font-size: .9rem; color: var(--ink); cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.rcal__day.is-empty { pointer-events: none; }
+.rcal__day:not(.is-disabled):not(.is-start):not(.is-end):hover { background: var(--brand-soft); }
+.rcal__day.is-disabled { color: var(--line); cursor: not-allowed; }
+.rcal__day.in-range { background: var(--brand-soft); border-radius: 0; }
+.rcal__day.is-start, .rcal__day.is-end {
+  background: var(--brand); color: #fff; font-weight: 800;
+}
+.rcal__day.is-start { border-radius: 50% 0 0 50%; }
+.rcal__day.is-end { border-radius: 0 50% 50% 0; }
+.rcal__day.is-start.is-end { border-radius: 50%; }
 @media (max-width: 720px) { .cita__form { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 860px) {
   .rental-showcase__inner { grid-template-columns: 1fr; }

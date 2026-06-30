@@ -777,6 +777,7 @@
         ? `${days} dia${days === 1 ? "" : "s"} de alquiler para confirmar disponibilidad`
         : "Elige fecha de inicio y devolucion para calcular el periodo.";
     }
+    if (rentalCal) rentalCal.syncFromInputs();
     updateCitaSummary();
   }
 
@@ -818,6 +819,91 @@
     });
   }
 
+  // Calendario visual de rango para el alquiler (entrega -> devolucion)
+  let rentalCal = null;
+  function setupRentalCalendar() {
+    const host = $("#rentalCalendar");
+    const startInput = $("#citaFecha");
+    const endInput = $("#rentalEndDate");
+    if (!host || !startInput || !endInput) return;
+
+    const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const parse = (s) => { if (!s) return null; const [y, m, dd] = s.split("-").map(Number); return new Date(y, m - 1, dd); };
+    const fmt = (d) => d.toLocaleDateString("es-PA", { day: "numeric", month: "short" });
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const minDate = new Date(today); minDate.setDate(minDate.getDate() + 1); // desde manana
+
+    let startSel = parse(startInput.value);
+    let endSel = parse(endInput.value);
+    let view = startSel ? new Date(startSel.getFullYear(), startSel.getMonth(), 1) : new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+
+    function nights() { return (startSel && endSel) ? Math.round((endSel - startSel) / 86400000) : 0; }
+    function commit() {
+      startInput.value = startSel ? iso(startSel) : "";
+      endInput.value = endSel ? iso(endSel) : "";
+      startInput.dispatchEvent(new Event("change", { bubbles: true }));
+      endInput.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    function render() {
+      const y = view.getFullYear(), m = view.getMonth();
+      const monthName = view.toLocaleDateString("es-PA", { month: "long", year: "numeric" });
+      const startDow = (new Date(y, m, 1).getDay() + 6) % 7; // Lunes = 0
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const n = nights();
+      const info = (startSel && endSel)
+        ? `<strong>${n} noche${n === 1 ? "" : "s"}</strong><span>${fmt(startSel)} → ${fmt(endSel)}</span>`
+        : (startSel
+          ? `<strong>Ahora elige la devolución</strong><span>Entrega: ${fmt(startSel)}</span>`
+          : `<strong>Elige tus fechas</strong><span>Toca el día de entrega y luego el de devolución</span>`);
+      let cells = "";
+      for (let i = 0; i < startDow; i++) cells += `<span class="rcal__day is-empty"></span>`;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(y, m, d);
+        const disabled = date < minDate;
+        let cls = "rcal__day";
+        if (disabled) cls += " is-disabled";
+        if (startSel && date.getTime() === startSel.getTime()) cls += " is-start";
+        if (endSel && date.getTime() === endSel.getTime()) cls += " is-end";
+        if (startSel && endSel && date > startSel && date < endSel) cls += " in-range";
+        cells += `<button type="button" class="${cls}" data-day="${d}" ${disabled ? "disabled" : ""}>${d}</button>`;
+      }
+      host.innerHTML = `
+        <div class="rcal__info">${info}</div>
+        <div class="rcal__head">
+          <button type="button" class="rcal__nav" data-nav="-1" aria-label="Mes anterior">‹</button>
+          <strong>${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</strong>
+          <button type="button" class="rcal__nav" data-nav="1" aria-label="Mes siguiente">›</button>
+        </div>
+        <div class="rcal__dow"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+        <div class="rcal__grid">${cells}</div>`;
+    }
+    function syncFromInputs() {
+      startSel = parse(startInput.value);
+      endSel = parse(endInput.value);
+      render();
+    }
+
+    host.addEventListener("click", (e) => {
+      const nav = e.target.closest("[data-nav]");
+      if (nav) {
+        view.setMonth(view.getMonth() + Number(nav.getAttribute("data-nav")));
+        render();
+        return;
+      }
+      const cell = e.target.closest("[data-day]");
+      if (!cell || cell.disabled) return;
+      const date = new Date(view.getFullYear(), view.getMonth(), Number(cell.getAttribute("data-day")));
+      if (!startSel || (startSel && endSel)) { startSel = date; endSel = null; }
+      else if (date <= startSel) { startSel = date; endSel = null; }
+      else { endSel = date; }
+      commit();
+      render();
+    });
+
+    rentalCal = { syncFromInputs };
+    render();
+  }
+
   function setupAppointmentPlanner() {
     const date = $("#citaFecha");
     if (date) {
@@ -839,6 +925,7 @@
       }, 0);
     }));
     renderAppointmentSlots();
+    setupRentalCalendar();
     updateRentalPanel();
   }
 
