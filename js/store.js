@@ -356,6 +356,7 @@
       ? `<ul class="detail__feats">${p.caracteristicas.map((f) => `<li>${f}</li>`).join("")}</ul>` : "";
     const agotado = p.stock <= 0;
     const sinPrecio = !isPriced(p);
+    const rentable = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster"].includes(p.categoria);
     $("#detailBody").innerHTML = `
       <div>${main}${thumbs}</div>
       <div class="detail__info">
@@ -370,8 +371,10 @@
           ? `<button class="btn btn--primary btn--block" disabled>Agotado</button>`
           : `<div class="detail__buy">
               <div class="detail__qty"><button data-detqty="-1" aria-label="Menos">−</button><span id="detQty">1</span><button data-detqty="1" aria-label="Más">+</button></div>
-              <button class="btn btn--primary detail__addbtn" id="detailAdd">${sinPrecio ? "Agregar a mi cotización" : "Agregar al carrito"}</button>
-            </div>`}
+              <button class="btn btn--primary detail__addbtn" id="detailAdd">${sinPrecio ? "🛒 Agregar a mi cotización" : "🛒 Agregar al carrito"}</button>
+            </div>
+            ${rentable ? `<button class="btn btn--ghost btn--block detail__rentbtn" id="detailRent">📅 Alquilar esta silla por fechas</button>` : ""}
+            <p class="detail__hint">${sinPrecio ? "🔧 Incluye opción de instalación profesional. Te confirmamos precio y disponibilidad por WhatsApp." : "🔧 Puedes agregar instalación profesional al finalizar la compra."}</p>`}
       </div>`;
     $("#detailModal").classList.add("is-open");
   }
@@ -706,6 +709,20 @@
     fCat = cat; fBrands.clear(); fPrice = "all";
     buildFilters(); applyFilters();
     document.getElementById("productos").scrollIntoView({ behavior: "smooth" });
+  }
+
+  // Inicia el flujo de alquiler para una silla concreta (abre el calendario)
+  function startRentalForProduct(p) {
+    const serviceSelect = $("#citaServicio");
+    if (serviceSelect) { serviceSelect.value = "Alquiler"; serviceSelect.dispatchEvent(new Event("change", { bubbles: true })); }
+    if (p) {
+      const eq = $("#rentalEquipment");
+      if (eq) { eq.value = p.categoria === "booster" ? "Booster" : "Silla de carro"; eq.dispatchEvent(new Event("change", { bubbles: true })); }
+      const modelo = document.querySelector('#citaForm [name="modelo_silla"]');
+      if (modelo) modelo.value = p.nombre;
+    }
+    document.getElementById("citas")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    toast("Elige las fechas en el calendario de alquiler 📅");
   }
 
   /* ---------- Reserva tu cita ---------- */
@@ -1305,6 +1322,7 @@
     const th = t.closest("[data-thumb]"); if (th) { const m = $("#detailMain"); if (m) m.src = th.getAttribute("data-thumb"); $$("#detailModal [data-thumb]").forEach((x) => x.classList.remove("is-active")); th.classList.add("is-active"); return; }
     const dq = t.closest("[data-detqty]"); if (dq) { const el = $("#detQty"); let q = (parseInt(el.textContent) || 1) + parseInt(dq.getAttribute("data-detqty")); el.textContent = Math.max(1, Math.min(q, detailStock || 1)); return; }
     if (t.closest("#detailAdd")) { const q = parseInt(($("#detQty") || {}).textContent) || 1; add(detailPid, q); closeDetail(); return; }
+    if (t.closest("#detailRent")) { startRentalForProduct(productById(detailPid)); closeDetail(); return; }
     const det = t.closest("[data-detail]"); if (det) { openDetail(det.getAttribute("data-detail")); return; }
     const inc = t.closest("[data-inc]"); if (inc) { const id = inc.getAttribute("data-inc"); setQty(id, (cart[id] || 0) + 1); return; }
     const dec = t.closest("[data-dec]"); if (dec) { const id = dec.getAttribute("data-dec"); setQty(id, (cart[id] || 0) - 1); return; }
