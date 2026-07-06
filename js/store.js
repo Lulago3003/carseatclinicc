@@ -221,7 +221,7 @@
             <span>Compatibilidad guiada</span>
             ${imgs.length > 1 ? `<span>Galería disponible</span>` : `<span>Foto editable</span>`}
           </div>
-          <div class="card__status">${stockTag}${rentable ? `<span class="card__rent">📅 También en alquiler</span>` : ""}</div>
+          <div class="card__status">${stockTag}${rentable ? `<span class="card__rent">📅 También en alquiler</span>` : ""}${SEAT_CATS.includes(p.categoria) ? `<button class="card__cmp" type="button" data-compare="${p.id}" aria-label="Comparar ${esc(p.nombre)}">⇄ Comparar</button>` : ""}</div>
           <div class="card__foot">
             <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
             ${canBuy
@@ -235,6 +235,107 @@
     }).join("");
     setupMediaFallbacks();
     animateProductCards();
+    updateCompareUI();
+  }
+
+  /* ---------- Comparador de sillas ---------- */
+  const COMPARE_MAX = 3;
+  let compareIds = [];
+  try { compareIds = JSON.parse(sessionStorage.getItem("csc_compare")) || []; } catch (e) { compareIds = []; }
+  function saveCompare() { try { sessionStorage.setItem("csc_compare", JSON.stringify(compareIds)); } catch (e) {} }
+
+  function toggleCompare(id) {
+    if (compareIds.includes(id)) {
+      compareIds = compareIds.filter((x) => x !== id);
+    } else {
+      if (compareIds.length >= COMPARE_MAX) { toast(`Puedes comparar hasta ${COMPARE_MAX} sillas a la vez`); return; }
+      compareIds.push(id);
+      if (compareIds.length === 1) toast("Elige otra silla para compararlas lado a lado");
+    }
+    saveCompare();
+    updateCompareUI();
+  }
+
+  function updateCompareUI() {
+    compareIds = compareIds.filter((id) => productById(id));
+    $$("[data-compare]").forEach((btn) => {
+      const on = compareIds.includes(btn.getAttribute("data-compare"));
+      btn.classList.toggle("is-on", on);
+      btn.textContent = on ? "✓ Comparando" : "⇄ Comparar";
+    });
+    const bar = $("#compareBar");
+    if (!bar) return;
+    if (!compareIds.length) { bar.hidden = true; return; }
+    bar.hidden = false;
+    $("#compareBarItems").innerHTML = compareIds.map((id) => {
+      const p = productById(id);
+      const img = productImageList(p)[0];
+      return `<span class="cmpbar__item" title="${esc(p.nombre)}">
+        ${img ? `<img src="${esc(img)}" alt="${esc(p.nombre)}" loading="lazy" decoding="async" />` : `<span class="cmpbar__ph">🪑</span>`}
+        <button type="button" data-cmp-rm="${id}" aria-label="Quitar ${esc(p.nombre)}">✕</button>
+      </span>`;
+    }).join("");
+    const go = $("#compareGo");
+    if (go) {
+      go.textContent = compareIds.length < 2 ? "Elige otra silla" : `Comparar (${compareIds.length})`;
+      go.disabled = compareIds.length < 2;
+    }
+  }
+
+  function ensureCompareModal() {
+    let m = $("#compareModal");
+    if (m) return m;
+    m = document.createElement("div");
+    m.id = "compareModal";
+    m.className = "modal";
+    m.innerHTML = `<div class="modal__box modal__box--lg">
+      <button class="icon-btn modal__close" id="compareClose" aria-label="Cerrar">✕</button>
+      <h3>Comparar sillas</h3>
+      <p class="modal__sub">Lado a lado para decidir con calma. Si dudas, te asesoramos por WhatsApp.</p>
+      <div class="cmp" id="compareBody"></div>
+    </div>`;
+    document.body.appendChild(m);
+    m.addEventListener("click", (e) => {
+      if (e.target === m || e.target.id === "compareClose") m.classList.remove("is-open");
+    });
+    return m;
+  }
+
+  function compareCellMedia(p) {
+    const img = productImageList(p)[0];
+    return img
+      ? `<img src="${esc(img)}" alt="${esc(p.nombre)}" loading="lazy" decoding="async" />`
+      : `<span class="cmp__ph">${svgFor(p.categoria)}</span>`;
+  }
+
+  function openCompare() {
+    const list = compareIds.map(productById).filter(Boolean);
+    if (list.length < 2) { toast("Elige al menos 2 sillas para comparar"); return; }
+    const rows = [
+      ["Precio", (p) => `<b>${precioTxt(p)}</b>${p.antes && isPriced(p) ? ` <s>${money(p.antes)}</s>` : ""}`],
+      ["Etapa recomendada", (p) => esc(p.recomendado || "Te confirmamos por WhatsApp")],
+      ["Tipo", (p) => esc(CAT_LABEL[p.categoria] || p.categoria || "—")],
+      ["Marca", (p) => esc(p.marca || "—")],
+      ["Disponibilidad", (p) => p.stock > 0 ? `<span class="cmp__ok">Disponible</span>` : `<span class="cmp__out">Agotado</span>`],
+      ["Características", (p) => (p.caracteristicas && p.caracteristicas.length)
+        ? `<ul>${p.caracteristicas.slice(0, 6).map((f) => `<li>${esc(f)}</li>`).join("")}</ul>`
+        : esc(shortText(p.descripcion || "", 150) || "—")],
+    ];
+    const head = `<tr><th class="cmp__label" aria-hidden="true"></th>${list.map((p) => `<th>
+        <div class="cmp__media" data-detail="${p.id}">${compareCellMedia(p)}</div>
+        <strong class="cmp__name">${esc(p.nombre)}</strong>
+        <div class="cmp__actions">
+          ${p.stock > 0 ? `<button class="btn btn--primary" data-add="${p.id}">${isPriced(p) ? "Agregar" : "Cotizar"}</button>` : ""}
+          <button class="btn btn--ghost" data-detail="${p.id}">Ver ficha</button>
+        </div>
+      </th>`).join("")}</tr>`;
+    const body = rows.map(([label, fn]) => `<tr><th class="cmp__label">${label}</th>${list.map((p) => `<td>${fn(p)}</td>`).join("")}</tr>`).join("");
+    const wa = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, estoy comparando estas sillas y quiero asesoría: " + list.map((p) => p.nombre).join(" / "))}`;
+    ensureCompareModal();
+    $("#compareBody").innerHTML = `
+      <div class="cmp__scroll"><table class="cmp__table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+      <a class="btn btn--whatsapp btn--block" href="${wa}" target="_blank" rel="noopener">💬 Pedir asesoría con esta comparación</a>`;
+    $("#compareModal").classList.add("is-open");
   }
 
   function setupMediaFallbacks() {
@@ -635,6 +736,10 @@
     // QR de Waze (cómo llegar)
     const wazeUrl = CONFIG.wazeUrl || `https://waze.com/ul?q=${encodeURIComponent(CONFIG.mapsQuery || CONFIG.ubicacion)}&navigate=yes`;
     const wl = $("#wazeLink"); if (wl) wl.href = wazeUrl;
+    // Reseñas de Google: botón para dejar reseña y ver la ficha del negocio
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONFIG.mapsQuery || CONFIG.ubicacion)}`;
+    const gr = $("#googleReviewBtn"); if (gr) gr.href = CONFIG.googleReviewUrl || mapsUrl;
+    const ga = $("#googleReviewsAll"); if (ga) ga.href = mapsUrl;
     const qrEl = $("#wazeQr");
     if (qrEl && typeof qrcode === "function") {
       try { const qr = qrcode(0, "M"); qr.addData(wazeUrl); qr.make(); qrEl.innerHTML = qr.createImgTag(4, 0); } catch (e) {}
@@ -1235,7 +1340,7 @@
   // Aparición suave de secciones al hacer scroll
   function setupReveal() {
     if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const sel = ".section__head, .pillar, .tcard, .rcard, .feature, .service, .about__text, .about__art, .finder, .cita__form, .map, .newsletter, .rstep, .safe-route__intro, .safety-strip";
+    const sel = ".section__head, .pillar, .tcard, .rcard, .feature, .service, .about__text, .about__art, .finder, .cita__form, .map, .newsletter, .rstep, .safe-route__intro, .safety-strip, .gstep, .guide__tip, .treviews";
     const els = $$(sel);
     if (!els.length) return;
     const reveal = (el) => el.classList.add("is-visible");
@@ -1336,6 +1441,18 @@
     const vs = t.closest("[data-ver-sillas]"); if (vs) { applyFilter(vs.getAttribute("data-ver-sillas")); return; }
     // cerrar menú de cuenta al hacer clic fuera
     if (!t.closest("#accountMenu") && !t.closest("#accountBtn")) $("#accountMenu").hidden = true;
+  });
+
+  // Comparador de sillas (botones en tarjetas, barra flotante y modal)
+  document.addEventListener("click", (e) => {
+    const cmp = e.target.closest("[data-compare]");
+    if (cmp) { toggleCompare(cmp.getAttribute("data-compare")); return; }
+    const cr = e.target.closest("[data-cmp-rm]");
+    if (cr) { toggleCompare(cr.getAttribute("data-cmp-rm")); return; }
+    if (e.target.closest("#compareGo")) { openCompare(); return; }
+    if (e.target.closest("#compareClear")) { compareIds = []; saveCompare(); updateCompareUI(); return; }
+    // Al abrir una ficha o agregar desde el comparador, cerramos el modal de comparación
+    if (e.target.closest("#compareModal [data-detail], #compareModal [data-add]")) $("#compareModal")?.classList.remove("is-open");
   });
 
   $("#shopFilters").addEventListener("click", (e) => {

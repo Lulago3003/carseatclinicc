@@ -26,6 +26,11 @@ const CONFIG = {
   // se arma con la ubicación. Lo ideal: pon el enlace exacto de tu local
   // (en Waze: compartir → copiar enlace) o coordenadas.
   wazeUrl: "",
+  // Enlace directo para DEJAR una reseña en Google. Cómo sacarlo: entra a
+  // Google Maps → busca tu negocio → botón "Escribir una reseña" → copia el
+  // enlace del navegador y pégalo aquí. Si lo dejas vacío, se abre tu ficha
+  // de Google Maps (usando mapsQuery) para que el cliente reseñe desde ahí.
+  googleReviewUrl: "",
 
   /* --- Moneda --- */
   moneda: "$",

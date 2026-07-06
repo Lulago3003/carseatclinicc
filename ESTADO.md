@@ -30,6 +30,10 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] Revisado **responsive (teléfono)**: catálogo, ficha (comprar/alquilar), calendario de alquiler, buscador y CRM (embudo/estadísticas) sin desbordes en 390px.
 - [x] **El asistente recomienda con modelos + enlace**: tras una respuesta sobre sillas, muestra los **nombres reales del catálogo** y un botón "Ver [tipo] →" que abre el catálogo filtrado por esa etapa (`window.CSC_showCatalog` / `window.CSC_PRODUCTS`).
 - [x] Precios en modo "Consultar / Cotizar por WhatsApp" + etiqueta de descuento "-X%" automática.
+- [x] **Comparador de sillas**: botón "⇄ Comparar" en las tarjetas de sillas/booster (hasta 3), barra flotante abajo y modal con tabla lado a lado (foto, precio, etapa, marca, disponibilidad, características) + botón de asesoría por WhatsApp con los modelos elegidos. Código: `toggleCompare/openCompare` en `store.js`, estilos `.cmpbar`/`.cmp__table`.
+- [x] **Guía por edad/peso** ("¿Qué silla le toca a tu pequeño?"): 4 etapas clickeables (recién nacido → convertible → combinada → booster) que filtran el catálogo, + consejo de contramarcha con enlace a sillas 360°. Sección `#guia-etapas` en la home, estilos `.gstep`.
+- [x] **Bloque de reseñas de Google** bajo los testimonios: logo de Google, 5.0 estrellas y botones "Déjanos tu reseña" / "Ver todas las reseñas". El enlace directo se pone en `CONFIG.googleReviewUrl` (si está vacío abre la ficha de Google Maps).
+- [x] Velocidad: precarga (`preload`) de la primera foto del hero para que la portada cargue más rápido; las fotos de productos ya usan lazy loading.
 
 **Confianza / contenido**
 - [x] Hero con carrusel de fotos (rota cada 4s, clickeable).
@@ -101,6 +105,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [ ] **Corregir fotos mal asignadas**: el .docx ancla imágenes fuera de orden, algunas no son el modelo exacto → ajustar por producto en el CRM.
 - [x] **Testimonios reales**: 3 reseñas reales de Google (Ivohne Jensen, Ana María Paredes, Gianfranco Lo Medico) en `js/data.js` → `TESTIMONIOS`.
 - [ ] **Historia + foto de la fundadora/equipo** y **certificación CPST visible**.
+- [ ] **Enlace directo de reseña de Google**: en Google Maps → tu negocio → "Escribir una reseña" → copiar el enlace y pegarlo en `CONFIG.googleReviewUrl` (js/data.js). Mientras esté vacío, el botón abre la ficha de Maps.
 - [x] **Dirección exacta** del local cargada: PH City Towers, Vía España (a un costado de Taller Rayo Import), Ciudad de Panamá. En `CONFIG.ubicacion` y `CONFIG.mapsQuery` (mapa + Waze).
 
 ## ⬜ PENDIENTE — antes de LANZAR al público

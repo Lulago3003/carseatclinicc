@@ -1522,3 +1522,140 @@ body.admin [hidden] { display: none !important; }
   .float-whatsapp { right: 14px; bottom: 14px; width: 48px; min-height: 48px; padding: 0; justify-content: center; border-radius: 50%; }
   .float-whatsapp span { display: none; }
 }
+
+/* =====================================================================
+   GUÍA POR EDAD Y PESO (¿Qué silla le toca a tu pequeño?)
+   ===================================================================== */
+.guide { background: linear-gradient(180deg, #fff 0%, var(--brand-soft) 140%); }
+.guide__track {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+  position: relative; margin-top: 8px;
+}
+.guide__track::before {
+  content: ""; position: absolute; top: 58px; left: 6%; right: 6%; height: 3px;
+  background: linear-gradient(90deg, var(--brand-soft), var(--sage), var(--brand-soft));
+  border-radius: 999px; z-index: 0;
+}
+.gstep {
+  position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start;
+  gap: 8px; text-align: left; background: #fff; border: 1.5px solid var(--line);
+  border-radius: var(--radius-lg); padding: 20px 18px 18px; cursor: pointer;
+  font: inherit; color: var(--ink); box-shadow: var(--shadow-sm);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.gstep:hover, .gstep:focus-visible { transform: translateY(-4px); border-color: var(--sage); box-shadow: var(--shadow); }
+.gstep__age {
+  display: inline-block; background: var(--brand-soft); color: var(--brand-dark);
+  font-size: .74rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: .02em;
+}
+.gstep__num {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--brand); color: #fff; font-weight: 800; font-size: .95rem;
+  box-shadow: 0 6px 14px rgba(47,62,52,.24);
+}
+.gstep h3 { margin: 2px 0 0; font-size: 1.06rem; }
+.gstep p { margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.5; }
+.gstep__link { margin-top: auto; color: var(--accent-dark); font-weight: 700; font-size: .84rem; }
+.gstep:hover .gstep__link { text-decoration: underline; }
+.guide__tip {
+  margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 14px;
+  background: #fff; border: 1px dashed var(--sage); border-radius: var(--radius-lg);
+  padding: 16px 20px; font-size: .92rem; color: var(--ink); text-align: center;
+}
+.guide__tipBtn {
+  background: none; border: none; cursor: pointer; font: inherit; font-weight: 700;
+  color: var(--brand-dark); text-decoration: underline; text-underline-offset: 3px; padding: 0;
+}
+.guide__tipBtn:hover { color: var(--accent-dark); }
+
+/* =====================================================================
+   COMPARADOR DE SILLAS
+   ===================================================================== */
+.card__cmp {
+  background: #fff; border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 3px 10px; font: inherit; font-size: .74rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+}
+.card__cmp:hover { border-color: var(--sage); color: var(--brand-dark); }
+.card__cmp.is-on { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+.cmpbar {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: max(18px, env(safe-area-inset-bottom)); z-index: 70;
+  display: flex; align-items: center; gap: 12px;
+  background: #fff; border: 1px solid var(--line); border-radius: 999px;
+  padding: 8px 12px; box-shadow: var(--shadow-lg);
+}
+.cmpbar[hidden] { display: none; }
+.cmpbar__items { display: flex; gap: 8px; }
+.cmpbar__item { position: relative; width: 46px; height: 46px; border-radius: 12px; overflow: visible; }
+.cmpbar__item img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); display: block; }
+.cmpbar__ph { width: 100%; height: 100%; display: grid; place-items: center; background: var(--brand-soft); border-radius: 12px; font-size: 20px; }
+.cmpbar__item button {
+  position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%;
+  border: none; background: var(--accent-dark); color: #fff; font-size: 10px; line-height: 1;
+  cursor: pointer; display: grid; place-items: center;
+}
+.cmpbar__go {
+  border: none; cursor: pointer; font: inherit; font-weight: 700; font-size: .9rem;
+  background: var(--brand); color: #fff; border-radius: 999px; padding: 11px 18px;
+  transition: background .15s;
+}
+.cmpbar__go:hover:not(:disabled) { background: var(--brand-dark); }
+.cmpbar__go:disabled { opacity: .55; cursor: default; }
+.cmpbar__clear {
+  background: none; border: none; cursor: pointer; font: inherit; font-size: .8rem;
+  font-weight: 600; color: var(--muted); padding: 6px;
+}
+.cmpbar__clear:hover { color: var(--accent-dark); text-decoration: underline; }
+
+#compareModal .modal__box { max-width: 900px; }
+.cmp__scroll { overflow-x: auto; margin: 0 -6px 16px; padding: 0 6px; -webkit-overflow-scrolling: touch; }
+.cmp__table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: .9rem; }
+.cmp__table th, .cmp__table td {
+  border: 1px solid var(--line); padding: 12px 14px; text-align: left; vertical-align: top;
+  background: #fff; min-width: 160px;
+}
+.cmp__table thead th { border-bottom: 2px solid var(--sage); }
+.cmp__table .cmp__label {
+  background: var(--bg-alt); font-weight: 700; color: var(--brand-dark);
+  min-width: 110px; width: 120px; font-size: .82rem;
+}
+.cmp__media { width: 100%; aspect-ratio: 4/3; border-radius: 12px; overflow: hidden; background: var(--brand-soft); cursor: pointer; margin-bottom: 8px; display: grid; place-items: center; }
+.cmp__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cmp__ph { display: grid; place-items: center; width: 100%; height: 100%; }
+.cmp__name { display: block; font-size: .95rem; line-height: 1.3; margin-bottom: 10px; }
+.cmp__actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.cmp__actions .btn { min-height: 34px; padding: 0 12px; font-size: .78rem; }
+.cmp__table ul { margin: 0; padding-left: 16px; display: grid; gap: 4px; }
+.cmp__ok { color: #2e7d32; font-weight: 700; }
+.cmp__out { color: var(--accent-dark); font-weight: 700; }
+
+/* =====================================================================
+   RESEÑAS DE GOOGLE (bajo los testimonios)
+   ===================================================================== */
+.treviews {
+  margin-top: 26px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 16px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius-lg);
+  padding: 18px 24px; box-shadow: var(--shadow-sm);
+}
+.treviews__score { display: flex; align-items: center; gap: 12px; }
+.treviews__score strong { display: block; font-size: 1.02rem; }
+.treviews__score span:not(.treviews__stars) { color: var(--muted); font-size: .86rem; }
+.treviews__stars { color: #e0a93f; letter-spacing: 2px; }
+.treviews__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* --- Responsive de las secciones nuevas --- */
+@media (max-width: 900px) {
+  .guide__track { grid-template-columns: repeat(2, 1fr); }
+  .guide__track::before { display: none; }
+}
+@media (max-width: 540px) {
+  .guide__track { grid-template-columns: 1fr; }
+  .cmpbar { left: 12px; right: 12px; transform: none; justify-content: space-between; bottom: max(78px, env(safe-area-inset-bottom)); }
+  .cmpbar__item { width: 40px; height: 40px; }
+  .treviews { flex-direction: column; align-items: stretch; text-align: center; }
+  .treviews__score { justify-content: center; }
+  .treviews__actions { justify-content: center; }
+  .treviews__actions .btn { flex: 1; }
+}
