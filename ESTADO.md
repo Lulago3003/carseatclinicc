@@ -6,7 +6,11 @@
 > Última actualización: ver historial de git.
 
 Web en vivo: https://lulago3003.github.io/carseatclinicc/ · Repo: `Lulago3003/carseatclinicc`
-Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel de prueba: `admin` / `admin`
+Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
+
+> ⚠️ **PRIMERO QUE TODO:** corre en Supabase → SQL Editor los archivos
+> `supabase-admin.sql` (cierra el panel) y `supabase-limpiar-pruebas.sql`
+> (borra unas solicitudes de prueba del CRM). Ver la sección de abajo.
 
 ---
 
@@ -70,7 +74,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 - [x] Filtros (tipo / marca / precio) + orden + contador.
 - [x] Ficha de producto: galería con miniaturas, cantidad, miga de pan, características.
 - [x] "Encuentra tu silla ideal" (cuestionario que recomienda silla).
-- [x] Carrito persistente + checkout. Login obligatorio para comprar.
+- [x] Carrito persistente + checkout **sin registro obligatorio**: se compra con
+      nombre y teléfono y el pedido se manda por WhatsApp. Quien ya tiene cuenta
+      la sigue usando para ver sus pedidos.
 - [x] **Carrito de cotización**: ahora se puede **agregar al carrito cualquier producto aunque diga "Consultar"** (sin precio). El carrito muestra "Consultar"/"A cotizar" y el botón pasa a **"Solicitar cotización por WhatsApp"** (manda la lista, sin pago/login). Cuando haya precios reales, vuelve al checkout normal.
 - [x] **Barra de búsqueda** en el catálogo (`#shopSearch`): filtra por nombre, marca, etapa o recomendado.
 - [x] **Comprar o Alquilar por producto**: en la ficha de cada silla (categorías de sillas/booster) hay botón "🛒 Agregar a mi cotización/carrito" y "📅 Alquilar esta silla por fechas" (abre el calendario de alquiler con el modelo pre-llenado → llega al CRM). Nota visible de "🔧 incluye opción de instalación".
@@ -102,7 +108,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 
 **Cuenta / auth**
 - [x] Registro e inicio de sesión (correo + Google). `is_admin()` por correo.
-- [x] Acceso admin de prueba: `admin/admin` (entra directo al CRM).
+- [x] **Acceso al panel cerrado** (jul 2026): se quitaron del código el usuario
+      `admin`/`admin` y la contraseña de la cuenta admin. Ahora solo se entra con
+      correo y contraseña reales (o Google) de alguien en `CONFIG.adminEmails`.
 
 **CRM (panel `admin.html`) "Centro de control"**
 - [x] Dashboard (resumen), Productos (lista + editor con varias fotos, características, stock), buscador, filtros.
@@ -160,7 +168,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 
 ## ⬜ PENDIENTE — antes de LANZAR al público
 
-- [ ] **Asegurar el admin**: cambiar `admin/admin` (visible en el código) por algo fuerte.
+- [x] **Asegurar el admin**: hecho. Falta que el dueño corra `supabase-admin.sql`
+      para quitarle los permisos a la cuenta vieja `admin@carseatclinic.app`, cuya
+      contraseña quedó en el historial público de git.
 - [x] **Páginas legales**: `terminos.html` y `privacidad.html` (enlazadas en el footer). ✅
 - [x] **SEO + Open Graph**: meta tags + Twitter card + canonical + theme-color en index. ✅
 - [ ] **Dominio + hosting**: comprar dominio en Cloudflare → publicar en **Cloudflare Pages** (gratis) → conectar dominio.

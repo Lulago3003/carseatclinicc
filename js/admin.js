@@ -43,9 +43,6 @@
   const PIPELINE = ["nuevo", "contactado", "cotizado", "ganado", "perdido"];
   let convGroups = {}; // transcripciones del chat por sesión (para el resumen IA)
 
-  const LOCAL_KEY = "csc_local_admin";
-  let localAdmin = sessionStorage.getItem(LOCAL_KEY) === "1";
-
   let products = [];          // cache para el panel
   let orders = [];
   let serviceLeads = [];
@@ -63,25 +60,14 @@
   } else {
     boot();
   }
-  // Inicia sesión en la cuenta admin (la crea sola la primera vez)
-  async function adminSignIn() {
-    const ac = CONFIG.adminCode || {};
-    let res = await DB.signIn(ac.email, ac.password);
-    if (res.error) { await DB.signUp(ac.email, ac.password, { full_name: "Administrador" }); res = await DB.signIn(ac.email, ac.password); }
-    if (res.error) throw new Error(res.error.message || "No se pudo entrar");
-  }
-
   async function boot() {
     DB.onAuthChange(gate);
-    // Atajo: si vino desde "Ingresar" con admin/admin, entra automáticamente
-    try {
-      if (sessionStorage.getItem("csc_admin_go") === "1") { sessionStorage.removeItem("csc_admin_go"); await adminSignIn(); }
-    } catch (e) {}
     await gate();
   }
 
+  // Solo entra quien inicie sesión de verdad (correo/Google) y esté en
+  // CONFIG.adminEmails o marcado como admin en la base de datos.
   async function gate() {
-    if (localAdmin) { showPanel(); return; }
     const user = await DB.getUser();
     if (!user) { showGate("login"); return; }
     const profile = await DB.getProfile();
@@ -127,26 +113,7 @@
   });
   $("#googleBtn").addEventListener("click", () => DB.signInGoogle());
   $("#logoutBtn").addEventListener("click", async () => {
-    localAdmin = false; sessionStorage.removeItem(LOCAL_KEY);
     await DB.signOut(); await gate();
-  });
-
-  $("#codeForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const err = $("#codeError"); err.textContent = "";
-    const btn = e.target.querySelector("button");
-    const d = Object.fromEntries(new FormData(e.target).entries());
-    const ac = CONFIG.adminCode || {};
-    if ((d.usuario || "").trim() !== ac.usuario || (d.clave || "") !== ac.clave) {
-      err.textContent = "Usuario o clave incorrectos."; return;
-    }
-    if (!DB.ready) { localAdmin = true; sessionStorage.setItem(LOCAL_KEY, "1"); gate(); return; }
-    btn.disabled = true; btn.textContent = "Entrando…";
-    let ok = false;
-    try { await adminSignIn(); ok = true; }
-    catch (ex) { err.textContent = "No se pudo entrar: " + (ex && ex.message ? ex.message : ex); }
-    btn.disabled = false; btn.textContent = "Entrar con código";
-    if (ok) await gate();
   });
 
   /* ---------- Pestañas ---------- */
@@ -557,6 +524,48 @@
     </div>`;
   }
 
+  // ¿Es un pedido o cotización que vino del carrito de la tienda?
+  function isCartLead(lead) {
+    return lead.type === "pedido" || lead.type === "cotizacion" || !!(lead.details || {}).productos;
+  }
+
+  // Muestra el carrito (productos, total y entrega) dentro de la tarjeta.
+  function cartCardHtml(lead) {
+    if (!isCartLead(lead)) return "";
+    const d = lead.details || {};
+    const productos = Array.isArray(d.productos) ? d.productos : [];
+    if (!productos.length) return "";
+    const filas = productos.map((p) => `<li>${esc(p.cantidad)}x ${esc(p.nombre)}${p.precio ? ` — ${CONFIG.moneda}${esc(p.precio)}` : " — por cotizar"}</li>`).join("");
+    return `<div class="lead-rental__box">
+      <div class="rental-kpi">
+        <span><b>${productos.length}</b>producto${productos.length === 1 ? "" : "s"}</span>
+        <span><b>${esc(d.total || "-")}</b>total</span>
+        <span><b>${esc(d.instalacion || "No")}</b>instalacion</span>
+      </div>
+      <ul class="lead-cart__list">${filas}</ul>
+      <div class="lead-rental__grid">
+        <span>Entrega: ${esc(d.entrega || "No indicada")}</span>
+        <span>Direccion: ${esc(d.direccion || "No indicada")}</span>
+        <span>Correo: ${esc(d.email || "No indicado")}</span>
+        <span>Notas: ${esc(d.notas || "Sin notas")}</span>
+      </div>
+    </div>`;
+  }
+
+  function cartSummary(lead) {
+    if (!isCartLead(lead)) return "";
+    const d = lead.details || {};
+    const productos = Array.isArray(d.productos) ? d.productos : [];
+    if (!productos.length) return "";
+    return [
+      "Pedido:",
+      ...productos.map((p) => `- ${p.cantidad}x ${p.nombre}`),
+      d.total ? `Total: ${d.total}` : "",
+      d.entrega ? `Entrega: ${d.entrega}` : "",
+      d.direccion ? `Direccion: ${d.direccion}` : "",
+    ].filter(Boolean).join("\n");
+  }
+
   function leadSummary(lead) {
     const details = lead.details || {};
     return [
@@ -568,6 +577,7 @@
       details.modelo_auto ? `Auto: ${details.modelo_auto}` : "",
       details.zona ? `Zona: ${details.zona}` : "",
       rentalSummary(lead),
+      cartSummary(lead),
       lead.message ? `Consulta: ${lead.message}` : "",
     ].filter(Boolean).join("\n");
   }
@@ -751,6 +761,7 @@
           <span>Creado: ${esc(new Date(lead.created_at).toLocaleString("es-PA"))}</span>
         </div>
         ${rentalCardHtml(lead)}
+        ${cartCardHtml(lead)}
         ${lead.message ? `<p class="lead-message">${esc(lead.message)}</p>` : ""}
         <div class="lead-followup">
           <label>Nota interna <input type="text" data-lead-note value="${notas}" placeholder="Ej: le interesa la Joie 360, recontactar" /></label>

@@ -2046,3 +2046,10 @@ body.nav-open { overflow: hidden; }
   .ig__card:hover { transform: none; }
   .ig__avatar:hover { transform: none; }
 }
+
+/* Lista de productos dentro de una tarjeta de pedido/cotización del CRM */
+.lead-cart__list { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 5px; }
+.lead-cart__list li {
+  font-size: .88rem; color: var(--ink); padding: 7px 11px;
+  background: rgba(255, 255, 255, .7); border-radius: 9px;
+}

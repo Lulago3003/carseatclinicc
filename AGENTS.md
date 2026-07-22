@@ -64,7 +64,7 @@ scripts/sync-layout.mjs → ⭐ copia el MENÚ y el PIE a todas las páginas de 
                           Si cambias el menú, edítalo ahí y corre el script.
 scripts/site-check.mjs  → revisa menús iguales, scripts y enlaces rotos.
 js/data.js              → ⭐ CONFIGURACIÓN editable: CONFIG (supabase keys, whatsapp,
-                          adminEmails, adminCode, mapsQuery, paypalClientId),
+                          adminEmails, mapsQuery, paypalClientId),
                           SERVICIOS, TESTIMONIOS, INSTAGRAM, IMAGENES_CATEGORIA,
                           PRODUCTOS_DEMO
 js/supabase.js          → capa de datos/auth (objeto global DB) — no tocar salvo backend
@@ -72,7 +72,8 @@ js/store.js             → lógica de la tienda (catálogo, carrito, filtros, f
                           quiz, citas, newsletter, auth, animaciones)
 js/admin.js             → lógica del CRM (login, lista, editor, stats, búsqueda, pedidos)
 supabase-setup-completo.sql   → esquema + datos: correr UNA vez en Supabase
-supabase-admin.sql            → habilita la cuenta admin en is_admin()
+supabase-admin.sql            → ⚠️ quién puede administrar (CORRER: cierra el panel)
+supabase-limpiar-pruebas.sql  → borra solicitudes de prueba del CRM
 supabase-fotos-prueba.sql     → fotos de prueba (opcional)
 ```
 
@@ -107,20 +108,26 @@ el sitio (este repo es público).
 - "Encuentra tu silla ideal" (quiz que recomienda silla).
 - Servicios, Testimonios, Recursos de seguridad, 3 pilares, Reserva de cita
   (vía WhatsApp), Newsletter (footer + pop-up), Nosotros/Contacto + mapa.
-- Auth (correo + Google) con **login obligatorio para comprar**; carrito persistente.
+- Auth (correo + Google) opcional; **para comprar NO hace falta registrarse**.
+  Carrito persistente y pedido por WhatsApp con nombre y teléfono.
 - **CRM** (`admin.html`): lista de productos, editor (subir varias fotos a Storage,
   características, stock, precio…), estadísticas, buscador, pedidos.
 - Animaciones (reveal al scroll, hover, etc.), responsive (PC/iPhone/Android),
   modo claro forzado (`color-scheme: light`).
 
-## 🔐 Acceso admin (versión de prueba)
+## 🔐 Acceso admin
 
-- **Atajo:** en la tienda → "Ingresar" → usuario `admin` / clave `admin`
-  (definido en `CONFIG.adminCode` en `js/data.js`). Redirige a `admin.html` y
-  hace login automático en la cuenta real `admin@carseatclinic.app`.
-- También sirve el correo personal del dueño (`adminEmails` en `data.js`).
-- Seguridad: `is_admin()` en Supabase autoriza esos correos (ver `supabase-admin.sql`).
-- ⚠️ El usuario/clave están en el código (público) → para producción, cambiarlos.
+- Se entra **solo** en `admin.html`, con correo y contraseña (o con Google).
+- Es admin quien esté en `CONFIG.adminEmails` (`js/data.js`) o tenga
+  `is_admin = true` en la tabla `profiles`. El servidor lo verifica con la
+  función `is_admin()` de Supabase (ver `supabase-admin.sql`).
+- 🚫 **Nunca escribas una contraseña en `js/data.js`.** Ese archivo es público
+  en GitHub. Las claves viven solo en Supabase.
+
+> **Historial:** hasta julio de 2026 el código traía `admin`/`admin` y la
+> contraseña de `admin@carseatclinic.app` a la vista. Ya se quitaron, pero
+> siguen en el historial de git, así que esa cuenta se considera comprometida:
+> hay que correr `supabase-admin.sql` para quitarle los permisos.
 
 ## ⏳ Pendiente (roadmap)
 

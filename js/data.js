@@ -80,24 +80,15 @@ const CONFIG = {
   },
 
   /* --- Administradores ---
-     Cualquier persona que inicie sesión con uno de estos correos será
-     administradora automáticamente (puede editar productos, stock y pedidos).
-     Puedes agregar más separados por coma. */
-  adminEmails: ["luislassogonzalez@gmail.com", "admin@carseatclinic.app"],
+     Quien inicie sesión con uno de estos correos entra al panel (puede editar
+     productos, stock y pedidos). Puedes agregar más separados por coma.
 
-  /* --- Acceso por código al panel (CRM) ---
-     Al entrar con este usuario/clave, el panel inicia sesión en una cuenta
-     de administrador real, así puedes EDITAR todo (productos, stock, pedidos).
-     ⚠️ Importante: estas claves son visibles en el código, así que cualquiera
-     que lo vea podría entrar. Cambia "clave" y "password" por algo difícil
-     antes de lanzar (o usa tu correo personal, que es lo más seguro). */
-  adminCode: {
-    usuario: "admin",
-    clave: "admin",
-    // Cuenta real de administrador (se crea sola la primera vez que entras):
-    email: "admin@carseatclinic.app",
-    password: "AdminCSC-2026",
-  },
+     🔒 La CONTRASEÑA nunca se escribe aquí. Este archivo es público (cualquiera
+     puede leerlo en GitHub), así que la clave vive solo en Supabase. Para entrar
+     al panel: abre admin.html e inicia sesión con tu correo y tu contraseña, o
+     con el botón de Google. Si olvidas la clave, se cambia desde Supabase →
+     Authentication → Users. */
+  adminEmails: ["luislassogonzalez@gmail.com"],
 };
 
 /* =====================================================================

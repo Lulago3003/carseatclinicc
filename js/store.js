@@ -563,13 +563,8 @@
      el botón de tarjeta aparece aquí mismo sin cambiar nada más. */
   function goCheckout() {
     if (itemsCount() === 0) { toast("Tu carrito está vacío"); return; }
-    // Con precios reales seguimos pidiendo iniciar sesión antes de comprar.
-    if (!cartHasUnpriced() && DB.ready && !currentUser) {
-      pendingCheckout = true;
-      closeCart();
-      openAuth("login", "Inicia sesión para finalizar tu compra 🛒");
-      return;
-    }
+    // Sin registro obligatorio: se compra con nombre y teléfono, nada más.
+    // Quien ya tiene cuenta la sigue usando para ver sus pedidos.
     closeCart();
     openCheckout();
   }
@@ -631,6 +626,40 @@
     return { nombre: d.nombre, telefono: d.telefono, email: d.email, direccion: d.direccion, notas: d.notas, instalacion: !!d.instalacion, entrega: d.entrega ? "domicilio" : "tienda" };
   }
 
+  // Deja el pedido guardado en el CRM ANTES de abrir WhatsApp.
+  // Así, si la clienta no llega a pulsar "enviar" en WhatsApp, el contacto
+  // no se pierde: queda en la pestaña Agenda del panel para darle seguimiento.
+  async function guardarPedidoEnCRM(form, cotizacion) {
+    const d = Object.fromEntries(new FormData(form).entries());
+    const items = cartList();
+    const lineas = items.map(({ qty, p }) => `${qty}x ${p.nombre}`).join(", ");
+    try {
+      await DB.guardarLead({
+        type: cotizacion ? "cotizacion" : "pedido",
+        source: "carrito-web",
+        status: "nuevo",
+        priority: "alta",
+        service: cotizacion ? "Cotización de productos" : "Pedido de la tienda",
+        name: d.nombre || "",
+        phone: d.telefono || "",
+        date: new Date().toISOString().slice(0, 10),
+        message: lineas,
+        details: {
+          productos: items.map(({ qty, p }) => ({ id: p.id, nombre: p.nombre, cantidad: qty, precio: isPriced(p) ? p.precio : null })),
+          total: cotizacion ? "A cotizar" : money(total()),
+          email: d.email || "",
+          direccion: d.direccion || "",
+          notas: d.notas || "",
+          entrega: d.entrega ? "A domicilio" : "Retiro en tienda",
+          instalacion: d.instalacion ? "Sí" : "No",
+          resumen_whatsapp: buildOrderText(form),
+        },
+      });
+    } catch (e) {
+      // Si el CRM falla, la venta NO se detiene: igual se abre WhatsApp.
+    }
+  }
+
   // Registra el pedido en la base de datos (descuenta stock). Devuelve true si ok.
   async function registerOrder(form) {
     if (!DB.ready) return true; // modo demo: no hay base de datos
@@ -650,10 +679,15 @@
     if (!form.checkValidity()) { form.reportValidity(); return; }
     const cotizacion = cartHasUnpriced();
     const text = buildOrderText(form);
-    // Solo descontamos stock cuando es una compra con precio real.
-    if (!cotizacion) {
-      const ok = await registerOrder(form);
-      if (!ok) return;
+    // El contacto se guarda SIEMPRE, aunque después no envíe el WhatsApp.
+    await guardarPedidoEnCRM(form, cotizacion);
+    // El pedido formal (el que descuenta stock) solo se puede crear si la
+    // clienta tiene sesión: la base de datos lo exige. Quien compra sin
+    // cuenta queda igual registrada en el CRM y el stock se ajusta al
+    // confirmar la venta por WhatsApp.
+    // Pase lo que pase aquí, NUNCA bloqueamos la venta.
+    if (!cotizacion && currentUser) {
+      try { await registerOrder(form); } catch (e) {}
     }
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`, "_blank");
     clearCartAfterOrder();
@@ -722,13 +756,6 @@
     e.preventDefault();
     const err = $("#authError"); err.textContent = "";
     const d = Object.fromEntries(new FormData(e.target).entries());
-    // Atajo de administrador: escribir admin / admin entra al panel (CRM)
-    const ac = CONFIG.adminCode || {};
-    if (authMode === "login" && (d.email || "").trim() === ac.usuario && (d.password || "") === ac.clave) {
-      try { sessionStorage.setItem("csc_admin_go", "1"); } catch (e3) {}
-      window.location.href = "admin.html";
-      return;
-    }
     if (!DB.ready) { err.textContent = "Modo demo: conecta la base de datos para usar el login (ver guía)."; return; }
     try {
       if (authMode === "register") {

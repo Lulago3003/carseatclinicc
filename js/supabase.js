@@ -168,6 +168,21 @@ const DB = (function () {
   }
 
   /* ---------- CRM inteligente: citas, revisiones y consultas IA ---------- */
+  // Si la solicitud no se puede guardar en Supabase, queda solo en ESTE
+  // navegador y el dueño nunca la ve. Antes fallaba en silencio; ahora lo
+  // avisa en la consola para que se pueda arreglar.
+  let crmAvisado = false;
+  function avisarCrmCaido(error) {
+    if (crmAvisado) return;
+    crmAvisado = true;
+    const msg = (error && (error.message || error.msg)) || String(error || "");
+    console.warn(
+      "[Car Seat Clinic] La solicitud NO se guardó en el CRM y quedó solo en este navegador.\n" +
+      "Motivo: " + msg + "\n" +
+      "Si dice 'row-level security', falta correr supabase-crm-atencion.sql en Supabase → SQL Editor."
+    );
+  }
+
   async function guardarLead(lead) {
     const normalized = normalizeLead(lead);
     const row = leadToRow(normalized);
@@ -175,7 +190,8 @@ const DB = (function () {
       try {
         const { error } = await client.from("crm_leads").insert(row);
         if (!error) return normalized;
-      } catch (e) {}
+        avisarCrmCaido(error);
+      } catch (e) { avisarCrmCaido(e); }
     }
     const rows = readLocalLeads();
     const existing = rows.findIndex((item) => item.id === normalized.id);
