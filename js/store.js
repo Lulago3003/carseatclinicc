@@ -183,10 +183,12 @@
   function cartHasUnpriced() { return cartList().some(({ p }) => !isPriced(p)); }
 
   /* ---------- Render: productos ---------- */
-  function renderProducts(list) {
-    const grid = $("#productGrid");
+  function renderProducts(list, selector = "#productGrid", destacar = true) {
+    const grid = $(selector);
+    if (!grid) return;
     if (!list || !list.length) { grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay productos con esos filtros.</p>`; return; }
-    grid.innerHTML = list.map((p, index) => {
+    grid.innerHTML = list.map((p, i) => {
+      const index = destacar ? i : -1;
       const agotado = p.stock <= 0;
       const sinPrecio = !isPriced(p);
       const canBuy = !agotado;
@@ -368,6 +370,7 @@
   }
 
   function buildFilters() {
+    if (!$("#fTypes")) return;
     const present = CAT_ORDER.filter((c) => products.some((p) => p.categoria === c));
     $("#fTypes").innerHTML = [`<li><button class="flink ${fCat === "todos" ? "is-active" : ""}" data-cat="todos">Todos</button></li>`]
       .concat(present.map((c) => `<li><button class="flink ${fCat === c ? "is-active" : ""}" data-cat="${c}">${CAT_LABEL[c] || c}</button></li>`)).join("");
@@ -437,7 +440,7 @@
     const unpriced = cartHasUnpriced();
     $("#cartTotal").textContent = unpriced ? "A cotizar" : money(total());
     const checkoutBtn = $("#goCheckout");
-    if (checkoutBtn) checkoutBtn.textContent = unpriced ? "Solicitar cotización por WhatsApp" : "Finalizar compra";
+    if (checkoutBtn) checkoutBtn.textContent = unpriced ? "Solicitar mi cotización" : "Finalizar compra";
   }
 
   function openCart() { $("#cart").classList.add("is-open"); $("#overlay").classList.add("is-open"); }
@@ -482,53 +485,73 @@
   }
   function closeDetail() { $("#detailModal").classList.remove("is-open"); }
 
-  /* ---------- Checkout ---------- */
+  /* ---------- Checkout ----------
+     El cliente siempre pasa por el mismo paso: llena sus datos y el pedido
+     completo se manda por WhatsApp. Cuando se active la pasarela de pago,
+     el botón de tarjeta aparece aquí mismo sin cambiar nada más. */
   function goCheckout() {
     if (itemsCount() === 0) { toast("Tu carrito está vacío"); return; }
-    // Si hay productos sin precio, mandamos la lista para cotizar por WhatsApp.
-    if (cartHasUnpriced()) {
-      const lineas = cartList().map(({ qty, p }) => `• ${qty}x ${p.nombre}${isPriced(p) ? " — " + money(p.precio * qty) : ""}`).join("%0A");
-      const msg = `Hola Car Seat Clinic 👋 Quiero cotizar estos productos:%0A%0A${lineas}%0A%0A¿Me confirman precio, disponibilidad y compatibilidad?`;
-      window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, "_blank");
-      toast("Te abrimos WhatsApp con tu lista para cotizar");
-      return;
-    }
-    // En modo real, hay que iniciar sesión para comprar
-    if (DB.ready && !currentUser) {
+    // Con precios reales seguimos pidiendo iniciar sesión antes de comprar.
+    if (!cartHasUnpriced() && DB.ready && !currentUser) {
       pendingCheckout = true;
       closeCart();
       openAuth("login", "Inicia sesión para finalizar tu compra 🛒");
       return;
     }
+    closeCart();
     openCheckout();
   }
   function openCheckout() {
-    $("#ckCount").textContent = itemsCount();
-    $("#ckTotal").textContent = money(total());
-    $("#checkoutModal").classList.add("is-open");
+    const cotizacion = cartHasUnpriced();
+    const ck = $("#ckCount"); if (ck) ck.textContent = itemsCount();
+    const ct = $("#ckTotal"); if (ct) ct.textContent = cotizacion ? "A cotizar" : money(total());
+    const title = $("#checkoutTitle");
+    const sub = $("#checkoutSub");
+    const pay = $("#payWhatsapp");
+    if (title) title.textContent = cotizacion ? "Solicitar tu cotización" : "Finalizar pedido";
+    if (sub) {
+      sub.textContent = cotizacion
+        ? "Déjanos tus datos y te abrimos WhatsApp con la lista lista para enviar. Te confirmamos precio y disponibilidad."
+        : "Completa tus datos y te abrimos WhatsApp con el pedido listo para enviar.";
+    }
+    if (pay) {
+      const etiqueta = cotizacion ? "Enviar mi cotización por WhatsApp" : "Enviar pedido por WhatsApp";
+      const span = pay.querySelector("span");
+      if (span) span.textContent = etiqueta;
+      else pay.lastChild.textContent = " " + etiqueta;
+    }
+    $("#checkoutModal")?.classList.add("is-open");
     setupPayPal();
     // Botón de pago con tarjeta (pasarela del banco), solo si está activo
     const pc = $("#payCard");
     if (pc) {
-      const on = !!(CONFIG.pago && CONFIG.pago.activo);
+      const on = !!(CONFIG.pago && CONFIG.pago.activo) && !cotizacion;
       pc.style.display = on ? "block" : "none";
       if (on) pc.textContent = "💳 " + (CONFIG.pago.etiqueta || "Pagar con tarjeta");
     }
   }
-  function closeCheckout() { $("#checkoutModal").classList.remove("is-open"); }
+  function closeCheckout() { $("#checkoutModal")?.classList.remove("is-open"); }
 
+  // Arma el mensaje de WhatsApp con todo el pedido (texto plano, se codifica al enviar).
   function buildOrderText(form) {
-    const lineas = cartList().map(({ qty, p }) => `• ${qty}x ${p.nombre} — ${money(p.precio * qty)}`);
-    let msg = `*Nuevo pedido — Car Seat Clinic*%0A%0A${lineas.join("%0A")}%0A%0A*Total: ${money(total())}*`;
+    const cotizacion = cartHasUnpriced();
+    const lineas = cartList().map(({ qty, p }) => {
+      const precio = isPriced(p) ? money(p.precio * qty) : "por cotizar";
+      return `• ${qty}x ${p.nombre} — ${precio}`;
+    });
+    const titulo = cotizacion ? "*Solicitud de cotización — Car Seat Clinic*" : "*Nuevo pedido — Car Seat Clinic*";
+    let msg = `${titulo}\n\n${lineas.join("\n")}\n\n`;
+    msg += cotizacion ? `*Total: a confirmar por ustedes*` : `*Total: ${money(total())}*`;
     const d = Object.fromEntries(new FormData(form).entries());
-    msg += `%0A%0A*Datos del cliente:*%0A`;
-    if (d.nombre) msg += `Nombre: ${d.nombre}%0A`;
-    if (d.telefono) msg += `Teléfono: ${d.telefono}%0A`;
-    if (d.email) msg += `Correo: ${d.email}%0A`;
-    if (d.direccion) msg += `Dirección: ${d.direccion}%0A`;
-    msg += `Entrega: ${d.entrega ? "A domicilio" : "Retiro en tienda"}%0A`;
-    if (d.instalacion) msg += `*Quiere instalación profesional* ✅%0A`;
-    if (d.notas) msg += `Notas: ${d.notas}`;
+    msg += `\n\n*Mis datos:*\n`;
+    if (d.nombre) msg += `Nombre: ${d.nombre}\n`;
+    if (d.telefono) msg += `Teléfono: ${d.telefono}\n`;
+    if (d.email) msg += `Correo: ${d.email}\n`;
+    if (d.direccion) msg += `Dirección: ${d.direccion}\n`;
+    msg += `Entrega: ${d.entrega ? "A domicilio" : "Retiro en tienda"}\n`;
+    if (d.instalacion) msg += `Quiere instalación profesional: sí\n`;
+    if (d.notas) msg += `Notas: ${d.notas}\n`;
+    msg += `\n(Enviado desde la web)`;
     return msg;
   }
   function customerData(form) {
@@ -551,13 +574,18 @@
 
   async function sendWhatsAppOrder() {
     const form = $("#checkoutForm");
+    if (!form) return;
     if (!form.checkValidity()) { form.reportValidity(); return; }
+    const cotizacion = cartHasUnpriced();
     const text = buildOrderText(form);
-    const ok = await registerOrder(form);
-    if (!ok) return;
-    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${text}`, "_blank");
+    // Solo descontamos stock cuando es una compra con precio real.
+    if (!cotizacion) {
+      const ok = await registerOrder(form);
+      if (!ok) return;
+    }
+    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`, "_blank");
     clearCartAfterOrder();
-    toast("¡Pedido enviado! Te escribimos por WhatsApp 💬");
+    toast(cotizacion ? "¡Listo! Te abrimos WhatsApp con tu cotización 💬" : "¡Pedido enviado! Te escribimos por WhatsApp 💬");
   }
 
   function clearCartAfterOrder() {
@@ -604,7 +632,7 @@
     $("#authError").textContent = "";
     $("#authDemoNote").style.display = DB.ready ? "none" : "block";
     $("#authModal").classList.add("is-open");
-    $("#accountMenu").hidden = true;
+    if ($("#accountMenu")) $("#accountMenu").hidden = true;
   }
   function closeAuth() { $("#authModal").classList.remove("is-open"); }
   function setAuthMode(mode) {
@@ -687,7 +715,7 @@
   }
 
   async function showMyOrders() {
-    $("#accountMenu").hidden = true;
+    if ($("#accountMenu")) $("#accountMenu").hidden = true;
     if (!DB.ready) { toast("Disponible al conectar la base de datos"); return; }
     let orders = [];
     try { orders = await DB.getMyOrders(); } catch { toast("No se pudieron cargar tus pedidos"); return; }
@@ -724,11 +752,15 @@
 
   /* ---------- Contacto ---------- */
   function fillContact() {
-    $("#cInfoUbicacion").textContent = CONFIG.ubicacion;
-    $("#cInfoHorario").textContent = CONFIG.horario;
-    const mail = $("#cInfoEmail"); mail.textContent = CONFIG.email; mail.href = "mailto:" + CONFIG.email;
-    $("#cInfoInsta").href = CONFIG.instagram;
-    $("#cWhatsBtn").href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, tengo una consulta")}`;
+    const ubi = $("#cInfoUbicacion"); if (ubi) ubi.textContent = CONFIG.ubicacion;
+    const hor = $("#cInfoHorario"); if (hor) hor.textContent = CONFIG.horario;
+    const mail = $("#cInfoEmail"); if (mail) { mail.textContent = CONFIG.email; mail.href = "mailto:" + CONFIG.email; }
+    const insta = $("#cInfoInsta"); if (insta) insta.href = CONFIG.instagram;
+    const waBtn = $("#cWhatsBtn");
+    if (waBtn) waBtn.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, tengo una consulta")}`;
+    // Enlaces de Instagram del pie de página / menú (tienda y cuenta principal)
+    $$("[data-ig-shop]").forEach((a) => { a.href = CONFIG.instagramTienda || CONFIG.instagram; });
+    $$("[data-ig-main]").forEach((a) => { a.href = CONFIG.instagram; });
     const floatWhats = $("#floatWhatsBtn");
     if (floatWhats) floatWhats.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, quisiera recibir asesoría")}`;
     const map = $("#mapFrame");
@@ -744,7 +776,7 @@
     if (qrEl && typeof qrcode === "function") {
       try { const qr = qrcode(0, "M"); qr.addData(wazeUrl); qr.make(); qrEl.innerHTML = qr.createImgTag(4, 0); } catch (e) {}
     }
-    $("#year").textContent = new Date().getFullYear();
+    $$("#year, [data-year]").forEach((el) => { el.textContent = new Date().getFullYear(); });
   }
 
   /* ---------- Encuentra tu silla ideal ---------- */
@@ -812,13 +844,21 @@
   }
 
   function applyFilter(cat) {
+    // Si el catálogo no está en esta página, vamos a la Tienda ya filtrada.
+    if (!$("#productGrid")) { window.location.href = `tienda.html?cat=${encodeURIComponent(cat || "todos")}`; return; }
     fCat = cat; fBrands.clear(); fPrice = "all";
     buildFilters(); applyFilters();
-    document.getElementById("productos").scrollIntoView({ behavior: "smooth" });
+    document.getElementById("productos")?.scrollIntoView({ behavior: "smooth" });
   }
 
   // Inicia el flujo de alquiler para una silla concreta (abre el calendario)
   function startRentalForProduct(p) {
+    // El alquiler vive en su propia página: si no está aquí, vamos allá.
+    if (!$("#citaServicio")) {
+      const q = p ? `?modelo=${encodeURIComponent(p.nombre)}&equipo=${encodeURIComponent(p.categoria === "booster" ? "Booster" : "Silla de carro")}` : "";
+      window.location.href = `alquiler.html${q}#reservar`;
+      return;
+    }
     const serviceSelect = $("#citaServicio");
     if (serviceSelect) { serviceSelect.value = "Alquiler"; serviceSelect.dispatchEvent(new Event("change", { bubbles: true })); }
     if (p) {
@@ -1127,7 +1167,7 @@
     toast("¡Gracias por suscribirte! 💌");
   }
 
-  function closePopup() { $("#newsletterPopup").hidden = true; try { sessionStorage.setItem("csc_np", "1"); } catch (e) {} }
+  function closePopup() { if ($("#newsletterPopup")) $("#newsletterPopup").hidden = true; try { sessionStorage.setItem("csc_np", "1"); } catch (e) {} }
   function maybeShowPopup() {
     try { if (sessionStorage.getItem("csc_np") === "1") return; } catch (e) {}
     const tryShow = () => {
@@ -1136,17 +1176,28 @@
       const modalOpen = !!document.querySelector(".modal.is-open") || !!document.querySelector(".cart.is-open");
       const chatOpen = $("#chatPanel") && !$("#chatPanel").hidden;
       if (modalOpen || chatOpen) { setTimeout(tryShow, 6000); return; }
-      $("#newsletterPopup").hidden = false;
+      if ($("#newsletterPopup")) $("#newsletterPopup").hidden = false;
     };
     setTimeout(tryShow, 16000);
   }
 
   /* ---------- Cargar productos ---------- */
+  // Vitrina de la portada: primeras sillas con foto, sin filtros ni buscador.
+  function renderFeatured() {
+    if (!$("#featuredGrid")) return;
+    const conFoto = products.filter((p) => p.stock > 0 && productImageList(p).length);
+    const base = conFoto.length ? conFoto : products.filter((p) => p.stock > 0);
+    const sillas = base.filter((p) => SEAT_CATS.includes(p.categoria));
+    const lista = (sillas.length >= 4 ? sillas : base).slice(0, 4);
+    renderProducts(lista, "#featuredGrid", false);
+  }
+
   async function loadProducts() {
     products = await DB.getProducts();
     cleanCartForCatalog();
     buildFilters();
     applyFilters();
+    renderFeatured();
     renderCart();
     // Disponible para el asistente (mostrar modelos recomendados)
     window.CSC_PRODUCTS = products;
@@ -1154,8 +1205,10 @@
 
   // El chat usa esto para llevar al cliente al catálogo filtrado por etapa
   window.CSC_showCatalog = function (cat) {
-    if (cat && cat !== "todos") applyFilter(cat);
-    else document.getElementById("productos")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (cat && cat !== "todos") { applyFilter(cat); return; }
+    const grid = document.getElementById("productos");
+    if (grid) grid.scrollIntoView({ behavior: "smooth", block: "start" });
+    else window.location.href = "tienda.html";
   };
 
   // Carrusel del hero (cambia cada 4s)
@@ -1308,9 +1361,9 @@
       input.focus();
     }
     function close() { panel.hidden = true; $("#chatLaunch").classList.remove("is-open"); }
-    $("#chatLaunch").addEventListener("click", () => (panel.hidden ? open() : close()));
-    $("#chatClose").addEventListener("click", close);
-    $("#chatForm").addEventListener("submit", async (e) => {
+    $("#chatLaunch")?.addEventListener("click", () => (panel.hidden ? open() : close()));
+    $("#chatClose")?.addEventListener("click", close);
+    $("#chatForm")?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const text = input.value.trim(); if (!text) return; input.value = "";
       clearQuickActions();
@@ -1440,7 +1493,7 @@
     const rm = t.closest("[data-rm]"); if (rm) { setQty(rm.getAttribute("data-rm"), 0); return; }
     const vs = t.closest("[data-ver-sillas]"); if (vs) { applyFilter(vs.getAttribute("data-ver-sillas")); return; }
     // cerrar menú de cuenta al hacer clic fuera
-    if (!t.closest("#accountMenu") && !t.closest("#accountBtn")) $("#accountMenu").hidden = true;
+    if (!t.closest("#accountMenu") && !t.closest("#accountBtn")) if ($("#accountMenu")) $("#accountMenu").hidden = true;
   });
 
   // Comparador de sillas (botones en tarjetas, barra flotante y modal)
@@ -1455,11 +1508,11 @@
     if (e.target.closest("#compareModal [data-detail], #compareModal [data-add]")) $("#compareModal")?.classList.remove("is-open");
   });
 
-  $("#shopFilters").addEventListener("click", (e) => {
+  $("#shopFilters")?.addEventListener("click", (e) => {
     const t = e.target.closest("[data-cat]");
     if (t) { fCat = t.dataset.cat; buildFilters(); applyFilters(); }
   });
-  $("#shopFilters").addEventListener("change", (e) => {
+  $("#shopFilters")?.addEventListener("change", (e) => {
     if (e.target.matches("[data-brand]")) {
       const b = e.target.getAttribute("data-brand");
       if (e.target.checked) fBrands.add(b); else fBrands.delete(b);
@@ -1468,20 +1521,20 @@
       fPrice = e.target.getAttribute("data-price"); applyFilters();
     }
   });
-  $("#sortSelect").addEventListener("change", (e) => { fSort = e.target.value; applyFilters(); });
+  $("#sortSelect")?.addEventListener("change", (e) => { fSort = e.target.value; applyFilters(); });
   $("#shopSearch")?.addEventListener("input", applyFilters);
-  $("#filtersToggle").addEventListener("click", () => $("#filtersBody").classList.toggle("is-open"));
+  $("#filtersToggle")?.addEventListener("click", () => $("#filtersBody").classList.toggle("is-open"));
 
-  $("#openCart").addEventListener("click", openCart);
-  $("#closeCart").addEventListener("click", closeCart);
-  $("#overlay").addEventListener("click", closeCart);
-  $("#cartEmptyShop").addEventListener("click", closeCart);
-  $("#goCheckout").addEventListener("click", goCheckout);
-  $("#detailClose").addEventListener("click", closeDetail);
-  $("#detailModal").addEventListener("click", (e) => { if (e.target.id === "detailModal") closeDetail(); });
-  $("#closeCheckout").addEventListener("click", closeCheckout);
-  $("#payWhatsapp").addEventListener("click", sendWhatsAppOrder);
-  $("#payCard").addEventListener("click", async () => {
+  $("#openCart")?.addEventListener("click", openCart);
+  $("#closeCart")?.addEventListener("click", closeCart);
+  $("#overlay")?.addEventListener("click", closeCart);
+  $("#cartEmptyShop")?.addEventListener("click", closeCart);
+  $("#goCheckout")?.addEventListener("click", goCheckout);
+  $("#detailClose")?.addEventListener("click", closeDetail);
+  $("#detailModal")?.addEventListener("click", (e) => { if (e.target.id === "detailModal") closeDetail(); });
+  $("#closeCheckout")?.addEventListener("click", closeCheckout);
+  $("#payWhatsapp")?.addEventListener("click", sendWhatsAppOrder);
+  $("#payCard")?.addEventListener("click", async () => {
     const form = $("#checkoutForm");
     if (!form.checkValidity()) { form.reportValidity(); return; }
     const ok = await registerOrder(form);
@@ -1494,49 +1547,66 @@
       toast("El pago con tarjeta aún no está configurado (ver PAGOS.md).");
     }
   });
-  $("#checkoutModal").addEventListener("click", (e) => { if (e.target.id === "checkoutModal") closeCheckout(); });
+  $("#checkoutModal")?.addEventListener("click", (e) => { if (e.target.id === "checkoutModal") closeCheckout(); });
 
   // Auth
-  $("#accountBtn").addEventListener("click", (e) => {
+  $("#accountBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
     if (currentUser) $("#accountMenu").hidden = !$("#accountMenu").hidden;
     else openAuth("login");
   });
-  $("#closeAuth").addEventListener("click", closeAuth);
-  $("#authModal").addEventListener("click", (e) => { if (e.target.id === "authModal") closeAuth(); });
-  $("#authForm").addEventListener("submit", handleAuthSubmit);
-  $("#authSwitch").addEventListener("click", (e) => { e.preventDefault(); setAuthMode(authMode === "login" ? "register" : "login"); $("#authError").textContent = ""; });
-  $("#googleBtn").addEventListener("click", googleLogin);
-  $("#logoutBtn").addEventListener("click", async (e) => { e.preventDefault(); await DB.signOut(); currentUser = null; currentProfile = null; await refreshAuthUI(); $("#accountMenu").hidden = true; toast("Sesión cerrada"); });
-  $("#myOrdersBtn").addEventListener("click", (e) => { e.preventDefault(); showMyOrders(); });
+  $("#closeAuth")?.addEventListener("click", closeAuth);
+  $("#authModal")?.addEventListener("click", (e) => { if (e.target.id === "authModal") closeAuth(); });
+  $("#authForm")?.addEventListener("submit", handleAuthSubmit);
+  $("#authSwitch")?.addEventListener("click", (e) => { e.preventDefault(); setAuthMode(authMode === "login" ? "register" : "login"); $("#authError").textContent = ""; });
+  $("#googleBtn")?.addEventListener("click", googleLogin);
+  $("#logoutBtn")?.addEventListener("click", async (e) => { e.preventDefault(); await DB.signOut(); currentUser = null; currentProfile = null; await refreshAuthUI(); if ($("#accountMenu")) $("#accountMenu").hidden = true; toast("Sesión cerrada"); });
+  $("#myOrdersBtn")?.addEventListener("click", (e) => { e.preventDefault(); showMyOrders(); });
 
   // Menú móvil
-  $("#navToggle").addEventListener("click", () => $("#nav").classList.toggle("is-open"));
-  $$("#nav a").forEach((a) => a.addEventListener("click", () => $("#nav").classList.remove("is-open")));
+  // El menú móvil lo maneja js/shell.js (sirve igual en todas las páginas).
 
   // Cuestionario "Encuentra tu silla ideal"
-  $("#finderForm").addEventListener("submit", handleFinder);
-  $("#finderForm").addEventListener("input", updateFinderProgress);
-  $("#finderForm").addEventListener("change", updateFinderProgress);
+  $("#finderForm")?.addEventListener("submit", handleFinder);
+  $("#finderForm")?.addEventListener("input", updateFinderProgress);
+  $("#finderForm")?.addEventListener("change", updateFinderProgress);
 
   // Reserva tu cita
-  $("#citaForm").addEventListener("submit", handleCita);
+  $("#citaForm")?.addEventListener("submit", handleCita);
 
   // Newsletter (footer + pop-up)
-  $("#newsletterForm").addEventListener("submit", (e) => { e.preventDefault(); handleNewsletter(e.target, "footer"); });
-  $("#npForm").addEventListener("submit", (e) => { e.preventDefault(); handleNewsletter(e.target, "popup"); closePopup(); });
-  $("#npClose").addEventListener("click", closePopup);
+  $("#newsletterForm")?.addEventListener("submit", (e) => { e.preventDefault(); handleNewsletter(e.target, "footer"); });
+  $("#npForm")?.addEventListener("submit", (e) => { e.preventDefault(); handleNewsletter(e.target, "popup"); closePopup(); });
+  $("#npClose")?.addEventListener("click", closePopup);
 
   // Formulario de contacto → WhatsApp
-  $("#contactForm").addEventListener("submit", (e) => {
+  $("#contactForm")?.addEventListener("submit", (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target).entries());
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=Hola Car Seat Clinic 👋%0A%0ANombre: ${d.nombre}%0AMensaje: ${d.mensaje}`, "_blank");
   });
 
+  /* ---------- Enlaces entre páginas (?cat= en la tienda, ?modelo= en alquiler) ---------- */
+  function applyUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("cat");
+    if (cat && $("#productGrid")) { fCat = cat; }
+    const equipo = params.get("equipo");
+    const modelo = params.get("modelo");
+    if (equipo || modelo) {
+      const serviceSelect = $("#citaServicio");
+      if (serviceSelect) { serviceSelect.value = "Alquiler"; serviceSelect.dispatchEvent(new Event("change", { bubbles: true })); }
+      const eq = $("#rentalEquipment");
+      if (eq && equipo) { eq.value = equipo; eq.dispatchEvent(new Event("change", { bubbles: true })); }
+      const campoModelo = document.querySelector('#citaForm [name="modelo_silla"]');
+      if (campoModelo && modelo) campoModelo.value = modelo;
+    }
+  }
+
   /* ---------- Inicio ---------- */
-  document.title = `${CONFIG.nombre} ${CONFIG.eslogan} | Sillas de carro y seguridad infantil`;
+  document.title = document.title || `${CONFIG.nombre} | Sillas de carro y seguridad infantil`;
   DB.init();
+  applyUrlParams();
   renderServices();
   renderTestimonios();
   fillContact();
@@ -1554,6 +1624,6 @@
     DB.onAuthChange(async () => { await refreshAuthUI(); });
   } else {
     // modo demo: mostrar aviso en el botón de cuenta
-    $("#accountLabel").textContent = "Ingresar";
+    if ($("#accountLabel")) $("#accountLabel").textContent = "Ingresar";
   }
 })();

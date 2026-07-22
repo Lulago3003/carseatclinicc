@@ -10,6 +10,46 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
 
 ---
 
+## 🆕 REESTRUCTURACIÓN (julio 2026)
+
+- [x] **El sitio ahora tiene pestañas de verdad**: Inicio · Tienda · Alquiler ·
+      Servicios · Preguntas · Contacto, iguales en todas las páginas.
+- [x] **`tienda.html` (nueva)**: el catálogo completo (filtros, buscador, orden,
+      ficha, comparador y carrito) salió de la portada y vive aquí. Acepta
+      `tienda.html?cat=booster` para llegar ya filtrado.
+- [x] **`alquiler.html` (nueva)**: el alquiler **ya no está en la página de
+      comprar**. Tiene su propia página con equipo disponible, cómo funciona,
+      calendario de fechas, formulario de reserva y preguntas del alquiler.
+      Desde la ficha de una silla, "Alquilar" lleva aquí con el modelo ya puesto
+      (`alquiler.html?modelo=...&equipo=...`).
+- [x] **`index.html` es ahora la portada**: hero, confianza, 4 destacados que
+      llevan a la tienda, guía por etapas, test, ruta segura, servicios,
+      nosotros, testimonios, cita y contacto.
+- [x] **`servicios.html`**: se le quitó el alquiler (ahora enlaza a su página) y
+      se le agregó **Revisión de seguridad**.
+- [x] **Checkout que termina en WhatsApp**: el cliente agrega al carrito, pulsa
+      finalizar, llena nombre/teléfono/dirección/notas y el pedido completo se
+      abre en WhatsApp listo para enviar. Funciona igual si los precios están en
+      "Consultar" (manda una cotización). El botón de pago con tarjeta sigue
+      oculto tras `CONFIG.pago.activo` para cuando haya pasarela.
+- [x] **`js/shell.js` (nuevo)**: el carrito, el checkout, la ficha, el login, el
+      chat y los botones flotantes se insertan solos en todas las páginas. Ya no
+      están copiados en cada HTML → el carrito funciona en todo el sitio.
+- [x] **`scripts/sync-layout.mjs` (nuevo)**: copia el menú y el pie a las 7
+      páginas de una vez, y pone `?v=fecha` a css/js para vencer la caché.
+- [x] **`scripts/site-check.mjs` (nuevo)**: avisa si un menú quedó distinto,
+      falta un script o hay un enlace/ancla roto.
+- [x] **Rediseño visual**: encabezado tipo pestañas que ya no se amontona (pasa a
+      menú hamburguesa desde 1000px), pie de página de 4 columnas con las dos
+      cuentas de Instagram, portadas propias para Tienda y Alquiler, tarjetas de
+      equipo, pasos "cómo funciona" y calendario de alquiler a tamaño normal.
+
+### ⬜ Pendiente de esta tanda
+- [ ] **Contenido del Instagram** (@carseatclinic.shop): el dueño va a pasar
+      capturas/textos para ajustar copys, fotos y destacados de la tienda.
+
+---
+
 ## ✅ HECHO
 
 **Tienda**

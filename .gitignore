@@ -12,3 +12,6 @@ node_modules/
 
 # Documentos fuente pesados (inventario, etc.) — no van en la web
 *.docx
+
+# Archivos pesados que no son parte de la web
+*.zip

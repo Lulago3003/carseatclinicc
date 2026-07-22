@@ -34,14 +34,35 @@ Cloudflare Email Routing (recibir, gratis) + Zoho/Google Workspace (enviar).
 
 ## 📂 Estructura
 
+**Menú del sitio (6 pestañas, iguales en todas las páginas):**
+Inicio · Tienda · Alquiler · Servicios · Preguntas · Contacto
+
 ```
-index.html              → la tienda (home: hero, catálogo, servicios en tarjetas, etc.)
-servicios.html          → página aparte de servicios (Venta, Alquiler, Instalación,
-                          Limpieza con comparador antes/después); usa js/servicios.js
-faq.html                → preguntas frecuentes (acordeón <details>); usa js/servicios.js
+index.html              → INICIO: hero, franja de confianza, destacados (4 productos
+                          que llevan a la tienda), guía por etapas, test "encuentra tu
+                          silla", ruta segura, servicios en tarjetas, nosotros,
+                          testimonios, reserva de cita y contacto + mapa.
+tienda.html             → TIENDA: catálogo completo con filtros, buscador, orden,
+                          ficha de producto, comparador y carrito. Acepta ?cat=...
+alquiler.html           → ALQUILER (página propia): equipo disponible, cómo funciona,
+                          calendario de rango, formulario de reserva y preguntas.
+                          Acepta ?modelo=...&equipo=... desde la ficha de producto.
+servicios.html          → SERVICIOS: Limpieza (comparador antes/después), Venta,
+                          Instalación, Revisión + banner que lleva a alquiler.html
+faq.html                → preguntas frecuentes (acordeón <details>)
+terminos.html /
+privacidad.html         → páginas legales (pie de página corto)
+admin.html              → panel de administración (CRM). No usa shell.js ni store.js.
+js/shell.js             → ⭐ piezas COMPARTIDAS que se insertan solas en todas las
+                          páginas: carrito, checkout, ficha de producto, login,
+                          pop-up del boletín, botón de WhatsApp, chat, comparador y
+                          avisos. También el menú móvil y la pestaña activa.
 js/chat-widget.js       → chat/asistente IA reutilizable (en TODAS las páginas)
-admin.html              → panel de administración (CRM)
-css/styles.css          → todos los estilos (paleta + responsive + animaciones)
+css/styles.css          → todos los estilos (paleta + responsive + animaciones).
+                          El rediseño 2026 está en un bloque AL FINAL del archivo.
+scripts/sync-layout.mjs → ⭐ copia el MENÚ y el PIE a todas las páginas de una vez.
+                          Si cambias el menú, edítalo ahí y corre el script.
+scripts/site-check.mjs  → revisa menús iguales, scripts y enlaces rotos.
 js/data.js              → ⭐ CONFIGURACIÓN editable: CONFIG (supabase keys, whatsapp,
                           adminEmails, adminCode, mapsQuery, paypalClientId),
                           SERVICIOS, TESTIMONIOS, IMAGENES_CATEGORIA, PRODUCTOS_DEMO
@@ -92,8 +113,15 @@ supabase-fotos-prueba.sql     → fotos de prueba (opcional)
 
 - **Probar localmente:** es estático. Abre `index.html`, o sirve la carpeta:
   `python -m http.server 5577` y abre http://localhost:5577.
+- **Antes de publicar:** `node scripts/site-check.mjs` (menús, scripts y enlaces).
+- **Si tocas el menú o el pie:** edítalo en `scripts/sync-layout.mjs` y corre
+  `node scripts/sync-layout.mjs` para copiarlo a las 7 páginas. NO lo edites
+  a mano página por página.
+- **Si tocas CSS o JS:** sube `VERSION` en `scripts/sync-layout.mjs` y vuelve a
+  correrlo. Eso cambia el `?v=...` de los archivos y evita que el cliente vea
+  una copia vieja guardada en caché.
 - **Publicar:** `git add . && git commit -m "..." && git push` → GitHub Pages
-  se actualiza solo. (Recordar al usuario abrir en incógnito por la caché.)
+  se actualiza solo (tarda 1-2 minutos).
 - **Cambios de datos/categorías/tablas en Supabase:** entregar un `.sql` para
   que el usuario lo pegue en Supabase → SQL Editor → Run (no puede hacerlo el agente).
 - **Imágenes sin tocar Supabase:** usar `IMAGENES_CATEGORIA` en `js/data.js`.

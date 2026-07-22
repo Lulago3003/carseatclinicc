@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="light" />
   <title>Car Seat Clinic Panamá | Sillas de carro y seguridad infantil</title>
-  <meta name="description" content="Tienda de sillas de carro para bebé, bases ISOFIX, accesorios y servicios de instalación y revisión de seguridad en Panamá." />
-  <meta property="og:title" content="Car Seat Clinic Center" />
-  <meta property="og:description" content="Sillas de carro, asesoría e instalación para que tu familia viaje segura en Panamá." />
+  <meta name="description" content="Sillas de carro para bebé, alquiler para viajes, instalación certificada y limpieza profunda en Panamá. Te asesoramos antes de comprar." />
+  <meta property="og:title" content="Car Seat Clinic Panamá" />
+  <meta property="og:description" content="Sillas de carro, alquiler, asesoría e instalación para que tu familia viaje segura en Panamá." />
   <meta property="og:image" content="https://lulago3003.github.io/carseatclinicc/assets/hero/sillas.jpg" />
-  <meta property="og:image:alt" content="Silla de carro para bebé — Car Seat Clinic Center" />
+  <meta property="og:image:alt" content="Silla de carro para bebé — Car Seat Clinic" />
   <meta property="og:url" content="https://lulago3003.github.io/carseatclinicc/" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Car Seat Clinic Center" />
+  <meta property="og:site_name" content="Car Seat Clinic" />
   <meta property="og:locale" content="es_PA" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Car Seat Clinic Center" />
-  <meta name="twitter:description" content="Sillas de carro, asesoría e instalación certificada para que tu familia viaje segura en Panamá." />
+  <meta name="twitter:title" content="Car Seat Clinic Panamá" />
+  <meta name="twitter:description" content="Sillas de carro, alquiler, asesoría e instalación certificada en Panamá." />
   <meta name="twitter:image" content="https://lulago3003.github.io/carseatclinicc/assets/hero/sillas.jpg" />
   <meta name="theme-color" content="#2f3e34" />
   <link rel="canonical" href="https://lulago3003.github.io/carseatclinicc/" />
@@ -32,7 +32,7 @@
   <!-- Precarga la primera foto del hero para que la portada cargue más rápido -->
   <link rel="preload" as="image" href="assets/hero/sillas.jpg" />
 
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-21" />
 </head>
 <body>
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
@@ -40,54 +40,55 @@
   <!-- ===================== ENCABEZADO ===================== -->
   <header class="header" id="header">
     <div class="container header__inner">
-      <a href="#inicio" class="brand" aria-label="Car Seat Clinic Center">
-        <img src="logo.jpg" alt="Car Seat Clinic Center" class="brand__logo" />
+      <a href="index.html" class="brand" aria-label="Car Seat Clinic, ir al inicio">
+        <img src="logo.jpg" alt="" class="brand__logo" />
         <span class="brand__text">
           <strong>Car Seat Clinic</strong>
+          <small>Seguridad infantil · Panamá</small>
         </span>
       </a>
 
-      <nav class="nav" id="nav">
-        <a href="#productos">Productos</a>
+      <nav class="nav" id="nav" aria-label="Menú principal">
+        <a href="index.html">Inicio</a>
+        <a href="tienda.html">Tienda</a>
+        <a href="alquiler.html">Alquiler</a>
         <a href="servicios.html">Servicios</a>
         <a href="faq.html">Preguntas</a>
-        <a href="#citas">Reserva tu cita</a>
-        <a href="#nosotros">Nosotros</a>
-        <a href="#contacto">Contacto</a>
-        <a href="admin.html" id="adminLink" class="nav__admin" style="display:none">⚙️ Administrar</a>
+        <a href="index.html#contacto">Contacto</a>
+        <a href="admin.html" id="adminLink" class="nav__admin" style="display:none">Administrar</a>
       </nav>
 
       <div class="header__actions">
         <button class="account-btn" id="accountBtn" type="button">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
           </svg>
           <span id="accountLabel">Ingresar</span>
         </button>
         <button class="cart-btn" id="openCart" type="button" aria-label="Abrir carrito">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
           </svg>
           <span class="cart-btn__count" id="cartCount">0</span>
         </button>
-        <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menú">
+        <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- ===================== HERO ===================== -->
+  <!-- ===================== PORTADA ===================== -->
   <section class="hero" id="inicio" data-whatsapp-label="Asesoría inicial" data-whatsapp-message="Hola Car Seat Clinic, quiero ayuda para elegir una silla segura.">
     <div class="container hero__inner">
       <div class="hero__text">
         <span class="pill">Asesoría experta en seguridad infantil</span>
         <h1>La silla correcta, instalada con confianza.</h1>
-        <p>Te guiamos para elegir, cotizar e instalar la silla adecuada para tu hijo y tu auto. Todo con una atención cercana por WhatsApp y sin complicarte con tecnicismos.</p>
+        <p>Te guiamos para elegir, cotizar e instalar la silla adecuada para tu hijo y tu auto. También la alquilamos por días si vienes de viaje. Todo con atención cercana por WhatsApp y sin tecnicismos.</p>
         <div class="hero__cta">
-          <a href="#productos" class="btn btn--primary">Cotizar productos</a>
-          <a href="#encuentra" class="btn btn--ghost">Encuentra tu silla ideal</a>
+          <a href="tienda.html" class="btn btn--primary">Ver la tienda</a>
+          <a href="alquiler.html" class="btn btn--ghost">Alquilar por días</a>
         </div>
         <ul class="hero__trust">
           <li><strong>+500</strong> familias protegidas</li>
@@ -97,14 +98,14 @@
       </div>
       <div class="hero__art">
         <div class="hero__slider" id="heroSlider">
-          <a class="hero__slide is-active" href="#productos" style="background-image:url('assets/hero/sillas.jpg')">
-            <span class="hero__cap"><strong>Sillas de carro y boosters</strong><span>Ver productos →</span></span>
+          <a class="hero__slide is-active" href="tienda.html" style="background-image:url('assets/hero/sillas.jpg')">
+            <span class="hero__cap"><strong>Sillas de carro y boosters</strong><span>Ver la tienda →</span></span>
           </a>
           <a class="hero__slide" href="#encuentra" style="background-image:url('assets/hero/encuentra.jpg')">
             <span class="hero__cap"><strong>Encuentra tu silla ideal</strong><span>Hacer el test →</span></span>
           </a>
-          <a class="hero__slide" href="servicios.html" style="background-image:url('assets/hero/servicios.jpg')">
-            <span class="hero__cap"><strong>Venta, alquiler, instalación y limpieza</strong><span>Nuestros servicios →</span></span>
+          <a class="hero__slide" href="alquiler.html" style="background-image:url('assets/hero/servicios.jpg')">
+            <span class="hero__cap"><strong>Alquiler para viajes</strong><span>Reservar por fechas →</span></span>
           </a>
         </div>
         <div class="hero__assist motion-float">
@@ -125,43 +126,20 @@
     </div>
   </section>
 
-  <!-- ===================== PRODUCTOS ===================== -->
-  <section class="section section--alt" id="productos" data-whatsapp-label="Cotizar producto" data-whatsapp-message="Hola Car Seat Clinic, estoy viendo productos y quiero cotizar una silla.">
+  <!-- ===================== DESTACADOS (llevan a la Tienda) ===================== -->
+  <section class="section section--alt" id="destacados" data-whatsapp-label="Cotizar producto" data-whatsapp-message="Hola Car Seat Clinic, vi sus sillas y quiero cotizar una.">
     <div class="container">
-      <div class="section__head section__head--shop">
-        <span class="eyebrow">Inventario disponible</span>
-        <h2>Productos para cotizar con asesoría.</h2>
-        <p>Elige el producto que te interesa y te confirmamos precio, disponibilidad y compatibilidad por WhatsApp.</p>
-      </div>
-
-      <div class="shop">
-        <aside class="shop__filters" id="shopFilters">
-          <button class="shop__filtersToggle" id="filtersToggle">Filtros ▾</button>
-          <div class="shop__filtersBody" id="filtersBody">
-            <div class="fgroup"><h4>Tipo de producto</h4><ul class="flist" id="fTypes"></ul></div>
-            <div class="fgroup"><h4>Marca</h4><ul class="flist" id="fBrands"></ul></div>
-            <div class="fgroup"><h4>Precio</h4><ul class="flist" id="fPrices"></ul></div>
-          </div>
-        </aside>
-        <div class="shop__main">
-          <div class="shop__bar">
-            <input type="search" id="shopSearch" class="shop__search" placeholder="🔎 Buscar silla, marca o etapa…" aria-label="Buscar productos" />
-            <span class="shop__count" id="shopCount"></span>
-            <label class="shop__sortwrap">Ordenar:
-              <select id="sortSelect" class="shop__sort">
-                <option value="destacados">Destacados</option>
-                <option value="precio-asc">Precio: menor a mayor</option>
-                <option value="precio-desc">Precio: mayor a menor</option>
-                <option value="nombre">Nombre (A–Z)</option>
-              </select>
-            </label>
-          </div>
-          <div class="shop__notice">
-            <strong>¿No sabes cuál elegir?</strong>
-            <span>Haz el test rápido o escríbenos por WhatsApp y te guiamos según edad, peso y vehículo.</span>
-          </div>
-          <div class="grid" id="productGrid"><!-- productos generados por JS --></div>
+      <div class="section__head section__head--row">
+        <div>
+          <span class="eyebrow">Lo más buscado</span>
+          <h2>Sillas que las familias eligen</h2>
+          <p>Una muestra de nuestro inventario. Agrega al carrito y te confirmamos precio y disponibilidad por WhatsApp.</p>
         </div>
+        <a href="tienda.html" class="btn btn--ghost">Ver toda la tienda</a>
+      </div>
+      <div class="grid grid--featured" id="featuredGrid"><!-- generado por JS --></div>
+      <div class="section__more">
+        <a href="tienda.html" class="btn btn--primary">Ver los 29 productos</a>
       </div>
     </div>
   </section>
@@ -205,16 +183,17 @@
         </button>
       </div>
       <div class="guide__tip">
-        <span>🛡️ Consejo: mantén a tu hijo <strong>a contramarcha el mayor tiempo posible</strong>, no solo hasta el año. ¿Prefieres una sola silla que acompañe todas las etapas?</span>
+        <span>Consejo: mantén a tu hijo <strong>a contramarcha el mayor tiempo posible</strong>, no solo hasta el año. ¿Prefieres una sola silla que acompañe todas las etapas?</span>
         <button class="guide__tipBtn" type="button" data-ver-sillas="giro-360">Mira las sillas 360° →</button>
       </div>
     </div>
   </section>
 
   <!-- ===================== ENCUENTRA TU SILLA IDEAL ===================== -->
-  <section class="section" id="encuentra" data-whatsapp-label="Test de silla" data-whatsapp-message="Hola Car Seat Clinic, quiero hacer el test y recibir una recomendación de silla.">
+  <section class="section section--alt" id="encuentra" data-whatsapp-label="Test de silla" data-whatsapp-message="Hola Car Seat Clinic, quiero hacer el test y recibir una recomendación de silla.">
     <div class="container">
       <div class="section__head">
+        <span class="eyebrow">Test rápido</span>
         <h2>Encuentra tu silla ideal</h2>
         <p>Responde unas preguntas rápidas y te decimos qué tipo de silla es la más adecuada y segura para tu pequeño.</p>
       </div>
@@ -276,7 +255,7 @@
         <span class="eyebrow">Ruta segura</span>
         <h2>Una compra acompañada de principio a fin.</h2>
         <p>La silla no termina en la caja. Revisamos compatibilidad, etapa de uso, instalación y seguimiento para que viajes con tranquilidad real.</p>
-        <a href="#citas" class="btn btn--primary">Agendar mi asesoría</a>
+        <a href="#citas" class="btn btn--accent">Agendar mi asesoría</a>
       </div>
       <div class="route-steps" aria-label="Ruta de asesoría segura">
         <article class="rstep">
@@ -323,30 +302,31 @@
     </div>
   </section>
 
-  <!-- ===================== SERVICIOS (tarjetas → servicios.html) ===================== -->
-  <section class="section section--alt" id="servicios">
+  <!-- ===================== SERVICIOS (tarjetas) ===================== -->
+  <section class="section" id="servicios">
     <div class="container">
       <div class="section__head">
+        <span class="eyebrow">Lo que hacemos</span>
         <h2>Nuestros servicios</h2>
         <p>No solo vendemos: te acompañamos para que la silla cumpla su función. Toca un servicio para ver el detalle.</p>
       </div>
       <div class="svc-cards">
-        <a class="svc-card" href="servicios.html#venta">
+        <a class="svc-card" href="tienda.html">
           <img class="svc-card__media" src="assets/hero/sillas.jpg" alt="" loading="lazy" />
           <span class="svc-card__body">
             <span class="svc-card__tag">Venta</span>
             <strong class="svc-card__title">Sillas, bases y boosters</strong>
             <span class="svc-card__desc">Marcas seguras con asesoría para elegir según edad, peso y tu auto.</span>
-            <span class="svc-card__link">Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            <span class="svc-card__link">Ir a la tienda <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </span>
         </a>
-        <a class="svc-card" href="servicios.html#alquiler">
+        <a class="svc-card" href="alquiler.html">
           <img class="svc-card__media" src="assets/hero/servicios.jpg" alt="" loading="lazy" />
           <span class="svc-card__body">
             <span class="svc-card__tag">Alquiler</span>
             <strong class="svc-card__title">Alquiler para viajes</strong>
-            <span class="svc-card__desc">Reserva silla, coche o corral por fechas, como en un hotel. Entrega y recogida.</span>
-            <span class="svc-card__link">Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            <span class="svc-card__desc">Reserva silla, coche o corral por fechas. Entrega y recogida donde estés.</span>
+            <span class="svc-card__link">Ver alquiler <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </span>
         </a>
         <a class="svc-card" href="servicios.html#instalacion">
@@ -372,28 +352,30 @@
   </section>
 
   <!-- ===================== NOSOTROS ===================== -->
-  <section class="section" id="nosotros">
+  <section class="section section--alt" id="nosotros">
     <div class="container about">
       <div class="about__art">
-        <img src="logo.jpg" alt="Car Seat Clinic Center" class="about__logo" />
+        <img src="logo.jpg" alt="Car Seat Clinic" class="about__logo" />
       </div>
       <div class="about__text">
-        <h2>Hola, somos Car Seat Clinic Center</h2>
+        <span class="eyebrow">Nosotros</span>
+        <h2>Hola, somos Car Seat Clinic</h2>
         <p>Sabemos lo que es sentir esa duda: <em>"¿estará bien puesta la silla?"</em>. Nacimos para quitarte esa preocupación. Somos técnicos certificados en seguridad infantil aquí en Panamá, y nuestra misión es simple: que ningún niño viaje sin la protección que merece.</p>
         <p>Te acompañamos sin juicios y sin tecnicismos: desde elegir la silla correcta hasta instalarla bien y enseñarte a usarla con confianza. De familia a familia.</p>
         <div class="stats">
           <div class="stat"><strong>+500</strong><span>familias atendidas</span></div>
           <div class="stat"><strong>100%</strong><span>sillas revisadas</span></div>
-          <div class="stat"><strong>4.9★</strong><span>satisfacción</span></div>
+          <div class="stat"><strong>5.0★</strong><span>en Google</span></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ===================== TESTIMONIOS ===================== -->
-  <section class="section section--alt" id="testimonios">
+  <section class="section" id="testimonios">
     <div class="container">
       <div class="section__head">
+        <span class="eyebrow">Testimonios</span>
         <h2>Familias que ya viajan tranquilas</h2>
         <p>Lo que dicen los papás y mamás que confiaron en nosotros.</p>
       </div>
@@ -407,83 +389,20 @@
           </div>
         </div>
         <div class="treviews__actions">
-          <a class="btn btn--primary" id="googleReviewBtn" href="#" target="_blank" rel="noopener">⭐ Déjanos tu reseña</a>
+          <a class="btn btn--primary" id="googleReviewBtn" href="#" target="_blank" rel="noopener">Déjanos tu reseña</a>
           <a class="btn btn--ghost" id="googleReviewsAll" href="#" target="_blank" rel="noopener">Ver todas las reseñas</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== GUARDADO (ocultas en la home): "Alquiler para viajes" y "Recursos de seguridad".
-       El alquiler completo vive en servicios.html. Para volver a mostrar estas secciones en la
-       home, borra esta linea de apertura y la linea "FIN GUARDADO" del final. =====
-
-  <section class="rental-showcase" id="alquiler-viajes" data-whatsapp-label="Alquiler para viajes" data-whatsapp-message="Hola Car Seat Clinic, quiero alquilar equipo para mi viaje.">
-    <div class="container rental-showcase__inner">
-      <div class="rental-showcase__media" aria-hidden="true">
-        <img src="assets/hero/servicios.jpg" alt="" loading="lazy" />
-        <span class="rental-showcase__badge">Reserva por fechas</span>
-      </div>
-      <div class="rental-showcase__content">
-        <span class="eyebrow">Alquiler para viajes</span>
-        <h2>Equipo seguro listo cuando llegas a Panama.</h2>
-        <p>Reserva silla, coche o corral por rango de fechas. Coordinamos entrega, recogida y una revision de ajuste antes de usar.</p>
-        <div class="rental-showcase__steps" aria-label="Pasos para alquilar">
-          <span><b>1</b> Elige equipo</span>
-          <span><b>2</b> Define fechas</span>
-          <span><b>3</b> Entrega y recogida</span>
-        </div>
-        <a href="#citas" class="btn btn--primary" data-rental-cta>Reservar alquiler</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--alt" id="recursos" data-whatsapp-label="Duda de seguridad" data-whatsapp-message="Hola Car Seat Clinic, tengo una duda de seguridad infantil en el carro.">
-    <div class="container">
-      <div class="section__head">
-        <h2>Recursos de seguridad</h2>
-        <p>Guías rápidas para viajar más seguros. Pronto sumaremos más artículos en nuestro blog.</p>
-      </div>
-      <div class="resources">
-        <article class="rcard">
-          <span class="rcard__tag">Instalación</span>
-          <h3>A contramarcha el mayor tiempo posible</h3>
-          <p>Viajar mirando hacia atrás protege mejor la cabeza y el cuello del bebé. Mantén esta posición hasta que la silla lo permita, no solo hasta el año.</p>
-        </article>
-        <article class="rcard">
-          <span class="rcard__tag">Ajuste</span>
-          <h3>La regla del dedo y la pinza</h3>
-          <p>El arnés está bien ajustado si no puedes pellizcar tela sobre el hombro. El broche del pecho debe quedar a la altura de las axilas.</p>
-        </article>
-        <article class="rcard">
-          <span class="rcard__tag">Compras</span>
-          <h3>La silla cara no siempre es la correcta</h3>
-          <p>La mejor silla es la que se ajusta al peso y la edad de tu hijo, cabe en tu auto y sabes usar bien. Por eso te asesoramos antes de comprar.</p>
-        </article>
-        <article class="rcard">
-          <span class="rcard__tag">Seguridad</span>
-          <h3>Nada de abrigos gruesos en la silla</h3>
-          <p>Los abrigos voluminosos dejan el arnés flojo sin que lo notes. Abrocha al niño con ropa ligera y cúbrelo con una manta por encima.</p>
-        </article>
-      </div>
-      <div class="safety-strip" aria-label="Consejos rápidos de seguridad">
-        <span>Revisión rápida antes de salir</span>
-        <strong>Arnés ajustado</strong>
-        <strong>Broche al pecho</strong>
-        <strong>Silla firme</strong>
-        <strong>Sin abrigos gruesos</strong>
-      </div>
-    </div>
-  </section>
-
-  ===== FIN GUARDADO ===== -->
-
   <!-- ===================== RESERVA TU CITA ===================== -->
-  <section class="section" id="citas" data-whatsapp-label="Reservar cita" data-whatsapp-message="Hola Car Seat Clinic, quiero reservar una cita.">
+  <section class="section section--alt" id="citas" data-whatsapp-label="Reservar cita" data-whatsapp-message="Hola Car Seat Clinic, quiero reservar una cita.">
     <div class="container">
       <div class="section__head">
+        <span class="eyebrow">Agenda</span>
         <h2>Reserva tu cita</h2>
-        <p>Agenda una asesoría, instalación, revisión, limpieza, alquiler o charla. Te confirmamos por WhatsApp.</p>
+        <p>Agenda una asesoría, instalación, revisión, limpieza o charla. Te confirmamos por WhatsApp. ¿Buscas alquiler? <a href="alquiler.html">Resérvalo aquí</a>.</p>
       </div>
       <form class="cita__form" id="citaForm">
         <div class="cita__stage col-full">
@@ -491,7 +410,7 @@
             <span class="eyebrow">Agenda inteligente</span>
             <h3>Elige servicio, fecha y horario</h3>
           </div>
-          <p>Guardamos la solicitud para el CRM y abrimos WhatsApp con todo el resumen listo.</p>
+          <p>Guardamos tu solicitud y te abrimos WhatsApp con todo el resumen listo.</p>
         </div>
         <label>Tipo de servicio
           <select name="servicio" id="citaServicio" required>
@@ -500,56 +419,15 @@
             <option>Instalacion profesional</option>
             <option>Revision de seguridad</option>
             <option>Limpieza y desinfeccion</option>
-            <option>Alquiler</option>
             <option>Charla o capacitacion</option>
           </select>
         </label>
         <label>Fecha <input type="date" name="fecha" id="citaFecha" required /></label>
         <label>Zona o domicilio <input name="zona" placeholder="Ej. Costa del Este" /></label>
-        <div class="rental-panel col-full" id="rentalPanel" hidden>
-          <div class="rental-panel__head">
-            <div>
-              <span class="eyebrow">Plan de alquiler</span>
-              <h3>Fechas, entrega y recogida</h3>
-            </div>
-            <p>Completa estos datos para que el asesor confirme disponibilidad y logistica por WhatsApp.</p>
-          </div>
-          <div class="rcal" id="rentalCalendar" aria-label="Elige las fechas del alquiler"></div>
-          <div class="rental-panel__grid">
-            <label>Equipo a alquilar
-              <select name="rental_equipment" id="rentalEquipment">
-                <option value="">Selecciona equipo</option>
-                <option>Silla de carro</option>
-                <option>Booster</option>
-                <option>Coche / stroller</option>
-                <option>Corral / pack n play</option>
-                <option>Varios equipos</option>
-              </select>
-            </label>
-            <label>Fecha de devolucion <input type="date" name="rental_end_date" id="rentalEndDate" /></label>
-            <label>Lugar de entrega <input name="delivery_location" id="deliveryLocation" placeholder="Aeropuerto, hotel o domicilio" /></label>
-            <label>Lugar de recogida <input name="pickup_location" id="pickupLocation" placeholder="Puede ser distinto a la entrega" /></label>
-            <label>Hora de recogida
-              <select name="pickup_time" id="pickupTime">
-                <option value="">Por confirmar</option>
-                <option>8:00 a.m. - 10:00 a.m.</option>
-                <option>10:00 a.m. - 12:00 p.m.</option>
-                <option>2:00 p.m. - 4:00 p.m.</option>
-                <option>4:00 p.m. - 6:00 p.m.</option>
-              </select>
-            </label>
-            <label>Edad y peso del nino <input name="rental_child" id="rentalChild" placeholder="Ej. 2 anos, 13 kg" /></label>
-            <label class="check rental-panel__install">
-              <input type="checkbox" name="rental_installation" value="Si" />
-              Necesito instalacion o revision al entregar
-            </label>
-            <div class="rental-kpi" id="rentalKpi">Elige fecha de inicio y devolucion para calcular el periodo.</div>
-          </div>
-        </div>
         <div class="appointment-slots col-full" id="appointmentSlots" aria-label="Horarios disponibles"></div>
         <input type="hidden" name="hora" id="citaHora" required />
-        <label>Nombre <input name="nombre" required placeholder="Tu nombre" /></label>
-        <label>Telefono / WhatsApp <input name="telefono" required placeholder="6000-0000" /></label>
+        <label>Nombre <input name="nombre" required placeholder="Tu nombre" autocomplete="name" /></label>
+        <label>Telefono / WhatsApp <input name="telefono" required placeholder="6000-0000" autocomplete="tel" /></label>
         <label>Modelo de silla <input name="modelo_silla" placeholder="Si lo sabes, ej. Graco 4Ever" /></label>
         <label>Modelo de auto <input name="modelo_auto" placeholder="Ej. Toyota Rav4 2022" /></label>
         <label class="col-full">Comentarios <input name="comentarios" placeholder="Edad, peso, estatura, choque, lavado o duda principal" /></label>
@@ -560,30 +438,31 @@
   </section>
 
   <!-- ===================== CONTACTO ===================== -->
-  <section class="section section--alt" id="contacto" data-whatsapp-label="Escribir ahora" data-whatsapp-message="Hola Car Seat Clinic, quiero hablar con ustedes.">
+  <section class="section" id="contacto" data-whatsapp-label="Escribir ahora" data-whatsapp-message="Hola Car Seat Clinic, quiero hablar con ustedes.">
     <div class="container">
-      <div class="contact">
-      <div class="contact__info">
-        <h2>Contáctanos</h2>
-        <p>¿Dudas sobre qué silla elegir o cómo instalarla? Escríbenos, con gusto te ayudamos.</p>
-        <ul class="contact__list">
-          <li><span class="contact__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> <span id="cInfoUbicacion"></span></li>
-          <li><span class="contact__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> <span id="cInfoHorario"></span></li>
-          <li><span class="contact__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span> <a id="cInfoEmail" href="#"></a></li>
-          <li><span class="contact__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></span> <a id="cInfoInsta" href="#" target="_blank" rel="noopener">@carseatclinicc</a></li>
-        </ul>
-        <a class="btn btn--whatsapp" id="cWhatsBtn" href="#" target="_blank" rel="noopener">
-          💬 Escríbenos por WhatsApp
-        </a>
+      <div class="section__head">
+        <span class="eyebrow">Contacto</span>
+        <h2>Estamos para ayudarte</h2>
       </div>
-      <form class="contact__form" id="contactForm">
-        <label>Nombre <input type="text" name="nombre" required placeholder="Tu nombre" /></label>
-        <label>Mensaje <textarea name="mensaje" rows="4" required placeholder="Cuéntanos en qué te ayudamos"></textarea></label>
-        <button type="submit" class="btn btn--primary btn--block">Enviar por WhatsApp</button>
-      </form>
+      <div class="contact">
+        <div class="contact__info">
+          <p>¿Dudas sobre qué silla elegir o cómo instalarla? Escríbenos, con gusto te ayudamos.</p>
+          <ul class="contact__list">
+            <li><span class="contact__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> <span id="cInfoUbicacion"></span></li>
+            <li><span class="contact__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> <span id="cInfoHorario"></span></li>
+            <li><span class="contact__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span> <a id="cInfoEmail" href="#"></a></li>
+            <li><span class="contact__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></span> <a id="cInfoInsta" href="#" target="_blank" rel="noopener">@carseatclinicc</a> · <a href="#" data-ig-shop target="_blank" rel="noopener">@carseatclinic.shop</a></li>
+          </ul>
+          <a class="btn btn--whatsapp" id="cWhatsBtn" href="#" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+        </div>
+        <form class="contact__form" id="contactForm">
+          <label>Nombre <input type="text" name="nombre" required placeholder="Tu nombre" autocomplete="name" /></label>
+          <label>Mensaje <textarea name="mensaje" rows="4" required placeholder="Cuéntanos en qué te ayudamos"></textarea></label>
+          <button type="submit" class="btn btn--primary btn--block">Enviar por WhatsApp</button>
+        </form>
       </div>
       <div class="map">
-        <iframe id="mapFrame" title="Ubicación de Car Seat Clinic Center" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <iframe id="mapFrame" title="Ubicación de Car Seat Clinic" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         <a class="map__qr" id="wazeLink" href="#" target="_blank" rel="noopener" title="Cómo llegar con Waze">
           <div class="map__qrimg" id="wazeQr"></div>
           <span>Llegar con <strong>Waze</strong></span>
@@ -592,13 +471,13 @@
     </div>
   </section>
 
-  <!-- ===================== FOOTER ===================== -->
+  <!-- ===================== PIE DE PÁGINA ===================== -->
   <footer class="footer">
     <div class="container">
       <div class="newsletter">
         <div class="newsletter__text">
           <h3>Únete a la comunidad Car Seat Clinic</h3>
-          <p>Recibe promociones, consejos de seguridad, novedades y recordatorios importantes para viajar más seguro con tus hijos.</p>
+          <p>Promociones, consejos de seguridad y recordatorios para viajar tranquilos con tus hijos.</p>
         </div>
         <form class="newsletter__form" id="newsletterForm">
           <input type="text" name="nombre" placeholder="Tu nombre" required />
@@ -607,200 +486,68 @@
         </form>
       </div>
     </div>
-    <div class="container footer__inner">
-      <div class="brand brand--light">
-        <span class="brand__mark" aria-hidden="true">
-          <svg viewBox="0 0 100 100" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-            <path d="M25 50 Q50 13 75 50" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
-            <path d="M18 50 Q20 87 50 87 Q80 87 82 50 Q78 43 70 47 Q66 58 50 58 Q34 58 30 47 Q22 43 18 50 Z" fill="#fff"/>
-            <path d="M31 51 Q34 77 50 77 Q66 77 69 51 Q60 61 50 61 Q40 61 31 51 Z" fill="#2f3e34"/>
-          </svg>
-        </span>
-        <span class="brand__text"><strong>Car Seat Clinic</strong></span>
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <div class="brand brand--light">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+              <path d="M25 50 Q50 13 75 50" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
+              <path d="M18 50 Q20 87 50 87 Q80 87 82 50 Q78 43 70 47 Q66 58 50 58 Q34 58 30 47 Q22 43 18 50 Z" fill="#fff"/>
+              <path d="M31 51 Q34 77 50 77 Q66 77 69 51 Q60 61 50 61 Q40 61 31 51 Z" fill="#2f3e34"/>
+            </svg>
+          </span>
+          <span class="brand__text"><strong>Car Seat Clinic</strong></span>
+        </div>
+        <p>Técnicos en seguridad infantil en Panamá. Te ayudamos a elegir, instalar y usar bien la silla de tu hijo.</p>
+        <div class="footer__social">
+          <a href="#" data-ig-shop target="_blank" rel="noopener" aria-label="Instagram de la tienda">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+            <span>@carseatclinic.shop</span>
+          </a>
+          <a href="#" data-ig-main target="_blank" rel="noopener" aria-label="Instagram principal">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+            <span>@carseatclinicc</span>
+          </a>
+        </div>
       </div>
-      <p class="footer__copy">© <span id="year"></span> Car Seat Clinic Center. Hecho con cuidado para las familias.</p>
-      <div class="footer__links">
-        <a href="#productos">Productos</a>
-        <a href="servicios.html">Servicios</a>
+      <div class="footer__col">
+        <h4>Comprar</h4>
+        <a href="tienda.html">Ver toda la tienda</a>
+        <a href="tienda.html?cat=recien-nacidos">Recién nacidos</a>
+        <a href="tienda.html?cat=convertibles">Convertibles</a>
+        <a href="tienda.html?cat=booster">Boosters</a>
+        <a href="tienda.html?cat=accesorios">Accesorios</a>
+      </div>
+      <div class="footer__col">
+        <h4>Servicios</h4>
+        <a href="alquiler.html">Alquiler para viajes</a>
+        <a href="servicios.html#instalacion">Instalación</a>
+        <a href="servicios.html#limpieza">Limpieza profunda</a>
+        <a href="index.html#citas">Reservar una cita</a>
+      </div>
+      <div class="footer__col">
+        <h4>Ayuda</h4>
         <a href="faq.html">Preguntas frecuentes</a>
-        <a href="#contacto">Contacto</a>
+        <a href="index.html#contacto">Contacto y ubicación</a>
         <a href="terminos.html">Términos</a>
         <a href="privacidad.html">Privacidad</a>
       </div>
     </div>
+    <div class="container footer__bottom">
+      <p>© <span data-year></span> Car Seat Clinic Center. Hecho con cuidado para las familias.</p>
+    </div>
   </footer>
 
-  <!-- ===================== CARRITO (DRAWER) ===================== -->
-  <div class="overlay" id="overlay"></div>
-  <aside class="cart" id="cart" aria-hidden="true" aria-label="Carrito de compras">
-    <div class="cart__head">
-      <h3>Tu carrito</h3>
-      <button class="icon-btn" id="closeCart" aria-label="Cerrar carrito">✕</button>
-    </div>
-    <div class="cart__items" id="cartItems"><!-- ítems por JS --></div>
-    <div class="cart__empty" id="cartEmpty">
-      <span>🛒</span>
-      <p>Tu carrito está vacío</p>
-      <a href="#productos" class="btn btn--ghost" id="cartEmptyShop">Ver productos</a>
-    </div>
-    <div class="cart__foot" id="cartFoot">
-      <div class="cart__total"><span>Total</span><strong id="cartTotal">$0</strong></div>
-      <button class="btn btn--primary btn--block" id="goCheckout">Finalizar compra</button>
-    </div>
-  </aside>
-
-  <!-- ===================== CHECKOUT (MODAL) ===================== -->
-  <div class="modal" id="checkoutModal" aria-hidden="true">
-    <div class="modal__box">
-      <button class="icon-btn modal__close" id="closeCheckout" aria-label="Cerrar">✕</button>
-      <h3>Finalizar compra</h3>
-      <p class="modal__sub">Completa tus datos y elige cómo pagar.</p>
-
-      <form class="checkout__form" id="checkoutForm">
-        <div class="field-row">
-          <label>Nombre y apellido <input type="text" name="nombre" required placeholder="Ej. María Pérez" /></label>
-          <label>Teléfono <input type="tel" name="telefono" required placeholder="Ej. 6000-0000" /></label>
-        </div>
-        <label>Correo electrónico <input type="email" name="email" placeholder="tucorreo@email.com" /></label>
-        <label>Dirección de entrega <input type="text" name="direccion" required placeholder="Provincia, distrito, calle..." /></label>
-        <label>Notas (opcional) <input type="text" name="notas" placeholder="Referencias, horario de entrega..." /></label>
-        <label class="check-inline"><input type="checkbox" name="instalacion" /> 🔧 Agregar instalación profesional (te la cotizamos)</label>
-        <fieldset class="check-group">
-          <label class="check-inline"><input type="checkbox" name="entrega" /> 🚚 Prefiero entrega a domicilio (si no, retiro en tienda)</label>
-        </fieldset>
-      </form>
-
-      <div class="checkout__summary">
-        <div class="checkout__line"><span>Productos</span><span id="ckCount">0</span></div>
-        <div class="checkout__line checkout__line--total"><span>Total a pagar</span><strong id="ckTotal">$0</strong></div>
-      </div>
-
-      <div class="checkout__pay">
-        <div id="paypal-container"><!-- botones PayPal si hay Client ID --></div>
-        <button class="btn btn--primary btn--block" id="payCard" style="display:none">💳 Pagar con tarjeta</button>
-        <button class="btn btn--whatsapp btn--block" id="payWhatsapp">
-          💬 Confirmar pedido por WhatsApp
-        </button>
-        <p class="checkout__note" id="payNote"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===================== FICHA DE PRODUCTO (MODAL) ===================== -->
-  <div class="modal" id="detailModal" aria-hidden="true">
-    <div class="modal__box modal__box--lg">
-      <button class="icon-btn modal__close" id="detailClose" aria-label="Cerrar">✕</button>
-      <div class="detail" id="detailBody"></div>
-    </div>
-  </div>
-
-  <!-- ===================== LOGIN / REGISTRO (MODAL) ===================== -->
-  <div class="modal" id="authModal" aria-hidden="true">
-    <div class="modal__box modal__box--sm">
-      <button class="icon-btn modal__close" id="closeAuth" aria-label="Cerrar">✕</button>
-      <h3 id="authTitle">Iniciar sesión</h3>
-      <p class="modal__sub" id="authSub">Ingresa para comprar y ver tus pedidos.</p>
-
-      <button class="btn btn--google btn--block" id="googleBtn">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 5.1 29.5 3 24 3 16 3 9.1 7.6 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 10-2 13.6-5.2l-6.3-5.3C29.2 36 26.7 37 24 37c-5.3 0-9.7-2.6-11.3-7l-6.5 5C9 40.4 15.9 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4 5.5l6.3 5.3C41.6 35.7 44 30.4 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
-        Continuar con Google
-      </button>
-
-      <div class="auth-divider"><span>o con tu correo</span></div>
-
-      <form class="auth-form" id="authForm">
-        <label id="nameField" style="display:none">Nombre completo
-          <input type="text" name="nombre" placeholder="Tu nombre" autocomplete="name" />
-        </label>
-        <label>Correo electrónico
-          <input type="text" inputmode="email" name="email" required placeholder="tucorreo@email.com" autocomplete="email" />
-        </label>
-        <label>Contraseña
-          <input type="password" name="password" required placeholder="Tu contraseña" autocomplete="current-password" />
-        </label>
-        <div id="regExtra" style="display:none">
-          <label>Teléfono / WhatsApp <input type="tel" name="telefono" placeholder="6000-0000" /></label>
-          <label>Edad del niño (opcional) <input type="text" name="edadnino" placeholder="Ej. 2 años" /></label>
-          <label class="check-inline"><input type="checkbox" name="tyc" /> Acepto los términos y la política de privacidad</label>
-          <label class="check-inline"><input type="checkbox" name="promos" checked /> Quiero recibir promociones y novedades</label>
-        </div>
-        <button type="submit" class="btn btn--primary btn--block" id="authSubmit">Ingresar</button>
-        <p class="auth-error" id="authError"></p>
-      </form>
-
-      <p class="auth-switch">
-        <span id="authSwitchText">¿No tienes cuenta?</span>
-        <a href="#" id="authSwitch">Regístrate</a>
-      </p>
-      <p class="checkout__note" id="authDemoNote" style="display:none">
-        ⚠️ Modo demo: el login se activa al conectar la base de datos (ver guía).
-      </p>
-    </div>
-  </div>
-
-  <!-- Menú de cuenta (cuando hay sesión) -->
-  <div class="account-menu" id="accountMenu" hidden>
-    <div class="account-menu__head" id="accountMenuName"></div>
-    <a href="#" id="myOrdersBtn">📦 Mis pedidos</a>
-    <a href="admin.html" id="accountAdmin" style="display:none">⚙️ Administrar tienda</a>
-    <a href="#" id="logoutBtn">🚪 Cerrar sesión</a>
-  </div>
-
-  <!-- Pop-up de newsletter (no invasivo) -->
-  <div class="np" id="newsletterPopup" hidden>
-    <button class="np__close" id="npClose" aria-label="Cerrar">✕</button>
-    <h4>Únete a la comunidad</h4>
-    <p>Promociones, consejos de seguridad y novedades para tu familia.</p>
-    <form class="np__form" id="npForm">
-      <input type="email" name="email" placeholder="Tu correo" required />
-      <button class="btn btn--primary" type="submit">Suscribirme</button>
-    </form>
-  </div>
-
-  <a class="float-whatsapp" id="floatWhatsBtn" href="#" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp" data-whatsapp-label="WhatsApp">
-    <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M20 11.5a7.5 7.5 0 0 1-10.8 6.7L4 19.5l1.3-4.1A7.5 7.5 0 1 1 20 11.5z"/>
-      <path d="M9 10.5c.6 2 2 3.4 4 4l1.3-1.1 2 .5c.2.1.4.3.4.5v1.2c0 .3-.2.5-.5.6-4.3.7-8.1-3-8.4-7.2 0-.3.2-.5.5-.5h1.2c.2 0 .4.1.5.4l.5 1.6L9 10.5z"/>
-    </svg>
-    <span>WhatsApp</span>
-  </a>
-
-  <!-- Asistente / chat con IA -->
-  <div class="chat" id="chatWidget">
-    <button class="chat__launch" id="chatLaunch" aria-label="Abrir asistente">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-11.5 7.2L4 20.5l1.3-4.1A8 8 0 1 1 21 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>
-      <span>Asistente</span>
-    </button>
-    <div class="chat__panel" id="chatPanel" hidden>
-      <div class="chat__head">
-        <div><strong>Asistente Car Seat</strong><small>Seguridad infantil · te ayudamos</small></div>
-        <button class="chat__close" id="chatClose" aria-label="Cerrar">✕</button>
-      </div>
-      <div class="chat__msgs" id="chatMsgs"></div>
-      <form class="chat__form" id="chatForm">
-        <input id="chatInput" placeholder="Ej: niña de 5 años, peso 20 kg…" autocomplete="off" />
-        <button type="submit" aria-label="Enviar">➤</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Barra flotante del comparador de sillas -->
-  <div class="cmpbar" id="compareBar" hidden>
-    <div class="cmpbar__items" id="compareBarItems"></div>
-    <button class="cmpbar__go" id="compareGo" type="button">Comparar</button>
-    <button class="cmpbar__clear" id="compareClear" type="button" aria-label="Vaciar comparador">Limpiar</button>
-  </div>
-
-  <!-- Notificación flotante -->
-  <div class="toast" id="toast"></div>
-
+  <!-- Scripts -->
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/chat-assistant.js"></script>
-  <script src="js/store.js"></script>
-  <script src="js/chat-widget.js"></script>
+  <script src="js/data.js?v=2026-07-21"></script>
+  <script src="js/supabase.js?v=2026-07-21"></script>
+  <script src="js/chat-assistant.js?v=2026-07-21"></script>
+  <script src="js/shell.js?v=2026-07-21"></script>
+  <script src="js/store.js?v=2026-07-21"></script>
+  <script src="js/chat-widget.js?v=2026-07-21"></script>
+  <script src="js/servicios.js?v=2026-07-21"></script>
 </body>
 </html>

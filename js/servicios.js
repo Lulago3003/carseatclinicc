@@ -1,25 +1,14 @@
 /* ============================================================
-   servicios.js — lógica ligera de la página de servicios.
-   Solo: menú móvil, enlaces de WhatsApp y comparador antes/después.
-   (No carga el carrito ni el catálogo: esta es una página informativa.)
+   servicios.js — piezas propias de la página de Servicios.
+   Solo: enlaces de WhatsApp con mensaje predefinido (data-wa) y el
+   comparador "antes y después" de la limpieza.
+   El menú, el carrito y el año del pie los manejan shell.js y store.js.
    ============================================================ */
 (function () {
   "use strict";
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
   const wa = (msg) => `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
-
-  /* ---------- Año en el footer ---------- */
-  const yearEl = $("#year");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-  /* ---------- Menú móvil ---------- */
-  const navToggle = $("#navToggle");
-  const nav = $("#nav");
-  if (navToggle && nav) {
-    navToggle.addEventListener("click", () => nav.classList.toggle("is-open"));
-    $$("#nav a").forEach((a) => a.addEventListener("click", () => nav.classList.remove("is-open")));
-  }
 
   /* ---------- Enlaces de WhatsApp ---------- */
   // Cualquier elemento con data-wa usa su texto como mensaje predefinido.
@@ -28,8 +17,6 @@
     el.target = "_blank";
     el.rel = "noopener";
   });
-  const floatWhats = $("#floatWhatsBtn");
-  if (floatWhats) floatWhats.href = wa("Hola Car Seat Clinic, quisiera recibir asesoría sobre sus servicios.");
 
   /* ---------- Comparador "antes y después" de limpieza ---------- */
   function setupBeforeAfter() {

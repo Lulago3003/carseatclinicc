@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <title>Alquiler de sillas y equipo de bebé | Car Seat Clinic Panamá</title>
+  <meta name="description" content="Alquila silla de carro, booster, coche o corral por días en Panamá. Reserva por fechas, con entrega, recogida y revisión de instalación incluida." />
+  <meta property="og:title" content="Alquiler para viajes | Car Seat Clinic" />
+  <meta property="og:description" content="Silla de carro, coche o corral por los días que necesites. Entrega en aeropuerto, hotel o domicilio." />
+  <meta property="og:image" content="https://lulago3003.github.io/carseatclinicc/assets/hero/servicios.jpg" />
+  <meta property="og:url" content="https://lulago3003.github.io/carseatclinicc/alquiler.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_PA" />
+  <meta name="theme-color" content="#2f3e34" />
+  <link rel="canonical" href="https://lulago3003.github.io/carseatclinicc/alquiler.html" />
+
+  <link rel="icon" href="logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" as="image" href="assets/hero/servicios.jpg" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-21" />
+</head>
+<body>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="index.html" class="brand" aria-label="Car Seat Clinic, ir al inicio">
+        <img src="logo.jpg" alt="" class="brand__logo" />
+        <span class="brand__text">
+          <strong>Car Seat Clinic</strong>
+          <small>Seguridad infantil · Panamá</small>
+        </span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Menú principal">
+        <a href="index.html">Inicio</a>
+        <a href="tienda.html">Tienda</a>
+        <a href="alquiler.html">Alquiler</a>
+        <a href="servicios.html">Servicios</a>
+        <a href="faq.html">Preguntas</a>
+        <a href="index.html#contacto">Contacto</a>
+        <a href="admin.html" id="adminLink" class="nav__admin" style="display:none">Administrar</a>
+      </nav>
+
+      <div class="header__actions">
+        <button class="account-btn" id="accountBtn" type="button">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span id="accountLabel">Ingresar</span>
+        </button>
+        <button class="cart-btn" id="openCart" type="button" aria-label="Abrir carrito">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span class="cart-btn__count" id="cartCount">0</span>
+        </button>
+        <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== PORTADA ===================== -->
+  <section class="renthero" data-whatsapp-label="Alquilar equipo" data-whatsapp-message="Hola Car Seat Clinic, quiero alquilar equipo para mi viaje. ¿Me ayudan con las fechas?">
+    <div class="container">
+      <nav class="crumb crumb--light" aria-label="Ruta de navegación">
+        <a href="index.html">Inicio</a> <span>›</span> <span>Alquiler</span>
+      </nav>
+      <div class="renthero__inner">
+        <div class="renthero__text">
+          <span class="pill pill--light">Alquiler por días · Panamá</span>
+          <h1>Viaja ligero. El equipo seguro te espera aquí.</h1>
+          <p>Alquila silla de carro, booster, coche o corral por los días que necesites. Reservas por fechas igual que un hotel, y coordinamos entrega y recogida en el aeropuerto, tu hotel o tu casa.</p>
+          <div class="renthero__cta">
+            <a href="#reservar" class="btn btn--accent">Reservar mis fechas</a>
+            <a class="btn btn--ghostlight" data-wa="Hola Car Seat Clinic, quiero alquilar equipo para mi viaje. ¿Qué tienen disponible?">Preguntar por WhatsApp</a>
+          </div>
+          <ul class="renthero__trust">
+            <li><strong>Higienizado</strong><span>entre cada alquiler</span></li>
+            <li><strong>Entrega</strong><span>aeropuerto, hotel o casa</span></li>
+            <li><strong>Instalación</strong><span>revisada antes de usar</span></li>
+          </ul>
+        </div>
+        <div class="renthero__art">
+          <img src="assets/hero/servicios.jpg" alt="Equipo de bebé listo para alquilar" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUÉ PUEDES ALQUILAR ===================== -->
+  <section class="section" id="equipos" data-whatsapp-label="Equipo en alquiler" data-whatsapp-message="Hola Car Seat Clinic, quiero saber qué equipo tienen disponible para alquilar.">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Qué puedes alquilar</span>
+        <h2>Equipo listo para tus días en Panamá</h2>
+        <p>Todo se entrega limpio, revisado y dentro de su fecha de vigencia. Si no ves lo que necesitas, escríbenos y lo buscamos.</p>
+      </div>
+      <div class="eqgrid">
+        <article class="eqcard">
+          <span class="eqcard__ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20V9a5 5 0 0 1 5-5h1v9H8"/><path d="M6 20h9a3 3 0 0 0 3-3v-2h-6"/></svg>
+          </span>
+          <h3>Silla de carro</h3>
+          <p>Para bebés y niños pequeños, a contramarcha o a favor de la marcha según edad y peso.</p>
+          <span class="eqcard__tag">Desde recién nacido</span>
+        </article>
+        <article class="eqcard">
+          <span class="eqcard__ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16h14l-1.5-5H6.5z"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><path d="M6 16v3M18 16v3"/></svg>
+          </span>
+          <h3>Booster</h3>
+          <p>Para niños más grandes que ya usan el cinturón del auto, con o sin respaldo.</p>
+          <span class="eqcard__tag">4 a 12 años</span>
+        </article>
+        <article class="eqcard">
+          <span class="eqcard__ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h4l7 9H8z"/><path d="M8 14 5.5 19h11"/><circle cx="8" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
+          </span>
+          <h3>Coche / stroller</h3>
+          <p>Plegable y liviano para pasear por la ciudad, el aeropuerto o la playa.</p>
+          <span class="eqcard__tag">Plegable</span>
+        </article>
+        <article class="eqcard">
+          <span class="eqcard__ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="17" height="11" rx="2"/><path d="M3.5 10.5h17"/><path d="M6 18v2M18 18v2"/></svg>
+          </span>
+          <h3>Corral / pack n play</h3>
+          <p>Para que el bebé duerma seguro en el hotel o en casa de familiares.</p>
+          <span class="eqcard__tag">Con colchoneta</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CÓMO FUNCIONA ===================== -->
+  <section class="section section--alt" id="como-funciona">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Cómo funciona</span>
+        <h2>Reservar toma menos de dos minutos</h2>
+        <p>Nos dices qué necesitas y para cuándo. Nosotros confirmamos disponibilidad, precio y logística por WhatsApp.</p>
+      </div>
+      <ol class="howsteps">
+        <li class="howstep">
+          <span class="howstep__num">1</span>
+          <h3>Elige tu equipo y tus fechas</h3>
+          <p>Toca el día de entrega y el de devolución en el calendario. Te calculamos los días automáticamente.</p>
+        </li>
+        <li class="howstep">
+          <span class="howstep__num">2</span>
+          <h3>Te confirmamos por WhatsApp</h3>
+          <p>Revisamos disponibilidad real y te pasamos el precio total, sin sorpresas ni letra pequeña.</p>
+        </li>
+        <li class="howstep">
+          <span class="howstep__num">3</span>
+          <h3>Entrega donde estés</h3>
+          <p>Aeropuerto de Tocumen, tu hotel o tu casa. Si es silla de carro, te la dejamos instalada y revisada.</p>
+        </li>
+        <li class="howstep">
+          <span class="howstep__num">4</span>
+          <h3>Recogemos al final</h3>
+          <p>El último día pasamos por el equipo en el lugar y horario que acordamos. Tú solo disfrutas el viaje.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== RESERVA ===================== -->
+  <section class="section" id="reservar" data-whatsapp-label="Reservar alquiler" data-whatsapp-message="Hola Car Seat Clinic, quiero reservar un alquiler.">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Reserva</span>
+        <h2>Elige tus fechas</h2>
+        <p>Guardamos tu solicitud y te abrimos WhatsApp con todo el resumen listo para enviar.</p>
+      </div>
+
+      <form class="cita__form cita__form--rental" id="citaForm">
+        <!-- En esta página el servicio siempre es Alquiler -->
+        <label class="visually-hidden" aria-hidden="true">Tipo de servicio
+          <select name="servicio" id="citaServicio" required tabindex="-1">
+            <option value="Alquiler" selected>Alquiler</option>
+          </select>
+        </label>
+
+        <div class="rental-panel col-full" id="rentalPanel">
+          <div class="rental-panel__head">
+            <div>
+              <span class="eyebrow">Plan de alquiler</span>
+              <h3>Fechas, entrega y recogida</h3>
+            </div>
+            <p>Toca el día de entrega y luego el de devolución. Si dudas con las fechas, ponemos una aproximada y lo ajustamos por WhatsApp.</p>
+          </div>
+          <div class="rcal" id="rentalCalendar" aria-label="Elige las fechas del alquiler"></div>
+          <div class="rental-panel__grid">
+            <label>Equipo a alquilar
+              <select name="rental_equipment" id="rentalEquipment">
+                <option value="">Selecciona equipo</option>
+                <option>Silla de carro</option>
+                <option>Booster</option>
+                <option>Coche / stroller</option>
+                <option>Corral / pack n play</option>
+                <option>Varios equipos</option>
+              </select>
+            </label>
+            <label>Fecha de devolución <input type="date" name="rental_end_date" id="rentalEndDate" /></label>
+            <label>Lugar de entrega <input name="delivery_location" id="deliveryLocation" placeholder="Aeropuerto, hotel o domicilio" /></label>
+            <label>Lugar de recogida <input name="pickup_location" id="pickupLocation" placeholder="Puede ser distinto a la entrega" /></label>
+            <label>Hora de recogida
+              <select name="pickup_time" id="pickupTime">
+                <option value="">Por confirmar</option>
+                <option>8:00 a.m. - 10:00 a.m.</option>
+                <option>10:00 a.m. - 12:00 p.m.</option>
+                <option>2:00 p.m. - 4:00 p.m.</option>
+                <option>4:00 p.m. - 6:00 p.m.</option>
+              </select>
+            </label>
+            <label>Edad y peso del niño <input name="rental_child" id="rentalChild" placeholder="Ej. 2 años, 13 kg" /></label>
+            <label class="check rental-panel__install">
+              <input type="checkbox" name="rental_installation" value="Si" />
+              Necesito instalación o revisión al entregar
+            </label>
+            <div class="rental-kpi" id="rentalKpi">Elige fecha de inicio y devolución para calcular el periodo.</div>
+          </div>
+        </div>
+
+        <label class="col-full">Fecha de entrega <input type="date" name="fecha" id="citaFecha" required /></label>
+        <div class="appointment-slots col-full" id="appointmentSlots" aria-label="Horario de entrega"></div>
+        <input type="hidden" name="hora" id="citaHora" required />
+
+        <label>Nombre <input name="nombre" required placeholder="Tu nombre" autocomplete="name" /></label>
+        <label>Teléfono / WhatsApp <input name="telefono" required placeholder="6000-0000" autocomplete="tel" /></label>
+        <label>Modelo de silla que te interesa <input name="modelo_silla" placeholder="Si ya viste una, ej. Graco 4Ever" /></label>
+        <label>Modelo de auto <input name="modelo_auto" placeholder="Ej. Toyota Rav4 2022" /></label>
+        <label class="col-full">Comentarios <input name="comentarios" placeholder="Cuántos niños viajan, vuelo de llegada, hotel…" /></label>
+        <label class="col-full">Zona o domicilio <input name="zona" placeholder="Ej. Costa del Este" /></label>
+
+        <div class="cita-summary col-full" id="citaSummary">Elige tus fechas y un horario de entrega para armar tu solicitud.</div>
+        <button class="btn btn--primary btn--block col-full" type="submit">Reservar y continuar por WhatsApp</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== PREGUNTAS DEL ALQUILER ===================== -->
+  <section class="section section--alt" id="preguntas-alquiler">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Antes de reservar</span>
+        <h2>Lo que más nos preguntan</h2>
+      </div>
+      <div class="faq faq--compact">
+        <details class="faq__item">
+          <summary>¿Cuántos días mínimo puedo alquilar?</summary>
+          <div class="faq__body"><p>Trabajamos desde un día. Para viajes largos y estadías de varias semanas manejamos tarifas mejores: escríbenos con tus fechas y te pasamos el total.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>¿Entregan en el aeropuerto de Tocumen?</summary>
+          <div class="faq__body"><p>Sí. Coordinamos la entrega según la hora de tu vuelo, y también en hoteles y domicilios en la ciudad. Dinos el lugar al reservar y confirmamos el punto exacto.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>¿El equipo está limpio y en buen estado?</summary>
+          <div class="faq__body"><p>Cada equipo se lava y desinfecta entre un alquiler y otro, y revisamos que esté dentro de su fecha de vigencia. Las sillas vencidas o accidentadas no entran a la flota.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>¿Instalan la silla en mi carro o en el rental?</summary>
+          <div class="faq__body"><p>Sí, y sin costo extra al momento de la entrega. Además te enseñamos a ponerla y ajustar el arnés para que la uses bien durante todo el viaje.</p></div>
+        </details>
+        <details class="faq__item">
+          <summary>¿Puedo alquilar primero y comprar después?</summary>
+          <div class="faq__body"><p>Claro. Muchas familias prueban un modelo alquilado antes de decidir. Si luego te la quieres quedar, te descontamos parte de lo pagado. <a href="tienda.html">Mira la tienda</a>.</p></div>
+        </details>
+      </div>
+      <div class="svc-final">
+        <p>¿Otra duda sobre el alquiler?</p>
+        <a class="btn btn--whatsapp" data-wa="Hola Car Seat Clinic, tengo una duda sobre el alquiler de equipo.">Escríbenos por WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PIE DE PÁGINA ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="newsletter">
+        <div class="newsletter__text">
+          <h3>Únete a la comunidad Car Seat Clinic</h3>
+          <p>Promociones, consejos de seguridad y recordatorios para viajar tranquilos con tus hijos.</p>
+        </div>
+        <form class="newsletter__form" id="newsletterForm">
+          <input type="text" name="nombre" placeholder="Tu nombre" required />
+          <input type="email" name="email" placeholder="Tu correo" required />
+          <button class="btn btn--accent" type="submit">Suscribirme</button>
+        </form>
+      </div>
+    </div>
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <div class="brand brand--light">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+              <path d="M25 50 Q50 13 75 50" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
+              <path d="M18 50 Q20 87 50 87 Q80 87 82 50 Q78 43 70 47 Q66 58 50 58 Q34 58 30 47 Q22 43 18 50 Z" fill="#fff"/>
+              <path d="M31 51 Q34 77 50 77 Q66 77 69 51 Q60 61 50 61 Q40 61 31 51 Z" fill="#2f3e34"/>
+            </svg>
+          </span>
+          <span class="brand__text"><strong>Car Seat Clinic</strong></span>
+        </div>
+        <p>Técnicos en seguridad infantil en Panamá. Te ayudamos a elegir, instalar y usar bien la silla de tu hijo.</p>
+        <div class="footer__social">
+          <a href="#" data-ig-shop target="_blank" rel="noopener" aria-label="Instagram de la tienda">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+            <span>@carseatclinic.shop</span>
+          </a>
+          <a href="#" data-ig-main target="_blank" rel="noopener" aria-label="Instagram principal">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+            <span>@carseatclinicc</span>
+          </a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h4>Comprar</h4>
+        <a href="tienda.html">Ver toda la tienda</a>
+        <a href="tienda.html?cat=recien-nacidos">Recién nacidos</a>
+        <a href="tienda.html?cat=convertibles">Convertibles</a>
+        <a href="tienda.html?cat=booster">Boosters</a>
+        <a href="tienda.html?cat=accesorios">Accesorios</a>
+      </div>
+      <div class="footer__col">
+        <h4>Servicios</h4>
+        <a href="alquiler.html">Alquiler para viajes</a>
+        <a href="servicios.html#instalacion">Instalación</a>
+        <a href="servicios.html#limpieza">Limpieza profunda</a>
+        <a href="index.html#citas">Reservar una cita</a>
+      </div>
+      <div class="footer__col">
+        <h4>Ayuda</h4>
+        <a href="faq.html">Preguntas frecuentes</a>
+        <a href="index.html#contacto">Contacto y ubicación</a>
+        <a href="terminos.html">Términos</a>
+        <a href="privacidad.html">Privacidad</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>© <span data-year></span> Car Seat Clinic Center. Hecho con cuidado para las familias.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/data.js?v=2026-07-21"></script>
+  <script src="js/supabase.js?v=2026-07-21"></script>
+  <script src="js/chat-assistant.js?v=2026-07-21"></script>
+  <script src="js/shell.js?v=2026-07-21"></script>
+  <script src="js/store.js?v=2026-07-21"></script>
+  <script src="js/chat-widget.js?v=2026-07-21"></script>
+  <script src="js/servicios.js?v=2026-07-21"></script>
+</body>
+</html>

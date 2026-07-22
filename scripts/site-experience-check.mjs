@@ -1,47 +1,81 @@
+/* Revisa que las piezas clave de la experiencia sigan en su sitio después de
+   cualquier cambio. Uso: node scripts/site-experience-check.mjs */
 import { readFileSync } from "node:fs";
 
 const files = {
-  html: readFileSync("index.html", "utf8"),
+  home: readFileSync("index.html", "utf8"),
+  tienda: readFileSync("tienda.html", "utf8"),
+  alquiler: readFileSync("alquiler.html", "utf8"),
+  servicios: readFileSync("servicios.html", "utf8"),
   css: readFileSync("css/styles.css", "utf8"),
   js: readFileSync("js/store.js", "utf8"),
+  shell: readFileSync("js/shell.js", "utf8"),
   data: readFileSync("js/data.js", "utf8"),
   chat: readFileSync("js/chat-assistant.js", "utf8"),
 };
+const todas = [files.home, files.tienda, files.alquiler, files.servicios];
+const enTodas = (txt) => todas.every((f) => f.includes(txt));
 
 const checks = [
-  ["scroll progress markup", files.html.includes('id="scrollProgress"')],
-  ["safe route section", files.html.includes('id="ruta-segura"')],
-  ["safe route step cards", files.html.includes('class="route-steps"') && files.html.includes('class="rstep"')],
-  ["safe route step icon + label", files.html.includes("rstep__icon") && files.html.includes("rstep__step")],
-  ["safe route step styles", files.css.includes(".route-steps") && files.css.includes(".rstep")],
-  ["safe route clean (no busy sparks)", !files.html.includes("route-card__spark")],
-  ["quiz progress markup", files.html.includes('id="finderProgress"')],
-  ["appointment planner markup", files.html.includes('id="appointmentSlots"') && files.html.includes("cita__stage")],
-  ["appointment lead capture", files.js.includes("function selectedAppointmentSlot") && files.js.includes("guardarLead")],
-  ["rental travel section", files.html.includes('id="alquiler-viajes"') && files.css.includes(".rental-showcase")],
-  ["rental planner fields", files.html.includes('id="rentalPanel"') && files.html.includes('name="rental_end_date"') && files.html.includes('name="rental_equipment"')],
-  ["rental day calculation", files.js.includes("function rentalDays") && files.js.includes("function updateRentalPanel")],
-  ["rental lead details", files.js.includes("rental_equipment") && files.js.includes("rental_end_date") && files.js.includes("pickup_location")],
-  ["chat advisor actions", files.js.includes("renderAdvisorActions") && files.css.includes(".chat__actions")],
-  ["safety tips strip", files.html.includes('class="safety-strip"')],
-  ["contextual whatsapp data", files.html.includes('data-whatsapp-label')],
-  ["motion tokens", files.css.includes("--ease-out-expo")],
-  ["safe route styles", files.css.includes(".safe-route")],
-  ["floating motion styles", files.css.includes(".motion-float")],
+  // --- Estructura de páginas ---
+  ["menú de 6 pestañas en todas", enTodas('href="alquiler.html"') && enTodas('href="tienda.html"')],
+  ["shell compartido en todas", enTodas('src="js/shell.js')],
+  ["shell trae el carrito y el checkout", files.shell.includes('id="cart"') && files.shell.includes('id="checkoutModal"')],
+  ["shell trae el chat y el comparador", files.shell.includes('id="chatPanel"') && files.shell.includes('id="compareBar"')],
+  ["el HTML ya no duplica el carrito", todas.every((f) => !f.includes('id="cartItems"'))],
+
+  // --- Portada ---
+  ["scroll progress markup", files.home.includes('id="scrollProgress"')],
+  ["destacados en la portada", files.home.includes('id="featuredGrid"') && files.js.includes("function renderFeatured")],
+  ["guía por etapas", files.home.includes('id="guia-etapas"') && files.css.includes(".gstep")],
+  ["quiz progress markup", files.home.includes('id="finderProgress"')],
   ["quiz progress script", files.js.includes("function updateFinderProgress")],
-  ["contextual whatsapp script", files.js.includes("function updateFloatingWhatsApp")],
+  ["safe route section", files.home.includes('id="ruta-segura"')],
+  ["safe route step cards", files.home.includes('class="route-steps"') && files.home.includes('class="rstep"')],
+  ["safe route styles", files.css.includes(".safe-route") && files.css.includes(".rstep")],
+  ["appointment planner markup", files.home.includes('id="appointmentSlots"') && files.home.includes("cita__stage")],
+  ["appointment lead capture", files.js.includes("function selectedAppointmentSlot") && files.js.includes("guardarLead")],
+  ["contacto + mapa", files.home.includes('id="mapFrame"') && files.home.includes('id="cInfoUbicacion"')],
+
+  // --- Tienda ---
+  ["catálogo en tienda.html", files.tienda.includes('id="productGrid"') && files.tienda.includes('id="shopFilters"')],
+  ["buscador y orden", files.tienda.includes('id="shopSearch"') && files.tienda.includes('id="sortSelect"')],
+  ["la portada ya no lleva el catálogo", !files.home.includes('id="productGrid"')],
   ["product stagger animation", files.js.includes("animateProductCards")],
   ["product image helper", files.js.includes("function productImageList")],
   ["product image fallback", files.js.includes("function setupMediaFallbacks") && files.css.includes(".card__fallback")],
-  ["premium card markup", files.js.includes("card__peek") && files.js.includes("card__thumbs") && files.js.includes("card__thumb")],
-  ["featured product card", files.js.includes("card--featured")],
-  ["premium card styles", files.css.includes(".card__peek") && files.css.includes(".card__thumbs")],
+  ["premium card markup", files.js.includes("card__peek") && files.js.includes("card__thumbs")],
   ["featured card styles", files.css.includes(".card--featured")],
-  ["smart chat script", files.html.includes('src="js/chat-assistant.js"') && files.chat.includes("generateSmartReply")],
+  ["filtro por URL (?cat=)", files.js.includes("function applyUrlParams") && files.js.includes("tienda.html?cat=")],
+
+  // --- Alquiler (página propia) ---
+  ["alquiler tiene página propia", files.alquiler.includes('id="reservar"') && files.css.includes(".renthero")],
+  ["equipo y pasos del alquiler", files.alquiler.includes('class="eqgrid"') && files.alquiler.includes('class="howsteps"')],
+  ["rental planner fields", files.alquiler.includes('id="rentalPanel"') && files.alquiler.includes('name="rental_end_date"') && files.alquiler.includes('name="rental_equipment"')],
+  ["calendario de rango", files.alquiler.includes('id="rentalCalendar"') && files.js.includes("function setupRentalCalendar")],
+  ["rental day calculation", files.js.includes("function rentalDays") && files.js.includes("function updateRentalPanel")],
+  ["rental lead details", files.js.includes("rental_equipment") && files.js.includes("pickup_location")],
+  ["la ficha manda al alquiler", files.js.includes("alquiler.html")],
+  ["servicios enlaza al alquiler", files.servicios.includes("alquiler.html") && !files.servicios.includes('id="alquiler"')],
+
+  // --- Checkout por WhatsApp ---
+  ["checkout arma el pedido", files.js.includes("function buildOrderText") && files.js.includes("Mis datos")],
+  ["checkout abre WhatsApp", files.js.includes("async function sendWhatsAppOrder") && files.js.includes("encodeURIComponent(text)")],
+  ["cotización sin precio", files.js.includes("function cartHasUnpriced") && files.js.includes("Solicitar tu cotización")],
+
+  // --- Chat y CRM ---
+  ["chat advisor actions", files.js.includes("renderAdvisorActions") && files.css.includes(".chat__actions")],
+  ["smart chat script", enTodas('src="js/chat-assistant.js') && files.chat.includes("generateSmartReply")],
   ["smart chat fallback", files.js.includes("smartReply(text)") && files.js.includes("answerHtml")],
-  ["smart chat quick actions", files.js.includes("quickActions") && files.css.includes(".chat__quick")],
   ["chat activation flags", files.data.includes("iaActiva") && files.data.includes("guardarConversaciones")],
   ["crm lead activation flag", files.data.includes("guardarSolicitudes")],
+
+  // --- Detalles visuales ---
+  ["contextual whatsapp data", enTodas("data-whatsapp-label")],
+  ["contextual whatsapp script", files.js.includes("function updateFloatingWhatsApp")],
+  ["motion tokens", files.css.includes("--ease-out-expo") && files.css.includes(".motion-float")],
+  ["pie con las dos cuentas de Instagram", enTodas("data-ig-shop") && enTodas("data-ig-main")],
+  ["instagram de la tienda configurado", files.data.includes("instagramTienda")],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);

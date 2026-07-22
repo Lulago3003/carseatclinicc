@@ -16,7 +16,10 @@ const CONFIG = {
   // WhatsApp en formato internacional, SIN signos. Panamá = 507.
   whatsapp: "50766743012",
   email: "hola@carseatclinic.com",
+  // Cuenta principal (servicios, educación, comunidad)
   instagram: "https://www.instagram.com/carseatclinicc",
+  // Cuenta de la tienda (productos a la venta)
+  instagramTienda: "https://www.instagram.com/carseatclinic.shop",
   ubicacion: "PH City Towers, Vía España · Ciudad de Panamá",
   horario: "Lun a Sáb · 9:00 a.m. – 6:00 p.m.",
   // Dirección que se muestra en el mapa. Cambia por la dirección real
