@@ -1942,3 +1942,107 @@ body.nav-open { overflow: hidden; }
 /* El banner de alquiler no debe crecer con el alto de la foto */
 .rentbanner__media { max-height: 340px; }
 @media (max-width: 760px) { .rentbanner__media { max-height: 220px; } }
+
+/* =====================================================================
+   INSTAGRAM — "Lo último que publicamos" (portada)
+   Banda propia entre la franja de confianza y los destacados. Usa la
+   paleta de la marca: el aro del perfil va rosa→salvia en vez del
+   degradado de Instagram, para que no pelee con el verde bosque.
+   ===================================================================== */
+.iggram {
+  background: linear-gradient(180deg, #fff 0%, var(--brand-soft) 100%);
+  padding-bottom: 64px;
+}
+
+.ig__head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap; margin-bottom: 28px;
+}
+.ig__intro h2 { font-size: clamp(1.6rem, 3.2vw, 2.2rem); margin-top: 4px; }
+
+/* Barra de perfil */
+.ig__bar { display: flex; align-items: center; gap: 14px; }
+.ig__avatar {
+  display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%;
+  padding: 3px; flex-shrink: 0;
+  background: conic-gradient(from 210deg, var(--accent), var(--sage), var(--accent-dark), var(--accent));
+  transition: transform .2s var(--ease-out-quint);
+}
+.ig__avatar:hover { transform: scale(1.04); }
+.ig__avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2.5px solid #fff; }
+.ig__who { display: flex; flex-direction: column; line-height: 1.3; min-width: 0; }
+.ig__handle { font-weight: 650; color: var(--brand-dark); font-size: .98rem; }
+.ig__handle:hover { text-decoration: underline; }
+.ig__name { color: var(--muted); font-size: .84rem; }
+.ig__follow { padding: 10px 22px; font-size: .88rem; }
+
+/* Riel de publicaciones */
+.ig__rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+
+.ig__card {
+  display: flex; flex-direction: column; background: #fff;
+  border: 1px solid var(--line); border-radius: 20px; overflow: hidden;
+  box-shadow: 0 8px 22px rgba(47, 62, 52, .06);
+  transition: transform .26s var(--ease-out-quint), box-shadow .26s var(--ease-out-quint);
+  animation: igIn .5s var(--ease-out-quint) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+.ig__card:hover { transform: translateY(-5px); box-shadow: 0 22px 46px rgba(47, 62, 52, .14); }
+@keyframes igIn { from { opacity: 0; transform: translateY(14px); } }
+
+/* La publicación incrustada se recorta a una altura pareja para que
+   todas las tarjetas queden iguales. */
+.ig__media { position: relative; background: var(--surface-warm); overflow: hidden; }
+.ig__media--embed { aspect-ratio: 1 / 1.34; }
+.ig__media--foto { aspect-ratio: 1 / 1; }
+.ig__frame { width: 100%; height: 100%; border: 0; display: block; }
+.ig__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ig__media::after {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 42px; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff);
+}
+
+.ig__text { color: var(--muted); font-size: .89rem; line-height: 1.5; padding: 14px 18px 0; }
+.ig__open {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: auto;
+  padding: 14px 18px 16px; font-size: .88rem; font-weight: 650; color: var(--brand);
+}
+.ig__open svg { width: 16px; height: 16px; transition: transform .2s ease; }
+.ig__card:hover .ig__open svg { transform: translateX(4px); }
+
+/* Sin publicaciones configuradas: invitación, no un hueco vacío */
+.ig__rail--empty { grid-template-columns: 1fr; }
+.ig__invite {
+  display: flex; align-items: center; justify-content: space-between; gap: 22px; flex-wrap: wrap;
+  background: #fff; border: 1px solid var(--line); border-radius: 20px;
+  padding: 26px 30px; box-shadow: var(--shadow-sm);
+}
+.ig__invite p { color: var(--muted); max-width: 46em; margin: 0; }
+
+/* --- Teléfono: el riel se desliza de lado, como en Instagram --- */
+@media (max-width: 860px) {
+  .iggram { padding-bottom: 48px; }
+  .ig__head { align-items: flex-start; gap: 18px; }
+  .ig__bar { width: 100%; }
+  .ig__follow { margin-left: auto; }
+  .ig__rail {
+    display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+    /* que las tarjetas puedan "asomarse" fuera del contenedor */
+    margin: 0 -22px; padding: 4px 22px 12px;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .ig__rail::-webkit-scrollbar { display: none; }
+  .ig__card { flex: 0 0 78%; max-width: 320px; scroll-snap-align: start; }
+  .ig__rail--empty { display: block; margin: 0; padding: 0; }
+  .ig__invite { padding: 22px 22px 24px; }
+  .ig__invite .btn { width: 100%; }
+}
+@media (max-width: 400px) {
+  .ig__card { flex-basis: 86%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ig__card { animation: none; }
+  .ig__card:hover { transform: none; }
+  .ig__avatar:hover { transform: none; }
+}

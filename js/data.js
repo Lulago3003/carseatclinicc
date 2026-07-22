@@ -118,6 +118,41 @@ const IMAGENES_CATEGORIA = {
 };
 
 /* =====================================================================
+   INSTAGRAM — "Lo último que publicamos"
+   ---------------------------------------------------------------------
+   Esta sección sale en la portada y muestra las publicaciones de la
+   cuenta OFICIAL (@carseatclinicc), no la de la tienda.
+
+   👉 CÓMO AGREGAR UNA PUBLICACIÓN (30 segundos):
+      1. Abre la publicación en Instagram (desde la computadora).
+      2. Copia el enlace de la barra del navegador. Se ve así:
+         https://www.instagram.com/p/ABC123xyz/
+      3. Pégalo abajo en la lista, entre comillas y con su coma al final.
+
+   La foto y el texto se toman solos de Instagram, así que si editas la
+   publicación allá, la web se actualiza sola. No hay que subir nada.
+
+   ¿Quieres que cargue más rápido y con el estilo de la web? Entonces
+   pon también una foto tuya y un texto corto:
+      { enlace: "https://www.instagram.com/p/ABC123xyz/",
+        imagen: "assets/instagram/booster.jpg",
+        texto:  "Los boosters elevan a tu hijo para que el cinturón..." },
+
+   Si dejas la lista vacía, la sección muestra solo la invitación a
+   seguir la cuenta (no se ve rota).
+   ===================================================================== */
+const INSTAGRAM = {
+  usuario: "carseatclinicc",
+  nombre: "Car Seat Clinic",
+  descripcion: "Consejos de seguridad infantil, novedades y lo que hacemos cada día en el taller.",
+
+  // 👇 Pega aquí los enlaces de las publicaciones (de 3 a 6 se ven mejor)
+  publicaciones: [
+    // "https://www.instagram.com/p/PEGA-AQUI-EL-ENLACE/",
+  ],
+};
+
+/* =====================================================================
    SERVICIOS  (estos sí se editan aquí — cambian poco)
    ===================================================================== */
 const SERVICIOS = [

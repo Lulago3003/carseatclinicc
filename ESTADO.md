@@ -44,9 +44,19 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012 · Acceso panel
       cuentas de Instagram, portadas propias para Tienda y Alquiler, tarjetas de
       equipo, pasos "cómo funciona" y calendario de alquiler a tamaño normal.
 
+- [x] **Sección de Instagram en la portada**: "Lo último que publicamos" con las
+      publicaciones de la cuenta **oficial @carseatclinicc**, debajo de la franja
+      de confianza. Cabecera tipo perfil (foto, arroba, botón Seguir) + tarjetas
+      con la publicación real incrustada. En teléfono es un riel que se desliza
+      de lado. Se edita pegando enlaces en `js/data.js` → `INSTAGRAM.publicaciones`;
+      con la lista vacía se convierte sola en "Síguenos en Instagram".
+
 ### ⬜ Pendiente de esta tanda
-- [ ] **Contenido del Instagram** (@carseatclinic.shop): el dueño va a pasar
-      capturas/textos para ajustar copys, fotos y destacados de la tienda.
+- [ ] **Enlaces de las publicaciones de @carseatclinicc**: pegar de 3 a 6 en
+      `js/data.js` → `INSTAGRAM.publicaciones` para que la sección muestre el
+      contenido real. Mientras tanto se ve la invitación a seguir la cuenta.
+- [ ] **Historias (stories)**: no salen sin la API Graph de Meta (cuenta de
+      empresa + app + token renovable). Decidir si vale la pena montarlo.
 
 ---
 

@@ -65,7 +65,8 @@ scripts/sync-layout.mjs → ⭐ copia el MENÚ y el PIE a todas las páginas de 
 scripts/site-check.mjs  → revisa menús iguales, scripts y enlaces rotos.
 js/data.js              → ⭐ CONFIGURACIÓN editable: CONFIG (supabase keys, whatsapp,
                           adminEmails, adminCode, mapsQuery, paypalClientId),
-                          SERVICIOS, TESTIMONIOS, IMAGENES_CATEGORIA, PRODUCTOS_DEMO
+                          SERVICIOS, TESTIMONIOS, INSTAGRAM, IMAGENES_CATEGORIA,
+                          PRODUCTOS_DEMO
 js/supabase.js          → capa de datos/auth (objeto global DB) — no tocar salvo backend
 js/store.js             → lógica de la tienda (catálogo, carrito, filtros, ficha,
                           quiz, citas, newsletter, auth, animaciones)
@@ -74,6 +75,27 @@ supabase-setup-completo.sql   → esquema + datos: correr UNA vez en Supabase
 supabase-admin.sql            → habilita la cuenta admin en is_admin()
 supabase-fotos-prueba.sql     → fotos de prueba (opcional)
 ```
+
+## 📸 Sección de Instagram (portada)
+
+En la portada, debajo de la franja de confianza, va **"Lo último que
+publicamos"** con las publicaciones de la cuenta **oficial `@carseatclinicc`**
+(no la de la tienda). Se edita en `js/data.js` → `INSTAGRAM.publicaciones`:
+solo se pegan los enlaces de las publicaciones.
+
+- Con **solo el enlace** se incrusta la publicación real de Instagram
+  (`/p/<id>/embed/`, sin llave ni API): si la editan en Instagram, la web se
+  actualiza sola.
+- Si además se pone `imagen` y `texto`, se dibuja una tarjeta propia: carga más
+  rápido y con el estilo de la web, pero hay que subir la foto a `assets/`.
+- Con la lista **vacía**, la sección cambia sola a "Síguenos en Instagram" con
+  la invitación a la cuenta (nunca se ve rota ni vacía).
+- En teléfono es un riel que se desliza de lado, con las tarjetas asomándose.
+
+⚠️ **Las historias (stories) no se pueden mostrar** sin la API Graph de Meta
+(cuenta de empresa + app de Meta + token que hay que renovar cada 60 días). Si
+algún día se quiere, el token iría en una Edge Function de Supabase, nunca en
+el sitio (este repo es público).
 
 ## ✅ Qué está hecho
 

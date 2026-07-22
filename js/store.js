@@ -417,6 +417,78 @@
       </figure>`).join("");
   }
 
+  /* ---------- Render: Instagram de la cuenta oficial ---------- */
+  // Saca el código de la publicación de cualquier enlace de Instagram
+  // (post, reel o carrusel), para poder incrustarla.
+  function instaId(url) {
+    const m = String(url || "").match(/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/);
+    return m ? m[1] : "";
+  }
+
+  function renderInstagram() {
+    const sec = $("#instagram");
+    if (!sec || typeof INSTAGRAM === "undefined") return;
+
+    const usuario = INSTAGRAM.usuario || "carseatclinicc";
+    const perfil = `https://www.instagram.com/${usuario}/`;
+    const lista = (INSTAGRAM.publicaciones || [])
+      .map((item) => (typeof item === "string" ? { enlace: item } : item))
+      .filter((item) => item && instaId(item.enlace));
+
+    // Cabecera tipo perfil (siempre visible)
+    const bar = $("#igBar");
+    if (bar) {
+      bar.innerHTML = `
+        <a class="ig__avatar" href="${perfil}" target="_blank" rel="noopener" aria-label="Perfil de Instagram de ${esc(usuario)}">
+          <img src="logo.jpg" alt="" loading="lazy" />
+        </a>
+        <div class="ig__who">
+          <a class="ig__handle" href="${perfil}" target="_blank" rel="noopener">@${esc(usuario)}</a>
+          <span class="ig__name">${esc(INSTAGRAM.nombre || CONFIG.nombre)}</span>
+        </div>
+        <a class="btn btn--primary ig__follow" href="${perfil}" target="_blank" rel="noopener">Seguir</a>`;
+    }
+
+    const rail = $("#igRail");
+    if (!rail) return;
+
+    if (!lista.length) {
+      // Sin publicaciones configuradas: invitación, nunca una sección rota.
+      // El título cambia para que tenga sentido sin publicaciones debajo.
+      const titulo = sec.querySelector(".ig__intro h2");
+      const eyebrow = sec.querySelector(".ig__intro .eyebrow");
+      if (titulo) titulo.textContent = "Síguenos en Instagram";
+      if (eyebrow) eyebrow.textContent = "Día a día";
+      rail.classList.add("ig__rail--empty");
+      rail.innerHTML = `
+        <div class="ig__invite">
+          <p>${esc(INSTAGRAM.descripcion || "Síguenos para ver consejos de seguridad y novedades.")}</p>
+          <a class="btn btn--ghost" href="${perfil}" target="_blank" rel="noopener">Ver la cuenta</a>
+        </div>`;
+      return;
+    }
+
+    rail.classList.remove("ig__rail--empty");
+    rail.innerHTML = lista.slice(0, 6).map((item, i) => {
+      const id = instaId(item.enlace);
+      const enlace = `https://www.instagram.com/p/${id}/`;
+      const medio = item.imagen
+        // Con foto propia: carga al instante y con el estilo de la web.
+        ? `<img class="ig__img" src="${esc(item.imagen)}" alt="${esc(item.texto || "Publicación de Instagram")}" loading="lazy" decoding="async" />`
+        // Sin foto: se incrusta la publicación real (se actualiza sola).
+        : `<iframe class="ig__frame" src="https://www.instagram.com/p/${id}/embed/" title="Publicación de Instagram" loading="lazy" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
+      return `
+        <article class="ig__card" style="--i:${i}">
+          <div class="ig__media ${item.imagen ? "ig__media--foto" : "ig__media--embed"}">${medio}</div>
+          ${item.texto ? `<p class="ig__text">${esc(shortText(item.texto, 96))}</p>` : ""}
+          <a class="ig__open" href="${enlace}" target="_blank" rel="noopener">
+            Ver publicación
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </article>`;
+    }).join("");
+  }
+
   /* ---------- Render: carrito ---------- */
   function renderCart() {
     const count = itemsCount();
@@ -1609,6 +1681,7 @@
   applyUrlParams();
   renderServices();
   renderTestimonios();
+  renderInstagram();
   fillContact();
   setupAppointmentPlanner();
   loadProducts();

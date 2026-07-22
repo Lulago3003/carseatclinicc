@@ -76,6 +76,13 @@ const checks = [
   ["motion tokens", files.css.includes("--ease-out-expo") && files.css.includes(".motion-float")],
   ["pie con las dos cuentas de Instagram", enTodas("data-ig-shop") && enTodas("data-ig-main")],
   ["instagram de la tienda configurado", files.data.includes("instagramTienda")],
+
+  // --- Sección de Instagram en la portada ---
+  ["sección de Instagram en la portada", files.home.includes('id="instagram"') && files.home.includes('id="igRail"')],
+  ["lista de publicaciones editable", files.data.includes("const INSTAGRAM") && files.data.includes("publicaciones")],
+  ["render de Instagram", files.js.includes("function renderInstagram") && files.js.includes("function instaId")],
+  ["publicaciones incrustadas de la cuenta oficial", files.js.includes("/embed/") && files.js.includes("INSTAGRAM.usuario")],
+  ["estilos de Instagram (con riel móvil)", files.css.includes(".ig__rail") && files.css.includes("scroll-snap-type")],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);
