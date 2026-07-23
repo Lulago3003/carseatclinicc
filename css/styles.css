@@ -2053,3 +2053,16 @@ body.nav-open { overflow: hidden; }
   font-size: .88rem; color: var(--ink); padding: 7px 11px;
   background: rgba(255, 255, 255, .7); border-radius: 9px;
 }
+
+/* Contacto: el renglón de Instagram tiene 2 enlaces + separador. Antes eran
+   hijos sueltos del <li> (flex sin wrap) y se cortaban en pantallas angostas.
+   Ahora van agrupados en un span que sí puede partirse en dos líneas. */
+.contact__ig { min-width: 0; }
+
+/* Cualquier botón deshabilitado (ej. "Agotado" en la ficha de producto) debe
+   verse claramente distinto al activo, no solo perder el clic. */
+.btn:disabled {
+  background: #eef1ee; color: var(--muted); border-color: var(--line);
+  cursor: not-allowed; box-shadow: none; transform: none;
+}
+.btn:disabled:hover { background: #eef1ee; transform: none; box-shadow: none; }
