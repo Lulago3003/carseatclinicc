@@ -62,6 +62,23 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [ ] **Historias (stories)**: no salen sin la API Graph de Meta (cuenta de
       empresa + app + token renovable). Decidir si vale la pena montarlo.
 
+- [x] **Asistente local mucho más completo** (`js/chat-assistant.js`), **sin
+      ningún costo** (sigue siendo 100% local, no llama a ninguna IA de pago).
+      Entiende 5 temas nuevos: alquiler de equipo (coche/corral/cuna, distinto
+      de comprar en la tienda), "¿me conviene comprar o alquilar?", "¿cuándo
+      cambio de silla?", regalos/gift cards, y preguntas sobre Instagram
+      (menciona las dos cuentas). Los rangos de peso/edad que usa ahora son
+      los mismos números que la guía por etapas y el test de la portada, para
+      que nunca se contradigan entre sí.
+- [x] **Arreglados 2 bugs reales que dejó la reestructuración en páginas**: el
+      botón "Reservar horario" del chat, cuando la duda era de alquiler,
+      llevaba al formulario de citas del Inicio en vez de a `alquiler.html`
+      (y viceversa: una duda de instalación en `alquiler.html` intentaba usar
+      el selector de esa página, que solo tiene la opción "Alquiler"). El
+      botón "Ver catálogo" del chat todavía apuntaba a `index.html#productos`,
+      una sección que ya no existe ahí (el catálogo vive en `tienda.html`).
+      Los tres casos ya redirigen a la página correcta.
+
 ---
 
 ## ✅ HECHO

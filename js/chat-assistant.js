@@ -1,8 +1,14 @@
 /* =====================================================================
    Asistente inteligente local
    ---------------------------------------------------------------------
-   Responde dudas frecuentes aunque la IA externa todavia no este activa.
-   La IA real de Supabase sigue teniendo prioridad cuando devuelve respuesta.
+   Responde dudas frecuentes SIN depender de ninguna IA de pago. La IA
+   externa (si algún día se activa una llave gratis) sigue teniendo
+   prioridad cuando devuelve respuesta; esto es lo que contesta mientras
+   tanto, y nunca deja de funcionar.
+
+   Los números de peso/edad de aquí son los MISMOS que usan la guía por
+   etapas de la portada y el test "Encuentra tu silla ideal" (ver RECS en
+   store.js), para que el asistente nunca contradiga lo que ya dice la web.
    ===================================================================== */
 
 (function (root) {
@@ -11,7 +17,7 @@
   function normalizeText(text) {
     return String(text || "")
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[̀-ͯ]/g, "")
       .toLowerCase()
       .replace(/[¿?¡!.,;:()]/g, " ")
       .replace(/\s+/g, " ")
@@ -34,6 +40,7 @@
       heightCm: heightCm ? Number(heightCm[1]) : (heightM ? Math.round(Number(heightM[1].replace(",", ".")) * 100) : null),
       mentionsGirl: /\b(nina|hija|beba)\b/.test(text),
       mentionsBoy: /\b(nino|hijo|bebe)\b/.test(text),
+      multiple: /\b(gemel|melliz|dos (hijos|hijas|ninos|ninas|bebes)|ambos ninos|los dos ninos|mis dos)\b/.test(text),
     };
   }
 
@@ -46,20 +53,27 @@
     if (/\b(horario|abren|cierran|abierto|atienden|a que hora|que hora|dias atienden|que dias)\b/.test(text)) return "hours";
     if (/\b(donde estan|donde quedan|ubicacion|ubicados|ubicado|direccion|como llego|como llegar|tienda fisica|sucursal)\b/.test(text)) return "location";
     if (/\b(envio|envios|envian|envias|enviar|envia|delivery|domicilio|mandan|despacho|llega a|a domicilio)\b/.test(text)) return "shipping";
+    if (/\b(instagram|facebook|tiktok|redes sociales|siguenos|sigueme|cuenta de instagram)\b/.test(text)) return "social";
     if (/\b(yappy|efectivo|transferencia|metodos de pago|metodo de pago|formas de pago|forma de pago|tarjeta|pagar|como pago|cuotas)\b/.test(text)) return "payment";
-    if (/\b(garantia|original|originales|autentic|falsific|que marcas|cuales marcas|marca tienen|son nuevas|son nuevos)\b/.test(text)) return "warranty";
+    if (/\b(regalo|regalar|obsequio|gift card|tarjeta de regalo|de regalo|para regalar)\b/.test(text)) return "gift";
+    if (/\b(garantia|original|originales|autentic|falsific|que marcas|cuales marcas|marca tienen|son nuevas|son nuevos|es usada|son usadas)\b/.test(text)) return "warranty";
+    if (/\b(comprar o alquilar|alquilar o comprar|conviene alquilar|conviene comprar|mejor alquilar|mejor comprar|comprarla o alquilarla|alquilarla o comprarla)\b/.test(text)) return "buy-vs-rent";
+    if (/\b(coche|carriola|stroller|corral|cuna|moises|pack n play|pack-n-play|corralito)\b/.test(text)) return "rental-equipment";
+    if (/\b(alquiler|alquilar|alquilo|renta|rentar|rento|prestan|prestar)\b/.test(text)) return "rental";
+    if (/\b(ya no le sirve|ya no le cabe|se le quedo chica|se le quedo pequena|se le quedo pequeno|cuando cambio|momento de cambiar|paso a booster|paso al booster|siguiente etapa|cambiar de silla|cambiar de etapa)\b/.test(text)) return "stage-change";
     if (/\b(como instalar|como se instala|como instalo|como la instalo|como se pone|como pongo|como la pongo|isofix|latch|anclaje|contramarcha|a contramarcha|mirando atras|hacia atras|girar|voltear|dar vuelta)\b/.test(text)) return "install-how";
     if (/\b(reservar|reserva|agendar|agenda|cita|calendario|disponible|manana|mañana)\b/.test(text)) return "booking";
     if (/\b(lavar|lavado|limpiar|limpieza|desinfectar|mancha|sucio|correas|arnes)\b/.test(text)) return "cleaning";
     if (/\b(vencid|vence|vencimiento|caduc|expir|etiqueta|fabricante|segunda mano|usada|modelo de la silla)\b/.test(text)) return "seat-review";
     if (/\b(mi|la|esta|esa)\s+silla\b.*\b(puede|sirve|usar|uso|segura)\b/.test(text)) return "seat-review";
     if (/\b(precio|cuanto|cuesta|vale|cotizar|cotizacion|costo)\b/.test(text)) return "price";
-    if (/\b(instalar|instalacion|revisar|revision|chequeo|asesoria|alquiler|alquilar|alquilo|renta|rentar|servicio)\b/.test(text)) return "service";
+    if (/\b(instalar|instalacion|revisar|revision|chequeo|asesoria|servicio)\b/.test(text)) return "service";
     if (/\b(silla|car seat|asiento|booster|bebe|nino|nina|hijo|hija|peso|talla|estatura|edad|anos|meses|kg|libras)\b/.test(text)) return "seat-fit";
     return "unknown";
   }
 
   function humanLabel(data) {
+    if (data.multiple) return "tus peques";
     if (data.mentionsGirl) return "tu niña";
     if (data.mentionsBoy) return "tu niño";
     return "tu peque";
@@ -87,35 +101,44 @@
     const data = extractChildData(raw);
     const label = humanLabel(data);
     const age = ageSummary(data);
-    const intro = age ? `Para ${label} de ${age}, no elegiria solo por edad.` : "Para elegir bien la silla, necesito cruzar edad, peso, estatura y el auto.";
+    const intro = age ? `Para ${label} de ${age}, no elegiría solo por edad.` : "Para elegir bien la silla, necesito cruzar edad, peso, estatura y el auto.";
     let guidance = "";
 
     if (data.ageMonths !== null && data.ageMonths < 15) {
-      guidance = "Como guia, normalmente miramos una silla de recien nacido o convertible, instalada mirando hacia atras mientras este dentro de los limites del fabricante.";
-    } else if (data.ageYears !== null && data.ageYears <= 3) {
-      guidance = "Como guia, suele convenir una convertible o 360°, idealmente mirando hacia atras el mayor tiempo que permita la silla.";
-    } else if (data.ageYears !== null && data.ageYears >= 4 && data.ageYears <= 7) {
-      guidance = "A esa edad puede ser una combinada con arnes o un booster con respaldo, pero solo si ya supero los limites del arnes y se sienta bien todo el viaje.";
-      if (data.weight !== null) {
-        const kg = /lb|lbs|libras/.test(data.weightUnit) ? data.weight * 0.453592 : data.weight;
-        guidance = kg < 18
-          ? "Con ese peso yo revisaria primero una silla combinada o convertible con arnes, no pasaria directo a booster."
-          : "Con ese peso podria entrar una combinada o un booster con respaldo, pero hay que confirmar estatura, ajuste del cinturon y madurez.";
+      guidance = "Como guía: hasta unos 13 kg va una silla de recién nacido o una convertible/360°, siempre instalada a contramarcha (mirando hacia atrás), que es la posición más segura a esa edad.";
+    } else if (data.weight !== null) {
+      const kg = /lb|lbs|libras/.test(data.weightUnit) ? data.weight * 0.453592 : data.weight;
+      if (kg <= 13) {
+        guidance = "Con ese peso todavía va una silla de recién nacido o convertible/360°, a contramarcha.";
+      } else if (kg <= 18) {
+        guidance = "Con ese peso encaja una convertible o 360°, y si el auto lo permite, seguiría siendo mejor a contramarcha el mayor tiempo posible.";
+      } else if (kg <= 36) {
+        guidance = "Con ese peso puede ir en una combinada (con arnés) o en un booster con respaldo si ya tiene la madurez para quedarse quieto y el cinturón le ajusta bien. Si aún no estás segura, yo primero probaría con arnés.";
+      } else {
+        guidance = "A ese peso ya suele ser booster: eleva al niño para que el cinturón del auto le quede en la posición correcta, banda baja sobre los muslos y banda diagonal sobre el hombro, nunca sobre el cuello.";
       }
+    } else if (data.ageYears !== null && data.ageYears <= 3) {
+      guidance = "Como guía, entre 1 y 4 años (unos 9 a 18 kg) suele convenir una convertible o 360°, idealmente a contramarcha el mayor tiempo que permita la silla.";
+    } else if (data.ageYears !== null && data.ageYears >= 4 && data.ageYears <= 7) {
+      guidance = "A esa edad puede ser una combinada con arnés o un booster con respaldo (grupo 2-3, unos 15 a 36 kg), pero solo si ya superó los límites del arnés y se sienta quieto todo el viaje.";
     } else if (data.ageYears !== null && data.ageYears >= 8) {
-      guidance = "Puede que necesite booster hasta que el cinturon del carro le quede bien: banda baja sobre muslos y banda diagonal sobre hombro y pecho, no cuello ni barriga.";
+      guidance = "Puede que ya solo necesite booster hasta que el cinturón del carro le quede bien: banda baja sobre muslos y banda diagonal sobre hombro y pecho, no sobre cuello ni barriga.";
     } else {
-      guidance = "Si me das esos datos, te puedo orientar entre recien nacido, convertible, 360°, combinada o booster.";
+      guidance = "Si me das esos datos te oriento entre recién nacido, convertible, 360°, combinada o booster. Si prefieres una sola silla que acompañe varias etapas, las 360° suelen ser la mejor inversión.";
+    }
+
+    if (data.multiple) {
+      guidance += " Como son dos peques, también podemos confirmar que ambas sillas quepan juntas en el asiento trasero de tu auto antes de que compres.";
     }
 
     const ask = missingDetails(data).join(", ");
-    const safety = "Revisa siempre los limites de peso/estatura del fabricante y el manual del carro.";
+    const safety = "Revisa siempre los límites de peso/estatura del fabricante y el manual del carro.";
     return withAdvisorMeta({
       intent: "seat-fit",
       confidence: data.ageYears !== null || data.ageMonths !== null || data.weight !== null ? 0.82 : 0.62,
       action: "case",
       capture: { service: "Asesoria de compra", child: data },
-      answer: `${intro}\n${guidance}\n${safety}\nPara confirmarlo mejor, dime ${ask}. Si prefieres, te puedo dejar el caso listo para un asesor o puedes continuar por WhatsApp con foto de la silla o del asiento del carro.`,
+      answer: `${intro}\n${guidance}\n${safety}\nPara confirmarlo mejor dime ${ask}. Si prefieres, te dejo el caso listo para un asesor, o puedes ver el catálogo y hacer el test "Encuentra tu silla ideal", o continuar por WhatsApp con foto de la silla o del asiento del carro.`,
     });
   }
 
@@ -125,7 +148,7 @@
       confidence: 0.84,
       action: "case",
       capture: { service: "Revision de seguridad", priority: "alta" },
-      answer: "Para saber si una silla aun se puede usar necesitamos revisar etiqueta, modelo, fecha de fabricacion/vencimiento, historial de choques y piezas completas. Si falta alguno de esos datos, no conviene adivinar. Puedes enviarnos fotos de la etiqueta y de la silla, o reservar una revision para confirmarlo con seguridad.",
+      answer: "Para saber si una silla aún se puede usar necesitamos revisar etiqueta, modelo, fecha de fabricación/vencimiento, historial de choques y que estén todas sus piezas completas. Si falta alguno de esos datos, no conviene adivinar: una silla vencida o accidentada no protege igual aunque se vea bien. Puedes enviarnos fotos de la etiqueta y de la silla, o reservar una revisión para confirmarlo con seguridad.",
     });
   }
 
@@ -135,7 +158,7 @@
       confidence: 0.86,
       action: "book",
       capture: { service: "Limpieza y desinfeccion", priority: "media" },
-      answer: "Si quieres lavar la silla, primero revisa el manual del fabricante. Muchas telas se pueden limpiar de forma controlada, pero el arnes y las correas no se deben lavar agresivamente ni remojar porque pueden perder resistencia. Nosotros podemos revisar la silla, limpiar lo que corresponde y decirte que partes conviene tratar con cuidado. Puedes reservar un horario o continuar por WhatsApp.",
+      answer: "Si quieres lavar la silla, primero revisa el manual del fabricante. Muchas telas se pueden limpiar de forma controlada, pero el arnés y las correas no se deben lavar agresivamente ni remojar porque pueden perder resistencia. Nosotros revisamos la silla, limpiamos y desinfectamos lo que corresponde, y te decimos qué partes conviene tratar con cuidado. Puedes reservar un horario o continuar por WhatsApp.",
     });
   }
 
@@ -145,7 +168,7 @@
       confidence: 0.9,
       action: "book",
       capture: { service: "Revision de seguridad", priority: "alta" },
-      answer: "Claro. Puedes usar el calendario de la pagina para escoger servicio, fecha y horario disponible. Si es por instalacion, revision o limpieza, agrega el modelo de la silla y del auto para que lleguemos preparados. Tambien puedes continuar por WhatsApp si necesitas confirmar algo antes de reservar.",
+      answer: "Claro. Puedes usar el calendario de la página para escoger servicio, fecha y horario disponible. Si es por instalación, revisión o limpieza, agrega el modelo de la silla y del auto para que lleguemos preparados. También puedes continuar por WhatsApp si necesitas confirmar algo antes de reservar.",
     });
   }
 
@@ -155,33 +178,76 @@
       confidence: 0.9,
       action: "whatsapp",
       capture: { service: "Cotizacion", priority: "media" },
-      answer: "Para precios prefiero no inventarte nada. Te cotizamos segun modelo, disponibilidad y si necesitas instalacion o revision. Escribenos el producto que viste y lo confirmamos por WhatsApp.",
+      answer: "Para precios prefiero no inventarte nada. Agrega el producto que te interesa al carrito de la tienda y te confirmamos precio, disponibilidad y si necesitas instalación, todo por WhatsApp antes de cobrarte nada.",
     });
   }
 
   function serviceReply(raw) {
     const text = normalizeText(raw);
     const service = /\blimpiez|lavado|desinfectar\b/.test(text) ? "Limpieza y desinfeccion"
-      : /\balquiler|alquilar|alquilo|renta|rentar\b/.test(text) ? "Alquiler"
-        : /\brevis|cheque\b/.test(text) ? "Revision de seguridad"
-          : /\basesoria|elegir|compra\b/.test(text) ? "Asesoria de compra"
-            : "Instalacion profesional";
-    if (service === "Alquiler") {
-      return withAdvisorMeta({
-        intent: "service",
-        confidence: 0.88,
-        action: "book",
-        capture: { service: "Alquiler", priority: "alta" },
-        answer: "Si, podemos ayudarte con alquiler para viaje. Para confirmar disponibilidad necesito equipo, fecha de entrega, fecha de devolucion, lugar de entrega, lugar de recogida, edad y peso del nino. Puedes reservarlo en el calendario y dejar todo listo, o continuar por WhatsApp si tienes dudas antes de agendar.",
-      });
-    }
+      : /\brevis|cheque\b/.test(text) ? "Revision de seguridad"
+        : /\basesoria|elegir|compra\b/.test(text) ? "Asesoria de compra"
+          : "Instalacion profesional";
     return withAdvisorMeta({
       intent: "service",
       confidence: 0.86,
       action: "book",
       capture: { service, priority: service.includes("Revision") ? "alta" : "media" },
-      answer: `Si, podemos ayudarte con ${service.toLowerCase()}. Para coordinar bien, dime que silla tienes, modelo del auto y zona donde estas. Tambien puedes reservar un horario desde el calendario o continuar por WhatsApp con un asesor.`,
+      answer: `Sí, podemos ayudarte con ${service.toLowerCase()}. Para coordinar bien dime qué silla tienes, modelo del auto y zona donde estás. También puedes reservar un horario desde el calendario o continuar por WhatsApp con un asesor.`,
     });
+  }
+
+  function rentalReply() {
+    return withAdvisorMeta({
+      intent: "rental",
+      confidence: 0.9,
+      action: "book",
+      capture: { service: "Alquiler", priority: "alta" },
+      answer: "Sí, alquilamos silla de carro, booster, coche/stroller o corral por los días que necesites, como reservar en un hotel. Entregamos en el aeropuerto, tu hotel o tu casa, con instalación revisada antes de usar. Para confirmar disponibilidad dime qué equipo necesitas, fecha de entrega, fecha de devolución y edad/peso del niño. Puedes reservarlo directo en nuestra página de Alquiler o seguir por WhatsApp si tienes dudas antes.",
+    });
+  }
+
+  function rentalEquipmentReply() {
+    return withAdvisorMeta({
+      intent: "rental-equipment",
+      confidence: 0.87,
+      action: "book",
+      capture: { service: "Alquiler", priority: "alta" },
+      answer: "Ese tipo de equipo (coche, corral o cuna) lo manejamos en alquiler por días, no está en la tienda para comprar. Se entrega limpio, revisado y dentro de su fecha de vigencia, en el aeropuerto, tu hotel o tu casa. Dime tus fechas de entrega y devolución y te confirmamos disponibilidad en la página de Alquiler, o seguimos por WhatsApp.",
+    });
+  }
+
+  function buyVsRentReply() {
+    return {
+      intent: "buy-vs-rent", confidence: 0.85, needsHuman: false, action: "guide", capture: { service: "Asesoria de compra" },
+      answer: "Depende de cuánto la vayas a usar. Si es un viaje puntual (unos días de visita o vacaciones), casi siempre conviene alquilar: te sale más barato y no cargas con la silla después. Si es para el día a día, comprarla te conviene más a la larga. Un dato: si alquilas y después decides quedártela, te descontamos parte de lo pagado del alquiler. Cuéntame cuántos días la necesitas y te digo cuál te conviene más.",
+    };
+  }
+
+  function stageChangeReply() {
+    return withAdvisorMeta({
+      intent: "stage-change",
+      confidence: 0.85,
+      action: "case",
+      capture: { service: "Revision de seguridad", priority: "media" },
+      answer: "Toca cambiar de etapa cuando pasa cualquiera de estas señales: superó el límite de peso o estatura que dice el fabricante, la cabeza le sobrepasa el respaldo (en modo contramarcha), o los hombros quedan por encima de las ranuras más altas del arnés. No hay una edad fija, cada silla y cada niño son distintos. Puedes hacer el test \"Encuentra tu silla ideal\" en la página o traerla para revisarla y confirmar si ya le toca la siguiente etapa.",
+    });
+  }
+
+  function giftReply() {
+    return {
+      intent: "gift", confidence: 0.82, needsHuman: false, action: "guide", capture: { service: "Gift card" },
+      answer: "Sí, tenemos gift cards para regalar, y también puedes regalar directamente una silla o un accesorio. Si no sabes cuál elegir, dinos la edad del bebé o niño que la va a usar y te ayudamos a armar el regalo. Mira la categoría Gift Card en la tienda o escríbenos por WhatsApp para coordinarlo.",
+    };
+  }
+
+  function socialReply(ctx) {
+    const principal = (ctx && ctx.instagram) || "https://www.instagram.com/carseatclinicc";
+    const tienda = (ctx && ctx.instagramTienda) || "https://www.instagram.com/carseatclinic.shop";
+    return {
+      intent: "social", confidence: 0.8, needsHuman: false, action: "guide", capture: {},
+      answer: `Claro, tenemos dos cuentas de Instagram: ${principal} con consejos de seguridad y novedades, y ${tienda} donde mostramos los productos de la tienda. Te esperamos por allá también.`,
+    };
   }
 
   function crashReply() {
@@ -190,58 +256,58 @@
       confidence: 0.9,
       action: "case",
       capture: { service: "Revision por choque", priority: "urgente" },
-      answer: "Si la silla estuvo en un choque, no la volveria a usar sin revision. En choques moderados o fuertes normalmente se recomienda reemplazarla. Guarda fotos, etiqueta, fecha del choque y modelo de silla. Te recomiendo continuar por WhatsApp o reservar una revision para documentar el caso.",
+      answer: "Si la silla estuvo en un choque, no la volvería a usar sin revisión. En choques moderados o fuertes normalmente se recomienda reemplazarla, aunque se vea bien por fuera. Guarda fotos, etiqueta, fecha del choque y modelo de silla. Te recomiendo continuar por WhatsApp o reservar una revisión para documentar el caso.",
     });
   }
 
   function thanksReply() {
     return {
       intent: "thanks", confidence: 0.8, needsHuman: false, action: "guide", capture: {},
-      answer: "Con gusto. Si te queda otra duda sobre sillas, instalacion, alquiler o limpieza, aqui estoy. Y cuando quieras, puedes cotizar o reservar por WhatsApp.",
+      answer: "Con gusto. Si te queda otra duda sobre sillas, instalación, alquiler o limpieza, aquí estoy. Y cuando quieras, puedes cotizar o reservar por WhatsApp.",
     };
   }
 
   function hoursReply(ctx) {
-    const h = (ctx && ctx.horario) ? ctx.horario : "Lunes a Sabado, horario de oficina";
+    const h = (ctx && ctx.horario) ? ctx.horario : "Lunes a Sábado, horario de oficina";
     return {
       intent: "hours", confidence: 0.9, needsHuman: false, action: "guide", capture: {},
-      answer: `Nuestro horario de atencion es: ${h}. Puedes agendar una cita en la pagina o escribirnos por WhatsApp para coordinar.`,
+      answer: `Nuestro horario de atención es: ${h}. Puedes agendar una cita en la página o escribirnos por WhatsApp para coordinar.`,
     };
   }
 
   function locationReply(ctx) {
-    const u = (ctx && ctx.ubicacion) ? ctx.ubicacion : "Ciudad de Panama";
+    const u = (ctx && ctx.ubicacion) ? ctx.ubicacion : "Ciudad de Panamá";
     return {
       intent: "location", confidence: 0.88, needsHuman: false, action: "guide", capture: {},
-      answer: `Estamos en ${u}. En la seccion de Contacto de la pagina tienes el mapa y un codigo de Waze para llegar. Tambien coordinamos instalacion y entrega; escribenos por WhatsApp y confirmamos la zona.`,
+      answer: `Estamos en ${u}. En el Inicio, sección de Contacto, tienes el mapa y un código de Waze para llegar. También coordinamos instalación y entrega a domicilio; escríbenos por WhatsApp y confirmamos la zona.`,
     };
   }
 
   function shippingReply() {
     return {
       intent: "shipping", confidence: 0.85, needsHuman: false, action: "guide", capture: { service: "Envio" },
-      answer: "Si, hacemos envios a todo el pais. El costo y el tiempo dependen de la zona y del producto. Dime que producto te interesa y a donde lo necesitas, y lo confirmamos por WhatsApp.",
+      answer: "Sí, hacemos envíos a todo el país. El costo y el tiempo dependen de la zona y del producto. Dime qué producto te interesa y a dónde lo necesitas, y lo confirmamos por WhatsApp.",
     };
   }
 
   function paymentReply() {
     return {
       intent: "payment", confidence: 0.82, needsHuman: false, action: "whatsapp", capture: { service: "Consulta de pago" },
-      answer: "El pago lo coordinamos al cerrar tu pedido por WhatsApp y te indicamos las opciones disponibles (por ejemplo transferencia, Yappy o efectivo, segun acordemos). Pronto habilitaremos el pago con tarjeta directo en la web.",
+      answer: "El pago lo coordinamos al cerrar tu pedido por WhatsApp y te indicamos las opciones disponibles (por ejemplo transferencia, Yappy o efectivo, según acordemos). Pronto habilitaremos el pago con tarjeta directo en la web.",
     };
   }
 
   function warrantyReply() {
     return {
       intent: "warranty", confidence: 0.82, needsHuman: false, action: "guide", capture: { service: "Consulta de producto" },
-      answer: "Trabajamos sillas de marcas con normas internacionales de seguridad, nuevas y garantizadas. La garantia exacta depende del modelo; dime cual te interesa y confirmamos marca, garantia y disponibilidad por WhatsApp.",
+      answer: "Trabajamos solo sillas nuevas, de marcas con normas internacionales de seguridad, y las revisamos antes de entregarlas. Nada usado ni reacondicionado. La garantía exacta depende del modelo; dime cuál te interesa y confirmamos marca, garantía y disponibilidad por WhatsApp.",
     };
   }
 
   function installHowReply() {
     return withAdvisorMeta({
       intent: "install-how", confidence: 0.8, action: "book", capture: { service: "Instalacion profesional", priority: "media" },
-      answer: "La instalacion correcta depende de la silla y del auto (ISOFIX/LATCH o cinturon de seguridad). Como guia general: la silla debe quedar firme (que no se mueva mas de 2-3 cm), el arnes ajustado sin holgura y el broche del pecho a la altura de las axilas. Los bebes deben ir a contramarcha (mirando hacia atras) el mayor tiempo posible. Nosotros te la instalamos y te enseñamos a usarla: puedes reservar una instalacion o continuar por WhatsApp con foto de la silla y del asiento del carro.",
+      answer: "La instalación correcta depende de la silla y del auto (ISOFIX/LATCH o cinturón de seguridad). Como guía general: la silla debe quedar firme (que no se mueva más de 2 a 3 cm), el arnés ajustado sin holgura y el broche del pecho a la altura de las axilas. Los bebés deben ir a contramarcha (mirando hacia atrás) el mayor tiempo posible. Nosotros te la instalamos y te enseñamos a usarla: puedes reservar una instalación o continuar por WhatsApp con foto de la silla y del asiento del carro.",
     });
   }
 
@@ -252,7 +318,7 @@
       needsHuman: false,
       action: "guide",
       capture: {},
-      answer: "Hola, soy el asistente de Car Seat Clinic. Te puedo orientar con silla ideal, instalacion, revision, limpieza, alquiler, envios, horario o cotizacion. Para elegir silla, dime edad, peso, estatura y modelo del auto.",
+      answer: "Hola, soy el asistente de Car Seat Clinic. Te puedo ayudar a elegir la silla ideal, instalarla, revisarla, limpiarla o alquilarla si vienes de viaje. Para recomendarte silla, dime edad, peso, estatura y modelo del auto.",
     };
   }
 
@@ -262,7 +328,7 @@
       confidence: 0.35,
       action: "whatsapp",
       capture: { service: "Consulta general", priority: "media" },
-      answer: "Puedo ayudarte con dudas sobre sillas de carro, boosters, instalacion, revision, limpieza, alquiler, envios, horario, ubicacion, formas de pago y citas. No quiero adivinar si faltan datos, asi que tambien puedes continuar por WhatsApp con un asesor.",
+      answer: "Puedo ayudarte con dudas sobre sillas de carro, boosters, instalación, revisión, limpieza, alquiler de equipo para viajes, envíos, horario, ubicación, formas de pago y citas. No quiero adivinar si faltan datos, así que también puedes continuar por WhatsApp con un asesor.",
     });
   }
 
@@ -273,8 +339,14 @@
     if (intent === "hours") return hoursReply(ctx);
     if (intent === "location") return locationReply(ctx);
     if (intent === "shipping") return shippingReply();
+    if (intent === "social") return socialReply(ctx);
     if (intent === "payment") return paymentReply();
+    if (intent === "gift") return giftReply();
     if (intent === "warranty") return warrantyReply();
+    if (intent === "buy-vs-rent") return buyVsRentReply();
+    if (intent === "rental-equipment") return rentalEquipmentReply();
+    if (intent === "rental") return rentalReply();
+    if (intent === "stage-change") return stageChangeReply();
     if (intent === "install-how") return installHowReply();
     if (intent === "booking") return bookingReply();
     if (intent === "cleaning") return cleaningReply();

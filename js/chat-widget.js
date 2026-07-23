@@ -49,7 +49,7 @@
     }
     function smartReply(text) {
       if (window.ChatAssistant && typeof window.ChatAssistant.generateSmartReply === "function") {
-        return window.ChatAssistant.generateSmartReply(text, { whatsapp: CONFIG.whatsapp, horario: CONFIG.horario, ubicacion: CONFIG.ubicacion, email: CONFIG.email, instagram: CONFIG.instagram });
+        return window.ChatAssistant.generateSmartReply(text, { whatsapp: CONFIG.whatsapp, horario: CONFIG.horario, ubicacion: CONFIG.ubicacion, email: CONFIG.email, instagram: CONFIG.instagram, instagramTienda: CONFIG.instagramTienda });
       }
       return { intent: "unknown", needsHuman: true, answer: "Gracias por tu pregunta. Para responder bien necesito un poco mas de informacion. Puedes continuar por WhatsApp y un asesor te ayuda." };
     }
@@ -82,9 +82,25 @@
       });
     }
     function prefillAppointment(reply, originalText) {
+      const isRental = serviceOptionFor(reply) === "Alquiler";
+      // El alquiler vive en su propia pagina (alquiler.html), con su propio
+      // calendario. Nunca lo mezclamos con el formulario de citas del Inicio.
+      if (isRental) {
+        if (location.pathname.endsWith("alquiler.html")) {
+          close();
+          document.getElementById("reservar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          toast("Elige tus fechas en el calendario de abajo");
+        } else {
+          window.location.href = "alquiler.html#reservar";
+        }
+        return;
+      }
       const serviceSelect = $("#citaServicio");
-      if (serviceSelect) {
-        // Estamos en la pagina principal: prellena el calendario.
+      // El select de alquiler.html solo trae la opcion "Alquiler" (fija), no
+      // sirve para otros servicios aunque exista en esa pagina.
+      const usable = serviceSelect && serviceSelect.options.length > 1;
+      if (usable) {
+        // Estamos en el Inicio: prellena el calendario de citas.
         serviceSelect.value = serviceOptionFor(reply);
         serviceSelect.dispatchEvent(new Event("change"));
         const comments = $("input[name='comentarios']");
@@ -93,7 +109,7 @@
         document.getElementById("citas")?.scrollIntoView({ behavior: "smooth", block: "start" });
         toast("El calendario quedo preparado con tu solicitud");
       } else {
-        // Otra pagina: llevamos a la seccion de citas en la principal.
+        // Otra pagina: llevamos a la seccion de citas en el Inicio.
         window.location.href = "index.html#citas";
       }
     }
@@ -137,12 +153,17 @@
       const wrap = document.createElement("div");
       wrap.className = "chat__reco";
       if (prods.length) wrap.innerHTML = `<small>En el catálogo: ${prods.map((p) => esc(p.nombre)).join(" · ")}</small>`;
-      const onIndex = typeof window.CSC_showCatalog === "function";
-      const btn = document.createElement(onIndex ? "button" : "a");
+      const btn = document.createElement("button");
+      btn.type = "button";
       btn.className = "chat__recobtn";
       btn.textContent = "🔎 Ver " + label + " →";
-      if (onIndex) { btn.type = "button"; btn.addEventListener("click", () => { close(); window.CSC_showCatalog(cat); }); }
-      else { btn.href = "index.html#productos"; btn.target = "_top"; }
+      btn.addEventListener("click", () => {
+        close();
+        // store.js define esto en todas las paginas; si por algo faltara,
+        // vamos directo a la tienda (nunca a un enlace que ya no existe).
+        if (typeof window.CSC_showCatalog === "function") window.CSC_showCatalog(cat);
+        else window.location.href = `tienda.html${cat && cat !== "todos" ? "?cat=" + encodeURIComponent(cat) : ""}`;
+      });
       wrap.appendChild(btn);
       msgs.appendChild(wrap);
       msgs.scrollTop = msgs.scrollHeight;

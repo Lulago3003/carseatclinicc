@@ -5,7 +5,11 @@ const require = createRequire(import.meta.url);
 const ChatAssistant = require("../js/chat-assistant.js");
 
 function reply(text) {
-  return ChatAssistant.generateSmartReply(text, { whatsapp: "50766743012" });
+  return ChatAssistant.generateSmartReply(text, {
+    whatsapp: "50766743012",
+    instagram: "https://www.instagram.com/carseatclinicc",
+    instagramTienda: "https://www.instagram.com/carseatclinic.shop",
+  });
 }
 
 const ageReply = reply("Tengo una niña de 5 años, que silla puede usar?");
@@ -30,12 +34,31 @@ assert.equal(serviceReply.action, "book");
 assert.ok(serviceReply.capture?.service);
 
 const rentalReply = reply("Necesito alquilar una silla para 8 dias en Panama");
-assert.equal(rentalReply.intent, "service");
+assert.equal(rentalReply.intent, "rental");
 assert.equal(rentalReply.needsHuman, true);
 assert.equal(rentalReply.action, "book");
 assert.match(rentalReply.answer, /alquiler|reservar|calendario/i);
-assert.match(rentalReply.answer, /entrega|devoluci[oÃ³]n|recogida/i);
+assert.match(rentalReply.answer, /entrega|devoluci[oó]n|recogida/i);
 assert.match(rentalReply.capture?.service || "", /Alquiler/i);
+
+const rentalEquipmentReply = reply("Tienen coche o corral para alquilar?");
+assert.equal(rentalEquipmentReply.intent, "rental-equipment");
+assert.match(rentalEquipmentReply.answer, /alquiler/i);
+
+const buyVsRentReply = reply("Me conviene comprarla o alquilarla?");
+assert.equal(buyVsRentReply.intent, "buy-vs-rent");
+assert.equal(buyVsRentReply.needsHuman, false);
+assert.match(buyVsRentReply.answer, /alquilar|comprar/i);
+
+const stageChangeReply = reply("Ya no le sirve la silla a mi hijo, cuando cambio de etapa?");
+assert.equal(stageChangeReply.intent, "stage-change");
+assert.match(stageChangeReply.answer, /peso|estatura|arn[eé]s/i);
+
+const socialReply = reply("Tienen instagram?");
+assert.equal(socialReply.intent, "social");
+assert.equal(socialReply.needsHuman, false);
+assert.match(socialReply.answer, /carseatclinicc/);
+assert.match(socialReply.answer, /carseatclinic\.shop/);
 
 const washReply = reply("Puedo lavar las correas de la silla con jabon?");
 assert.equal(washReply.intent, "cleaning");
