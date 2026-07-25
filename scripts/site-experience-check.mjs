@@ -45,7 +45,9 @@ const checks = [
   ["product image helper", files.js.includes("function productImageList")],
   ["product image fallback", files.js.includes("function setupMediaFallbacks") && files.css.includes(".card__fallback")],
   ["premium card markup", files.js.includes("card__peek") && files.js.includes("card__thumbs")],
-  ["featured card styles", files.css.includes(".card--featured")],
+  ["catálogo en 2 columnas en teléfono", !/\.grid[^{}]*\{\s*grid-template-columns:\s*1fr/.test(files.css)],
+  ["sin destacado arbitrario (1er producto)", !files.js.includes("card--featured") && !files.css.includes(".card--featured")],
+  ["tarjetas sin jerga interna", !files.js.includes("Foto editable") && !files.js.includes("Compatibilidad guiada") && !files.js.includes("Galería disponible")],
   ["filtro por URL (?cat=)", files.js.includes("function applyUrlParams") && files.js.includes("tienda.html?cat=")],
 
   // --- Alquiler (página propia) ---

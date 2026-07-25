@@ -156,7 +156,7 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "chat__recobtn";
-      btn.textContent = "🔎 Ver " + label + " →";
+      btn.textContent = "Ver " + label + " →";
       btn.addEventListener("click", () => {
         close();
         // store.js define esto en todas las paginas; si por algo faltara,

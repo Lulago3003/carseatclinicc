@@ -55,6 +55,31 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       de lado. Se edita pegando enlaces en `js/data.js` → `INSTAGRAM.publicaciones`;
       con la lista vacía se convierte sola en "Síguenos en Instagram".
 
+- [x] **Mejoras de diseño (julio 2026)**, medidas en teléfono de 375px:
+      (1) **Pop-up del boletín**: antes salía a los 16 s y tapaba el 40% de la
+      pantalla (los botones del hero, el contacto, los filtros). Ahora aparece
+      solo cuando la persona ya bajó más de media página, es una franja
+      compacta ARRIBA del asistente y del WhatsApp, no sale si hay una ventana
+      abierta o si está comparando sillas, y se retira sola al llegar al
+      formulario del pie (no ofrece lo mismo dos veces).
+      (2) **Catálogo a 2 columnas**: estaba a 1 sola y cada tarjeta medía
+      ~800px, o sea ~20.000px de scroll para 26 productos. Ahora la tarjeta
+      mide 414px. En la tarjeta angosta se ocultan descripción, categoría y
+      "recomendado para" (se ven en la ficha) y el botón de texto baja a su
+      propia línea para no pisar el precio.
+      (3) **Portada más corta**: de 15.698px a ~14.100px. Guía por etapas y
+      ruta segura se quedan en 2 columnas (la tarjeta de ruta pasa a vertical
+      para que no se salgan los títulos) y las tarjetas de servicio bajan de
+      300 a 210px.
+      (4) **Sin jerga interna**: se quitaron "Foto editable", "Galería
+      disponible" y "Compatibilidad guiada" de las tarjetas (eran notas del
+      proyecto, no info para la clienta).
+      (5) **Emojis a íconos SVG**: carrito, calendario, comparar, WhatsApp y
+      check ahora usan el mismo set de líneas del resto del sitio, en vez de
+      emojis que cambian de forma según el teléfono.
+      (6) **Sin destacado arbitrario**: el primer producto ocupaba doble ancho
+      solo por salir primero, no por ser un destacado real.
+
 ### ⬜ Pendiente de esta tanda
 - [ ] **Enlaces de las publicaciones de @carseatclinicc**: pegar de 3 a 6 en
       `js/data.js` → `INSTAGRAM.publicaciones` para que la sección muestre el
@@ -84,7 +109,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 ## ✅ HECHO
 
 **Tienda**
-- [x] Tarjetas de producto premium: primera tarjeta destacada, miniaturas visibles, contador de fotos, respaldo visual y animaciones.
+- [x] Tarjetas de producto: miniaturas visibles, contador de fotos, respaldo visual y animaciones. (El "destacado" de doble ancho se quitó: dependía del orden, no de una decisión real.)
 - [x] Catálogo desde Supabase (29 productos del inventario real: nombre, marca, stock, categoría, descripción, características).
 - [x] Fotos reales alojadas en el repo (`assets/productos/`, rutas relativas) + galerías por producto.
 - [x] Categorías: recién nacidos, convertibles, 360°, combinadas, booster, accesorios, limpieza, gift cards.

@@ -74,6 +74,13 @@
     key: '<circle cx="8" cy="14" r="3.6"/><path d="M10.6 11.4L19 3"/><path d="M16.5 5.5l2 2"/><path d="M14 8l2 2"/>',
     home: '<path d="M4 11l8-6 8 6"/><path d="M6 10.5V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-8.5"/><path d="M10 20v-5h4v5"/>',
     heart: '<path d="M12 20s-7-4.3-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.7-7 9-7 9z"/>',
+    calendar: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+    compare: '<path d="M4 9h12l-3-3"/><path d="M20 15H8l3 3"/>',
+    check: '<path d="M20 6.5 9.5 17 4 11.5"/>',
+    cart: '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.8l2.4 11.2a1.6 1.6 0 0 0 1.6 1.3h8a1.6 1.6 0 0 0 1.6-1.3L20.5 7H6"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+    child: '<circle cx="12" cy="7" r="3.2"/><path d="M6.5 20v-3a5.5 5.5 0 0 1 11 0v3"/>',
+    tool: '<path d="M15.5 7a3.5 3.5 0 0 0-4.6 4.3l-5.6 5.6a1.6 1.6 0 0 0 2.3 2.3l5.6-5.6A3.5 3.5 0 0 0 17 9.5l-2.2 2.2-2.5-2.5L14.5 7z"/>',
   };
   function icon(name) {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ICONS.shield}</svg>`;
@@ -183,12 +190,11 @@
   function cartHasUnpriced() { return cartList().some(({ p }) => !isPriced(p)); }
 
   /* ---------- Render: productos ---------- */
-  function renderProducts(list, selector = "#productGrid", destacar = true) {
+  function renderProducts(list, selector = "#productGrid") {
     const grid = $(selector);
     if (!grid) return;
     if (!list || !list.length) { grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay productos con esos filtros.</p>`; return; }
-    grid.innerHTML = list.map((p, i) => {
-      const index = destacar ? i : -1;
+    grid.innerHTML = list.map((p) => {
       const agotado = p.stock <= 0;
       const sinPrecio = !isPriced(p);
       const canBuy = !agotado;
@@ -201,12 +207,12 @@
       else if (sinPrecio) stockTag = `<span class="card__stock card__stock--consult">Asesoría y cotización</span>`;
       else if (p.stock <= 5) stockTag = `<span class="card__stock card__stock--low">¡Solo quedan ${p.stock}!</span>`;
       else stockTag = `<span class="card__stock card__stock--ok">Disponible</span>`;
-      return `<article class="card ${index === 0 ? "card--featured" : ""} ${agotado ? "card--out" : ""}">
+      return `<article class="card ${agotado ? "card--out" : ""}">
         <div class="card__media" data-detail="${p.id}">
           <span class="card__shine" aria-hidden="true"></span>
           ${media(p)}
           <span class="card__peek">Ver detalles</span>
-          <span class="card__imageCount">${imgs.length > 1 ? `${imgs.length} fotos` : "Foto principal"}</span>
+          ${imgs.length > 1 ? `<span class="card__imageCount">${imgs.length} fotos</span>` : ""}
           ${p.badge ? `<span class="card__badge">${p.badge}</span>` : ""}
           ${(p.antes && p.precio > 0 && p.antes > p.precio) ? `<span class="card__off">-${Math.round((1 - p.precio / p.antes) * 100)}%</span>` : ""}
           ${productThumbs(p)}
@@ -219,11 +225,7 @@
           <h3 class="card__title" data-detail="${p.id}">${p.nombre}</h3>
           ${p.recomendado ? `<span class="card__fit">${esc(p.recomendado)}</span>` : ""}
           ${desc ? `<p class="card__desc">${esc(desc)}</p>` : ""}
-          <div class="card__promise">
-            <span>Compatibilidad guiada</span>
-            ${imgs.length > 1 ? `<span>Galería disponible</span>` : `<span>Foto editable</span>`}
-          </div>
-          <div class="card__status">${stockTag}${rentable ? `<span class="card__rent">📅 También en alquiler</span>` : ""}${SEAT_CATS.includes(p.categoria) ? `<button class="card__cmp" type="button" data-compare="${p.id}" aria-label="Comparar ${esc(p.nombre)}">⇄ Comparar</button>` : ""}</div>
+          <div class="card__status">${stockTag}${rentable ? `<span class="card__rent">${icon("calendar")}También en alquiler</span>` : ""}${SEAT_CATS.includes(p.categoria) ? `<button class="card__cmp" type="button" data-compare="${p.id}" aria-label="Comparar ${esc(p.nombre)}">${icon("compare")}Comparar</button>` : ""}</div>
           <div class="card__foot">
             <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
             ${canBuy
@@ -263,7 +265,7 @@
     $$("[data-compare]").forEach((btn) => {
       const on = compareIds.includes(btn.getAttribute("data-compare"));
       btn.classList.toggle("is-on", on);
-      btn.textContent = on ? "✓ Comparando" : "⇄ Comparar";
+      btn.innerHTML = on ? `${icon("check")}Comparando` : `${icon("compare")}Comparar`;
     });
     const bar = $("#compareBar");
     if (!bar) return;
@@ -336,7 +338,7 @@
     ensureCompareModal();
     $("#compareBody").innerHTML = `
       <div class="cmp__scroll"><table class="cmp__table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
-      <a class="btn btn--whatsapp btn--block" href="${wa}" target="_blank" rel="noopener">💬 Pedir asesoría con esta comparación</a>`;
+      <a class="btn btn--whatsapp btn--block" href="${wa}" target="_blank" rel="noopener">${icon("chat")}Pedir asesoría con esta comparación</a>`;
     $("#compareModal").classList.add("is-open");
   }
 
@@ -540,7 +542,7 @@
         <div class="detail__crumb">Inicio / ${CAT_LABEL[p.categoria] || "Productos"}</div>
         ${p.marca ? `<span class="detail__brand">${p.marca}</span>` : ""}
         <h3>${p.nombre}</h3>
-        ${p.recomendado ? `<p class="card__fit">👶 ${p.recomendado}</p>` : ""}
+        ${p.recomendado ? `<p class="card__fit">${esc(p.recomendado)}</p>` : ""}
         <div class="detail__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
         <p class="detail__desc">${p.descripcion || ""}</p>
         ${feats}
@@ -548,10 +550,10 @@
           ? `<button class="btn btn--primary btn--block" disabled>Agotado</button>`
           : `<div class="detail__buy">
               <div class="detail__qty"><button data-detqty="-1" aria-label="Menos">−</button><span id="detQty">1</span><button data-detqty="1" aria-label="Más">+</button></div>
-              <button class="btn btn--primary detail__addbtn" id="detailAdd">${sinPrecio ? "🛒 Agregar a mi cotización" : "🛒 Agregar al carrito"}</button>
+              <button class="btn btn--primary detail__addbtn" id="detailAdd">${icon("cart")}${sinPrecio ? "Agregar a mi cotización" : "Agregar al carrito"}</button>
             </div>
-            ${rentable ? `<button class="btn btn--ghost btn--block detail__rentbtn" id="detailRent">📅 Alquilar esta silla por fechas</button>` : ""}
-            <p class="detail__hint">${sinPrecio ? "🔧 Incluye opción de instalación profesional. Te confirmamos precio y disponibilidad por WhatsApp." : "🔧 Puedes agregar instalación profesional al finalizar la compra."}</p>`}
+            ${rentable ? `<button class="btn btn--ghost btn--block detail__rentbtn" id="detailRent">${icon("calendar")}Alquilar esta silla por fechas</button>` : ""}
+            <p class="detail__hint">${sinPrecio ? "Incluye opción de instalación profesional. Te confirmamos precio y disponibilidad por WhatsApp." : "Puedes agregar instalación profesional al finalizar la compra."}</p>`}
       </div>`;
     $("#detailModal").classList.add("is-open");
   }
@@ -594,7 +596,7 @@
     if (pc) {
       const on = !!(CONFIG.pago && CONFIG.pago.activo) && !cotizacion;
       pc.style.display = on ? "block" : "none";
-      if (on) pc.textContent = "💳 " + (CONFIG.pago.etiqueta || "Pagar con tarjeta");
+      if (on) pc.textContent = CONFIG.pago.etiqueta || "Pagar con tarjeta";
     }
   }
   function closeCheckout() { $("#checkoutModal")?.classList.remove("is-open"); }
@@ -691,7 +693,7 @@
     }
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text)}`, "_blank");
     clearCartAfterOrder();
-    toast(cotizacion ? "¡Listo! Te abrimos WhatsApp con tu cotización 💬" : "¡Pedido enviado! Te escribimos por WhatsApp 💬");
+    toast(cotizacion ? "¡Listo! Te abrimos WhatsApp con tu cotización" : "¡Pedido enviado! Te escribimos por WhatsApp");
   }
 
   function clearCartAfterOrder() {
@@ -726,7 +728,7 @@
         const form = $("#checkoutForm");
         await registerOrder(form);
         clearCartAfterOrder();
-        toast("¡Pago recibido! Gracias por tu compra 🎉");
+        toast("¡Pago recibido! Gracias por tu compra");
       },
     }).render("#paypal-container");
   }
@@ -967,7 +969,7 @@
       if (modelo) modelo.value = p.nombre;
     }
     document.getElementById("citas")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    toast("Elige las fechas en el calendario de alquiler 📅");
+    toast("Elige las fechas en el calendario de alquiler");
   }
 
   /* ---------- Reserva tu cita ---------- */
@@ -978,7 +980,7 @@
     msg += `Servicio: ${d.servicio}%0AFecha: ${d.fecha}%0AHora: ${d.hora}%0ANombre: ${d.nombre}%0ATeléfono: ${d.telefono}`;
     if (d.comentarios) msg += `%0AComentarios: ${d.comentarios}`;
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, "_blank");
-    toast("¡Listo! Te confirmamos la cita por WhatsApp 📅");
+    toast("¡Listo! Te confirmamos la cita por WhatsApp");
   }
 
   /* ---------- Newsletter / Afiliación ---------- */
@@ -1255,7 +1257,7 @@
     const box = $("#citaSummary");
     if (box) {
       box.classList.add("cita-summary--ok");
-      box.innerHTML = `✅ <strong>¡Recibimos tu solicitud, ${esc((d.nombre || "").split(" ")[0] || "gracias")}!</strong> La guardamos y te confirmamos por WhatsApp lo antes posible. Si no se abrió WhatsApp, usa el botón verde de abajo.`;
+      box.innerHTML = `${icon("check")}<span><strong>¡Recibimos tu solicitud, ${esc((d.nombre || "").split(" ")[0] || "gracias")}!</strong> La guardamos y te confirmamos por WhatsApp lo antes posible. Si no se abrió WhatsApp, usa el botón verde de abajo.</span>`;
     }
   }
 
@@ -1263,21 +1265,64 @@
     const d = Object.fromEntries(new FormData(form).entries());
     if (DB.ready) { try { await DB.subscribe({ name: d.nombre || null, email: d.email, source: origen }); } catch (e) {} }
     form.reset();
-    toast("¡Gracias por suscribirte! 💌");
+    toast("¡Gracias por suscribirte!");
   }
 
   function closePopup() { if ($("#newsletterPopup")) $("#newsletterPopup").hidden = true; try { sessionStorage.setItem("csc_np", "1"); } catch (e) {} }
+
+  /* El pop-up del boletín aparece cuando la persona YA mostró interés (bajó
+     más de media página), no a los pocos segundos de entrar. En el teléfono
+     eso importa mucho: antes salía a los 16 segundos y tapaba los botones del
+     hero o el contacto justo cuando los estaban leyendo. */
   function maybeShowPopup() {
+    const popup = $("#newsletterPopup");
+    if (!popup) return;
     try { if (sessionStorage.getItem("csc_np") === "1") return; } catch (e) {}
-    const tryShow = () => {
-      try { if (sessionStorage.getItem("csc_np") === "1") return; } catch (e) {}
-      // No mostrar si hay una ventana abierta (ficha, checkout, login, chat…)
-      const modalOpen = !!document.querySelector(".modal.is-open") || !!document.querySelector(".cart.is-open");
-      const chatOpen = $("#chatPanel") && !$("#chatPanel").hidden;
-      if (modalOpen || chatOpen) { setTimeout(tryShow, 6000); return; }
-      if ($("#newsletterPopup")) $("#newsletterPopup").hidden = false;
+
+    let mostrado = false;
+    // Nunca interrumpimos a quien está en medio de algo: una ficha abierta,
+    // el carrito, el chat, o comparando sillas (ahí está decidiendo la compra).
+    const ocupado = () => (
+      !!document.querySelector(".modal.is-open") ||
+      !!document.querySelector(".cart.is-open") ||
+      ($("#chatPanel") && !$("#chatPanel").hidden) ||
+      ($("#compareBar") && !$("#compareBar").hidden)
+    );
+
+    // Si el formulario del pie ya está en pantalla, el pop-up sobra: estaría
+    // ofreciendo lo mismo justo encima de donde ya pueden suscribirse.
+    const enElPie = () => {
+      const form = $("#newsletterForm");
+      if (!form) return false;
+      const r = form.getBoundingClientRect();
+      return r.top < window.innerHeight && r.bottom > 0;
     };
-    setTimeout(tryShow, 16000);
+
+    const mostrar = () => {
+      if (mostrado) return;
+      try { if (sessionStorage.getItem("csc_np") === "1") { limpiar(); return; } } catch (e) {}
+      // Si hay una ventana abierta (ficha, carrito, login o chat), esperamos.
+      if (ocupado() || enElPie()) return;
+      mostrado = true;
+      popup.hidden = false;
+      limpiar();
+    };
+
+    const alDesplazar = () => {
+      const alto = document.documentElement.scrollHeight - window.innerHeight;
+      if (alto > 0 && window.scrollY / alto > 0.5) mostrar();
+      // Ya visible pero llegaron al pie: se retira para no duplicar la oferta.
+      if (mostrado && !popup.hidden && enElPie()) popup.hidden = true;
+    };
+    function limpiar() {
+      // Se sigue escuchando mientras el pop-up esté visible, para poder
+      // retirarlo si la persona baja hasta el formulario del pie.
+      if (!mostrado || popup.hidden) window.removeEventListener("scroll", alDesplazar);
+    }
+
+    window.addEventListener("scroll", alDesplazar, { passive: true });
+    // Respaldo: si se queda leyendo arriba sin bajar, se ofrece más tarde.
+    setTimeout(mostrar, 45000);
   }
 
   /* ---------- Cargar productos ---------- */
@@ -1288,7 +1333,7 @@
     const base = conFoto.length ? conFoto : products.filter((p) => p.stock > 0);
     const sillas = base.filter((p) => SEAT_CATS.includes(p.categoria));
     const lista = (sillas.length >= 4 ? sillas : base).slice(0, 4);
-    renderProducts(lista, "#featuredGrid", false);
+    renderProducts(lista, "#featuredGrid");
   }
 
   async function loadProducts() {
