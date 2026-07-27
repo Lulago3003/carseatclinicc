@@ -208,34 +208,67 @@ const DB = (function () {
       const { data, error } = await client.from("crm_leads").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       const remoteRows = (data || []).map(normalizeLead);
+      /* Si una actualización no llegó al servidor (por falta de señal o
+         permisos), conservamos la copia más reciente de este navegador.
+         Antes la fila remota ocultaba esa copia local al recargar y parecía
+         que el cambio se había guardado cuando en realidad se perdía. */
+      const localById = new Map(localRows.map((row) => [row.id, row]));
+      const merged = remoteRows.map((remote) => {
+        const local = localById.get(remote.id);
+        const localTime = new Date(local?.updated_at || 0).getTime();
+        const remoteTime = new Date(remote.updated_at || 0).getTime();
+        return local && localTime > remoteTime ? local : remote;
+      });
       const seen = new Set(remoteRows.map((row) => row.id));
-      return remoteRows.concat(localRows.filter((row) => !seen.has(row.id)));
+      return merged.concat(localRows.filter((row) => !seen.has(row.id)));
     } catch (e) {
+      avisarCrmCaido(e);
       return localRows;
     }
   }
 
-  async function updateLeadStatus(id, status) {
-    return updateLead(id, { status });
+  async function updateLeadStatus(id, status, currentLead) {
+    return updateLead(id, { status }, currentLead);
   }
 
-  // Actualiza campos de una solicitud (estado, notas/seguimiento en details, etc.)
-  async function updateLead(id, patch) {
+  // Actualiza campos de una solicitud (estado, notas/seguimiento en details, etc.).
+  // Siempre deja una copia local de respaldo y devuelve si Supabase confirmó
+  // el cambio para que el CRM no prometa algo que el servidor rechazó.
+  async function updateLead(id, patch, currentLead) {
     const rows = readLocalLeads();
-    const item = rows.find((row) => row.id === id);
+    let item = rows.find((row) => row.id === id);
+    if (!item && currentLead) {
+      item = normalizeLead(currentLead);
+      rows.unshift(item);
+    }
+    let savedLocally = false;
     if (item) {
       if (patch.status !== undefined) item.status = patch.status;
       if (patch.details !== undefined) item.details = patch.details;
       if (patch.priority !== undefined) item.priority = patch.priority;
       item.updated_at = new Date().toISOString();
       writeLocalLeads(rows);
+      savedLocally = true;
     }
+    const usesRemote = ready && CONFIG.crm?.guardarSolicitudes;
+    if (!usesRemote) return { savedLocally, savedToServer: false, offline: true };
+
+    const row = { updated_at: new Date().toISOString() };
+    if (patch.status !== undefined) row.estado = patch.status;
+    if (patch.details !== undefined) row.detalles = patch.details;
+    if (patch.priority !== undefined) row.prioridad = patch.priority;
     if (ready && CONFIG.crm?.guardarSolicitudes) {
-      const row = { updated_at: new Date().toISOString() };
-      if (patch.status !== undefined) row.estado = patch.status;
-      if (patch.details !== undefined) row.detalles = patch.details;
-      if (patch.priority !== undefined) row.prioridad = patch.priority;
-      try { await client.from("crm_leads").update(row).eq("id", id); } catch (e) {}
+      try {
+        const { error } = await client.from("crm_leads").update(row).eq("id", id);
+        if (error) {
+          avisarCrmCaido(error);
+          return { savedLocally, savedToServer: false, error };
+        }
+        return { savedLocally, savedToServer: true };
+      } catch (error) {
+        avisarCrmCaido(error);
+        return { savedLocally, savedToServer: false, error };
+      }
     }
   }
 

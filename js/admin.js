@@ -26,6 +26,17 @@
   ];
   const catLabel = (c) => (CATS.find((x) => x[0] === c) || [c, c])[1];
 
+  // Las fechas del CRM son de Panamá. toISOString() usa UTC y desde las 7 p. m.
+  // podía convertir "hoy" en mañana, dejando citas fuera de la agenda.
+  function localDateKey(value = new Date()) {
+    const d = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
   const LEAD_ESTADOS = [
     ["nuevo", "Nuevo"],
     ["contactado", "Contactado"],
@@ -40,7 +51,7 @@
   ];
   const leadStatusLabel = (status) => (LEAD_ESTADOS.find(([value]) => value === status) || LEAD_ESTADOS[0])[1];
   // Embudo de ventas (orden de etapas)
-  const PIPELINE = ["nuevo", "contactado", "cotizado", "ganado", "perdido"];
+  const PIPELINE = ["nuevo", "esperando_reserva", "contactado", "cotizado", "ganado", "perdido"];
   let convGroups = {}; // transcripciones del chat por sesión (para el resumen IA)
 
   let products = [];          // cache para el panel
@@ -118,7 +129,11 @@
 
   /* ---------- Pestañas ---------- */
   function activateTab(name) {
-    $$(".tab").forEach((x) => x.classList.toggle("is-active", x.dataset.tab === name));
+    $$(".tab").forEach((x) => {
+      const active = x.dataset.tab === name;
+      x.classList.toggle("is-active", active);
+      x.setAttribute("aria-selected", String(active));
+    });
     ["dashboard", "productos", "pedidos", "agenda", "conversaciones"].forEach((tab) => {
       const panel = $(`#tab-${tab}`);
       if (panel) panel.hidden = tab !== name;
@@ -137,19 +152,34 @@
     const groups = {};
     rows.forEach((r) => { (groups[r.session_id] = groups[r.session_id] || []).push(r); });
     convGroups = groups;
-    const order = Object.keys(groups).sort((a, b) => new Date(groups[b][0].created_at) - new Date(groups[a][0].created_at));
-    const todayIso = new Date().toISOString().slice(0, 10);
-    setBadge("badge-conversaciones", order.filter((sid) => (groups[sid][0].created_at || "").slice(0, 10) === todayIso).length);
+    const latest = (msgs) => msgs[msgs.length - 1] || {};
+    const order = Object.keys(groups).sort((a, b) => new Date(latest(groups[b]).created_at || 0) - new Date(latest(groups[a]).created_at || 0));
+    const todayIso = localDateKey();
+    setBadge("badge-conversaciones", order.filter((sid) => localDateKey(latest(groups[sid]).created_at) === todayIso).length);
+    let openedNewest = false;
     cont.innerHTML = order.map((sid) => {
       const msgs = groups[sid];
-      const fecha = new Date(msgs[0].created_at).toLocaleString("es-PA");
+      const last = latest(msgs);
+      const fecha = new Date(last.created_at).toLocaleString("es-PA", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+      const clientMessage = [...msgs].reverse().find((m) => m.rol === "user") || last;
+      const excerpt = String(clientMessage.mensaje || "").replace(/\s+/g, " ").trim();
+      const shortExcerpt = excerpt.length > 110 ? `${excerpt.slice(0, 109).trim()}…` : excerpt;
+      const open = !openedNewest;
+      openedNewest = true;
       const body = msgs.map((m) => `<div class="conv__msg conv__msg--${m.rol === "user" ? "user" : "bot"}"><b>${m.rol === "user" ? "Cliente" : "Asistente"}:</b> ${esc(m.mensaje)}</div>`).join("");
-      return `<div class="admin__card" data-conv="${esc(sid)}">
-        <div class="conv__head"><strong>Consulta</strong> · <span class="muted">${fecha}</span>
-          <button class="btn btn--ghost btn--sm" type="button" data-summarize="${esc(sid)}">✨ Resumen IA</button>
+      return `<details class="admin__card conv-card" data-conv="${esc(sid)}" ${open ? "open" : ""}>
+        <summary class="conv__head">
+          <div><strong>Consulta</strong><span class="muted">${esc(fecha)} · ${msgs.length} mensaje${msgs.length === 1 ? "" : "s"}</span></div>
+          ${shortExcerpt ? `<span class="conv__preview">${esc(shortExcerpt)}</span>` : ""}
+        </summary>
+        <div class="conv__body">
+          <div class="conv__actions">
+          <button class="btn btn--ghost btn--sm" type="button" data-summarize="${esc(sid)}">Resumir</button>
+          </div>
+          <div class="conv__summary" hidden></div>
+          ${body}
         </div>
-        <div class="conv__summary" hidden></div>
-        ${body}</div>`;
+      </details>`;
     }).join("");
   }
 
@@ -177,8 +207,11 @@
       const rows = await DB.getConversaciones();
       const groups = {};
       rows.forEach((r) => { (groups[r.session_id] = groups[r.session_id] || []).push(r); });
-      const todayIso = new Date().toISOString().slice(0, 10);
-      const today = Object.keys(groups).filter((sid) => (groups[sid][0].created_at || "").slice(0, 10) === todayIso).length;
+      const todayIso = localDateKey();
+      const today = Object.keys(groups).filter((sid) => {
+        const last = groups[sid][groups[sid].length - 1] || {};
+        return localDateKey(last.created_at) === todayIso;
+      }).length;
       setBadge("badge-conversaciones", today);
     } catch (e) {}
   }
@@ -355,7 +388,7 @@
     if (stats) {
       stats.innerHTML = `
         <article class="dash-card dash-card--primary"><span>Pedidos abiertos</span><b>${openOrders.length}</b><small>${newOrders.length} nuevos por contactar</small></article>
-        <article class="dash-card dash-card--rose"><span>Agenda IA</span><b>${openLeads.length}</b><small>${todayLeads.length} para hoy</small></article>
+        <article class="dash-card dash-card--rose"><span>Solicitudes pendientes</span><b>${openLeads.length}</b><small>${todayLeads.length} para hoy</small></article>
         <article class="dash-card"><span>Productos activos</span><b>${products.filter((p) => p.activo).length}</b><small>${products.length} total en inventario</small></article>
         <article class="dash-card dash-card--warn"><span>Stock bajo</span><b>${low.length}</b><small>${out.length} agotados</small></article>
         <article class="dash-card dash-card--rose"><span>Revisar ficha</span><b>${noPhoto.length + noPrice.length}</b><small>${noPhoto.length} sin foto · ${noPrice.length} sin precio</small></article>`;
@@ -410,32 +443,81 @@
 
   function isLeadToday(lead) {
     if (!lead.date) return false;
-    return lead.date === new Date().toISOString().slice(0, 10);
+    return lead.date === localDateKey();
+  }
+
+  function hasOverdueFollowup(lead) {
+    const followup = (lead.details || {}).seguimiento;
+    return Boolean(followup && followup < localDateKey() && leadIsOpen(lead));
   }
 
   function leadDateLabel(lead) {
-    if (!lead.date) return "Sin fecha";
+    if (!lead.date) return "";
     const date = new Date(`${lead.date}T12:00:00`);
     return date.toLocaleDateString("es-PA", { day: "numeric", month: "short" });
   }
 
   function leadTimeLabel(lead) {
-    return lead.slot ? `${leadDateLabel(lead)} - ${lead.slot}` : leadDateLabel(lead);
+    const date = leadDateLabel(lead);
+    if (!date) return "";
+    return lead.slot ? `${date} · ${lead.slot}` : date;
+  }
+
+  function leadAttentionBucket(lead) {
+    if (!leadIsOpen(lead)) return 4;
+    if (hasOverdueFollowup(lead)) return 0;
+    if (lead.status === "esperando_reserva") return 1;
+    if (isLeadToday(lead)) return 2;
+    return 3;
+  }
+
+  function leadPriorityRank(lead) {
+    return ({ urgente: 0, alta: 1, media: 2, baja: 3 })[lead.priority] ?? 2;
+  }
+
+  // La cola no depende de cómo devolvió Supabase las filas: primero se ven
+  // seguimientos vencidos, reservas pendientes, citas de hoy y luego el resto.
+  function sortLeadsForAttention(a, b) {
+    const bucket = leadAttentionBucket(a) - leadAttentionBucket(b);
+    if (bucket) return bucket;
+    const priority = leadPriorityRank(a) - leadPriorityRank(b);
+    if (priority) return priority;
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  }
+
+  /* Cuándo entró la solicitud, en lenguaje normal: "hace 10 min", "ayer",
+     "26 jul". Antes salía "07/26/2026, 12:14:37 a. m." (formato de EE.UU.,
+     con segundos), que no se lee de un vistazo. */
+  function cuandoLlego(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    const min = Math.round((Date.now() - d.getTime()) / 60000);
+    if (min < 1) return "hace un momento";
+    if (min < 60) return `hace ${min} min`;
+    const hrs = Math.round(min / 60);
+    if (hrs < 24) return `hace ${hrs} h`;
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    const dia = new Date(d); dia.setHours(0, 0, 0, 0);
+    const dias = Math.round((hoy - dia) / 86400000);
+    if (dias === 1) return "ayer";
+    if (dias < 7) return `hace ${dias} días`;
+    return d.toLocaleDateString("es-PA", { day: "numeric", month: "short" });
   }
 
   function renderDashboardLeads() {
     const target = $("#dashboardLeads");
     if (!target) return;
-    const list = serviceLeads.filter(leadIsOpen).slice(0, 6);
+    const list = serviceLeads.filter(leadIsOpen).sort(sortLeadsForAttention).slice(0, 6);
     if (!list.length) {
-      target.innerHTML = `<p class="muted empty-state">Aun no hay citas ni consultas IA pendientes.</p>`;
+      target.innerHTML = `<p class="muted empty-state">Todo al día: no hay solicitudes pendientes.</p>`;
       return;
     }
     target.innerHTML = list.map((lead) => `
       <button class="mini-product" type="button" data-jump-tab="agenda">
         <span>${esc(leadStatusLabel(lead.status))} · ${esc(lead.priority || "media")}</span>
-        <strong>${esc(lead.service || "Consulta IA")}</strong>
-        <small>${esc(lead.name || lead.phone || "Cliente sin datos")} · ${esc(leadTimeLabel(lead))}</small>
+        <strong>${esc(lead.service || "Consulta")}</strong>
+        <small>${esc([lead.name || lead.phone || "Cliente sin datos", leadTimeLabel(lead)].filter(Boolean).join(" · "))}</small>
       </button>`).join("");
   }
 
@@ -478,11 +560,12 @@
         lead.name, lead.phone, lead.service, lead.message, lead.source,
         details.modelo_silla, details.modelo_auto, details.zona,
         details.rental_equipment, details.delivery_location, details.pickup_location, details.rental_child,
+        JSON.stringify(details),
       ].filter(Boolean).join(" ").toLowerCase();
       return (type === "all" || lead.type === type)
         && (status === "all" || (lead.status || "nuevo") === status)
         && (!q || haystack.includes(q));
-    });
+    }).sort(sortLeadsForAttention);
   }
 
   function isRentalLead(lead) {
@@ -505,23 +588,61 @@
     ].filter(Boolean).join("\n");
   }
 
+  /* De dónde vino la solicitud, en palabras normales. En la base se guardan
+     claves técnicas ("carrito-web", "asistente-web") que no dicen nada. */
+  const ORIGENES = {
+    "carrito-web": "Desde el carrito",
+    "calendario-web": "Desde el calendario",
+    "asistente-web": "Desde el asistente",
+    "web": "Desde la web",
+  };
+  const origenLabel = (o) => ORIGENES[o] || o || "Desde la web";
+
+  /* Los datos sueltos de la tarjeta: solo se pintan los que tienen valor.
+     Antes salían siempre y una tarjeta podía tener 6 líneas de
+     "No indicada / Sin notas / No registrado". */
+  function metaHtml(filas) {
+    const items = filas.filter(([, v]) => v).map(([et, v]) =>
+      `<span><i>${esc(et)}</i> ${esc(v)}</span>`).join("");
+    return items ? `<div class="lead-meta">${items}</div>` : "";
+  }
+
+  /* Recuadro de detalle de una solicitud. Lo usan por igual el alquiler y los
+     pedidos del carrito, con sus propias clases (antes el de pedidos reusaba
+     las del alquiler y, al no llevar esa clase la tarjeta, salía todo pegado).
+
+     kpis  = [[valor, etiqueta], ...]  → los 3 datos grandes de arriba
+     filas = [[etiqueta, valor], ...]  → el detalle; las vacías no se pintan  */
+  function leadBoxHtml(kpis, filas, extra = "") {
+    const cajas = kpis.filter(([v]) => v).map(([v, et]) =>
+      `<span class="lead-box__kpi"><b>${esc(v)}</b>${esc(et)}</span>`).join("");
+    const detalle = filas.filter(([, v]) => v).map(([et, v]) =>
+      `<span><i>${esc(et)}</i> ${esc(v)}</span>`).join("");
+    if (!cajas && !detalle && !extra) return "";
+    return `<div class="lead-box">
+      ${cajas ? `<div class="lead-box__kpis">${cajas}</div>` : ""}
+      ${extra}
+      ${detalle ? `<div class="lead-box__grid">${detalle}</div>` : ""}
+    </div>`;
+  }
+
   function rentalCardHtml(lead) {
     if (!isRentalLead(lead)) return "";
-    const details = lead.details || {};
-    const days = details.rental_days || "-";
-    return `<div class="lead-rental__box">
-      <div class="rental-kpi">
-        <span><b>${esc(days)}</b>dias</span>
-        <span><b>${esc(details.rental_equipment || "Equipo")}</b>solicitud</span>
-        <span><b>${esc(details.rental_installation || "No")}</b>instalacion</span>
-      </div>
-      <div class="lead-rental__grid">
-        <span>Entrega: ${esc(details.delivery_location || details.zona || "No indicada")}</span>
-        <span>Devolucion: ${esc(details.rental_end_date || "No indicada")}</span>
-        <span>Recogida: ${esc(details.pickup_location || "No indicada")}</span>
-        <span>Edad/peso: ${esc(details.rental_child || "No indicado")}</span>
-      </div>
-    </div>`;
+    const d = lead.details || {};
+    return leadBoxHtml(
+      [
+        [d.rental_days ? `${d.rental_days} días` : "", "de alquiler"],
+        [d.rental_equipment, "equipo"],
+        [d.rental_installation === "Si" || d.rental_installation === "Sí" ? "Sí" : "", "necesita instalación"],
+      ],
+      [
+        ["Entrega en", d.delivery_location || d.zona],
+        ["Devolución", d.rental_end_date],
+        ["Recogida en", d.pickup_location],
+        ["Hora de recogida", d.pickup_time],
+        ["Edad y peso", d.rental_child],
+      ]
+    );
   }
 
   // ¿Es un pedido o cotización que vino del carrito de la tienda?
@@ -535,21 +656,22 @@
     const d = lead.details || {};
     const productos = Array.isArray(d.productos) ? d.productos : [];
     if (!productos.length) return "";
-    const filas = productos.map((p) => `<li>${esc(p.cantidad)}x ${esc(p.nombre)}${p.precio ? ` — ${CONFIG.moneda}${esc(p.precio)}` : " — por cotizar"}</li>`).join("");
-    return `<div class="lead-rental__box">
-      <div class="rental-kpi">
-        <span><b>${productos.length}</b>producto${productos.length === 1 ? "" : "s"}</span>
-        <span><b>${esc(d.total || "-")}</b>total</span>
-        <span><b>${esc(d.instalacion || "No")}</b>instalacion</span>
-      </div>
-      <ul class="lead-cart__list">${filas}</ul>
-      <div class="lead-rental__grid">
-        <span>Entrega: ${esc(d.entrega || "No indicada")}</span>
-        <span>Direccion: ${esc(d.direccion || "No indicada")}</span>
-        <span>Correo: ${esc(d.email || "No indicado")}</span>
-        <span>Notas: ${esc(d.notas || "Sin notas")}</span>
-      </div>
-    </div>`;
+    const filas = productos.map((p) =>
+      `<li><b>${esc(p.cantidad)}x</b> ${esc(p.nombre)}<span>${p.precio ? `${CONFIG.moneda}${esc(p.precio)}` : "por cotizar"}</span></li>`).join("");
+    return leadBoxHtml(
+      [
+        [`${productos.length}`, productos.length === 1 ? "producto" : "productos"],
+        [d.total, "total"],
+        [d.instalacion === "Sí" ? "Sí" : "", "quiere instalación"],
+      ],
+      [
+        ["Entrega", d.entrega],
+        ["Dirección", d.direccion],
+        ["Correo", d.email],
+        ["Notas", d.notas],
+      ],
+      `<ul class="lead-box__items">${filas}</ul>`
+    );
   }
 
   function cartSummary(lead) {
@@ -617,10 +739,10 @@
     const target = $("#leadStats");
     if (!target) return;
     const now = new Date();
-    const todayIso = now.toISOString().slice(0, 10);
+    const todayIso = localDateKey(now);
     const weekAgo = new Date(now.getTime() - 6 * 86400000);
     const total = serviceLeads.length;
-    const hoy = serviceLeads.filter((l) => (l.created_at || "").slice(0, 10) === todayIso).length;
+    const hoy = serviceLeads.filter((l) => localDateKey(l.created_at) === todayIso).length;
     const semana = serviceLeads.filter((l) => new Date(l.created_at) >= weekAgo).length;
     const citas = serviceLeads.filter((l) => l.date).length;
     const ganados = serviceLeads.filter((l) => l.status === "ganado").length;
@@ -630,8 +752,8 @@
     const days = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now.getTime() - i * 86400000);
-      const iso = d.toISOString().slice(0, 10);
-      const n = serviceLeads.filter((l) => (l.created_at || "").slice(0, 10) === iso).length;
+      const iso = localDateKey(d);
+      const n = serviceLeads.filter((l) => localDateKey(l.created_at) === iso).length;
       days.push({ label: d.toLocaleDateString("es-PA", { weekday: "short" }), n });
     }
     const maxN = Math.max(1, ...days.map((d) => d.n));
@@ -664,7 +786,7 @@
     if (n > 0) { el.textContent = n; el.hidden = false; } else { el.hidden = true; }
   }
   function updateBadges() {
-    setBadge("badge-agenda", serviceLeads.filter((l) => (l.status || "nuevo") === "nuevo").length);
+    setBadge("badge-agenda", serviceLeads.filter((l) => ["nuevo", "esperando_reserva"].includes(l.status || "nuevo")).length);
     setBadge("badge-pedidos", orders.filter((o) => (o.status || "nuevo") === "nuevo").length);
   }
 
@@ -680,18 +802,24 @@
   }
   function exportLeadsCSV() {
     if (!serviceLeads.length) { toast("No hay consultas para exportar"); return; }
-    const header = ["Creado", "Estado", "Prioridad", "Tipo", "Servicio", "Nombre", "Telefono", "Fecha", "Hora", "Mensaje", "Nota", "Seguimiento"];
-    const rows = serviceLeads.map((l) => {
+    const header = ["Creado", "Estado", "Prioridad", "Tipo", "Servicio", "Nombre", "Telefono", "Fecha", "Hora", "Mensaje", "Nota del cliente", "Nota interna", "Seguimiento"];
+    const rows = getFilteredLeads().map((l) => {
       const d = l.details || {};
       return [
         new Date(l.created_at).toLocaleString("es-PA"),
         leadStatusLabel(l.status), l.priority || "", l.type || "", l.service || "",
         l.name || "", l.phone || "", l.date || "", l.slot || "",
-        (l.message || "").replace(/\s+/g, " "), d.notas || "", d.seguimiento || "",
+        (l.message || "").replace(/\s+/g, " "), d.notas || "", d.nota_interna || "", d.seguimiento || "",
       ];
     });
     downloadCSV("consultas-crm.csv", [header, ...rows]);
     toast("Archivo descargado");
+  }
+
+  // El calendario muestra reservas reales, no pedidos ni cotizaciones que
+  // llegaron hoy. Así no se confunde una venta con una cita por atender.
+  function isScheduledLead(lead) {
+    return Boolean(lead.date) && !isCartLead(lead) && ["cita", "alquiler", "cita-sugerida"].includes(lead.type);
   }
 
   function renderScheduleBoard() {
@@ -700,9 +828,9 @@
     const days = Array.from({ length: 4 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() + i);
-      const iso = date.toISOString().slice(0, 10);
+      const iso = localDateKey(date);
       const leads = serviceLeads
-        .filter((lead) => lead.date === iso && leadIsOpen(lead))
+        .filter((lead) => lead.date === iso && leadIsOpen(lead) && isScheduledLead(lead))
         .sort((a, b) => String(a.slot || "").localeCompare(String(b.slot || "")));
       return { date, iso, leads };
     });
@@ -730,64 +858,88 @@
       target.innerHTML = `<p class="muted empty-state">No hay solicitudes con estos filtros.</p>`;
       return;
     }
+    let openedFirstOpenLead = false;
     target.innerHTML = list.map((lead) => {
       const details = lead.details || {};
       const rental = isRentalLead(lead);
       const wa = leadWhatsappUrl(lead);
-      const opts = LEAD_ESTADOS.map(([value, label]) => `<option value="${value}" ${lead.status === value ? "selected" : ""}>${label}</option>`).join("");
-      const notas = esc(details.notas || "");
+      const currentStatus = lead.status || "nuevo";
+      const opts = LEAD_ESTADOS.map(([value, label]) => `<option value="${value}" ${currentStatus === value ? "selected" : ""}>${label}</option>`).join("");
+      const notas = esc(details.nota_interna || "");
       const seg = esc(details.seguimiento || "");
-      const overdue = details.seguimiento && details.seguimiento < new Date().toISOString().slice(0, 10) && leadIsOpen(lead);
-      const idx = PIPELINE.indexOf(lead.status || "nuevo");
+      const overdue = hasOverdueFollowup(lead);
+      const idx = PIPELINE.indexOf(currentStatus);
       const next = idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : null;
-      return `<div class="lead-card ${rental ? "lead-rental" : ""} ${overdue ? "is-overdue" : ""}" data-lead="${esc(lead.id)}">
-        <div class="lead-card__top">
+      /* Cada solicitud va plegada: se ve el encabezado (quién, qué, cuándo y
+         en qué estado) y el detalle se abre al tocarla. Antes todas estaban
+         abiertas y con 5 solicitudes la página ya medía casi 4.000px, así que
+         encontrar una era imposible. Solo abrimos la primera pendiente y las
+         que ya tienen seguimiento vencido. */
+      const abrir = overdue || (leadIsOpen(lead) && !openedFirstOpenLead);
+      if (leadIsOpen(lead) && !openedFirstOpenLead) openedFirstOpenLead = true;
+      return `<details class="lead-card ${rental ? "lead-rental" : ""} ${overdue ? "is-overdue" : ""}" data-lead="${esc(lead.id)}" ${abrir ? "open" : ""}>
+        <summary class="lead-card__top">
           <div>
             <span class="lead-priority lead-priority--${esc(lead.priority || "media")}">${esc(lead.priority || "media")}</span>
-            <span class="lead-status lead-status--${esc(lead.status || "nuevo")}">${esc(leadStatusLabel(lead.status))}</span>
+            <span class="lead-status lead-status--${esc(currentStatus)}">${esc(leadStatusLabel(currentStatus))}</span>
             ${rental ? '<span class="lead-rental__badge">Alquiler</span>' : ""}
             ${overdue ? '<span class="lead-overdue">Seguimiento vencido</span>' : ""}
             <strong>${esc(lead.name || lead.phone || "Cliente pendiente")}</strong>
-            <small>${esc(lead.service || "Consulta IA")} · ${esc(leadTimeLabel(lead))}</small>
+            <small>${esc([lead.service || "Consulta", leadTimeLabel(lead)].filter(Boolean).join(" · "))}</small>
           </div>
-          <small>${esc(lead.source || "web")}</small>
+          <small>${esc([origenLabel(lead.source), cuandoLlego(lead.created_at)].filter(Boolean).join(" · "))}</small>
+        </summary>
+        <div class="lead-card__body">
+          ${metaHtml([
+            ["Teléfono", lead.phone],
+            ["Silla", details.modelo_silla],
+            ["Auto", details.modelo_auto],
+            ["Zona", details.zona],
+          ])}
+          ${rentalCardHtml(lead)}
+          ${cartCardHtml(lead)}
+          ${lead.message ? `<p class="lead-message">${esc(lead.message)}</p>` : ""}
+          <div class="lead-followup">
+            <label>Nota interna <input type="text" data-lead-note value="${notas}" placeholder="Ej: le interesa la Joie 360, recontactar" /></label>
+            <label>Seguir el <input type="date" data-lead-followup value="${seg}" /></label>
+            <button class="btn btn--ghost btn--sm" type="button" data-save-note="${esc(lead.id)}">Guardar nota</button>
+          </div>
+          <div class="admin__card-actions">
+            <label class="inline">Estado <select data-lead-status>${opts}</select></label>
+            ${next ? `<button class="btn btn--primary btn--sm" type="button" data-advance="${esc(lead.id)}">Avanzar a ${leadStatusLabel(next)} →</button>` : ""}
+            ${wa ? `<a class="btn btn--whatsapp btn--sm lead-whatsapp" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
+            <button class="btn btn--ghost btn--sm" type="button" data-copy-lead="${esc(lead.id)}">Copiar resumen</button>
+          </div>
         </div>
-        <div class="lead-meta">
-          <span>Telefono: ${esc(lead.phone || "No registrado")}</span>
-          <span>Tipo: ${esc(lead.type || "consulta")}</span>
-          <span>Silla: ${esc(details.modelo_silla || "No indicada")}</span>
-          <span>Auto: ${esc(details.modelo_auto || "No indicado")}</span>
-          <span>Zona: ${esc(details.zona || "No indicada")}</span>
-          <span>Creado: ${esc(new Date(lead.created_at).toLocaleString("es-PA"))}</span>
-        </div>
-        ${rentalCardHtml(lead)}
-        ${cartCardHtml(lead)}
-        ${lead.message ? `<p class="lead-message">${esc(lead.message)}</p>` : ""}
-        <div class="lead-followup">
-          <label>Nota interna <input type="text" data-lead-note value="${notas}" placeholder="Ej: le interesa la Joie 360, recontactar" /></label>
-          <label>Seguir el <input type="date" data-lead-followup value="${seg}" /></label>
-          <button class="btn btn--ghost btn--sm" type="button" data-save-note="${esc(lead.id)}">Guardar nota</button>
-        </div>
-        <div class="admin__card-actions">
-          <label class="inline">Estado <select data-lead-status>${opts}</select></label>
-          ${next ? `<button class="btn btn--primary btn--sm" type="button" data-advance="${esc(lead.id)}">Avanzar a ${leadStatusLabel(next)} →</button>` : ""}
-          ${wa ? `<a class="btn btn--whatsapp btn--sm lead-whatsapp" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ""}
-          <button class="btn btn--ghost btn--sm" type="button" data-copy-lead="${esc(lead.id)}">Copiar resumen</button>
-        </div>
-      </div>`;
+      </details>`;
     }).join("");
+  }
+
+  function leadSaveToast(result, successMessage) {
+    if (result?.savedToServer) { toast(successMessage); return; }
+    if (result?.savedLocally) {
+      toast("Guardado solo en este navegador. Revisa la conexión del CRM.");
+      return;
+    }
+    toast("No se pudo guardar el cambio. Inténtalo de nuevo.");
   }
 
   $("#leadList")?.addEventListener("change", async (e) => {
     if (!e.target.matches("[data-lead-status]")) return;
     const card = e.target.closest("[data-lead]");
     const lead = serviceLeads.find((item) => item.id === card.dataset.lead);
-    if (lead) lead.status = e.target.value;
-    await DB.updateLeadStatus(card.dataset.lead, e.target.value);
-    renderLeadList();
-    renderScheduleBoard();
-    renderDashboard();
-    toast("Solicitud actualizada");
+    if (!lead) return;
+    const previous = lead.status;
+    lead.status = e.target.value;
+    try {
+      const result = await DB.updateLead(lead.id, { status: lead.status }, lead);
+      renderPipeline(); renderLeadStats(); renderLeadList(); renderScheduleBoard(); renderDashboard();
+      leadSaveToast(result, "Solicitud actualizada");
+    } catch (err) {
+      lead.status = previous;
+      renderLeadList();
+      toast("No se pudo actualizar la solicitud.");
+    }
   });
 
   $("#leadList")?.addEventListener("click", async (e) => {
@@ -806,14 +958,21 @@
       const lead = serviceLeads.find((item) => item.id === save.getAttribute("data-save-note"));
       if (!lead || !card) return;
       const details = { ...(lead.details || {}) };
-      details.notas = card.querySelector("[data-lead-note]").value.trim();
+      // Las instrucciones del cliente se guardan en details.notas. La nota del
+      // equipo interno va aparte para que una nunca borre a la otra.
+      details.nota_interna = card.querySelector("[data-lead-note]").value.trim();
       details.seguimiento = card.querySelector("[data-lead-followup]").value || "";
       lead.details = details;
       save.disabled = true; save.textContent = "Guardando…";
-      await DB.updateLead(lead.id, { details });
-      save.disabled = false; save.textContent = "Guardar nota";
-      renderLeadList();
-      toast("Nota guardada");
+      try {
+        const result = await DB.updateLead(lead.id, { details }, lead);
+        renderLeadList(); renderDashboard();
+        leadSaveToast(result, "Nota guardada");
+      } catch (err) {
+        toast("No se pudo guardar la nota.");
+      } finally {
+        save.disabled = false; save.textContent = "Guardar nota";
+      }
       return;
     }
     // Avanzar de etapa en el embudo
@@ -824,10 +983,17 @@
       const idx = PIPELINE.indexOf(lead.status || "nuevo");
       const next = idx >= 0 && idx < PIPELINE.length - 1 ? PIPELINE[idx + 1] : null;
       if (!next) return;
+      const previous = lead.status;
       lead.status = next;
-      await DB.updateLeadStatus(lead.id, next);
-      renderPipeline(); renderLeadStats(); renderLeadList(); renderScheduleBoard(); renderDashboard();
-      toast("Movido a " + leadStatusLabel(next));
+      try {
+        const result = await DB.updateLead(lead.id, { status: next }, lead);
+        renderPipeline(); renderLeadStats(); renderLeadList(); renderScheduleBoard(); renderDashboard();
+        leadSaveToast(result, "Movido a " + leadStatusLabel(next));
+      } catch (err) {
+        lead.status = previous;
+        renderLeadList();
+        toast("No se pudo mover la solicitud.");
+      }
     }
   });
 
@@ -848,6 +1014,13 @@
     const el = $(`#${id}`);
     if (el) el.addEventListener("input", () => { renderLeadList(); renderPipeline(); });
     if (el) el.addEventListener("change", () => { renderLeadList(); renderPipeline(); });
+  });
+  $("#clearLeadFilters")?.addEventListener("click", () => {
+    $("#leadSearch").value = "";
+    $("#leadTypeFilter").value = "all";
+    $("#leadStatusFilter").value = "all";
+    renderPipeline();
+    renderLeadList();
   });
 
   function openEditor(p) {
@@ -1004,7 +1177,17 @@
   }
 
   async function renderOrders() {
-    try { orders = await DB.getMyOrders(); } catch (e) { return; }
+    try { orders = await DB.getMyOrders(); }
+    catch (e) {
+      orders = [];
+      ordersCount = 0;
+      const count = $("#ordersCount");
+      const list = $("#ordersList");
+      if (count) count.textContent = "No se pudieron cargar los pedidos.";
+      if (list) list.innerHTML = `<p class="muted empty-state">No pudimos cargar los pedidos. Revisa tu conexión e inténtalo de nuevo.</p>`;
+      toast("No se pudieron cargar los pedidos");
+      return;
+    }
     ordersCount = orders.length;
     if ($("#adminStats")) renderStats();
     renderOrderList();

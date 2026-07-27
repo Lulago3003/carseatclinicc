@@ -15,6 +15,15 @@
     const t = String(s ?? "").replace(/\s+/g, " ").trim();
     return t.length > max ? t.slice(0, max - 1).trim() + "…" : t;
   };
+  // Valor YYYY-MM-DD según la fecha local (Panamá), no UTC. Evita que por la
+  // noche se habilite mañana como si fuera hoy en los calendarios del sitio.
+  const localDateInput = (value = new Date()) => {
+    const d = value instanceof Date ? value : new Date(value);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
 
   const CAT_LABEL = {
     "recien-nacidos": "Recién nacidos", "convertibles": "Convertible", "giro-360": "Silla 360°",
@@ -644,7 +653,9 @@
         service: cotizacion ? "Cotización de productos" : "Pedido de la tienda",
         name: d.nombre || "",
         phone: d.telefono || "",
-        date: new Date().toISOString().slice(0, 10),
+        // Un pedido no es una cita: sin fecha para que no aparezca como una
+        // reserva en el calendario de atención del CRM.
+        date: "",
         message: lineas,
         details: {
           productos: items.map(({ qty, p }) => ({ id: p.id, nombre: p.nombre, cantidad: qty, precio: isPriced(p) ? p.precio : null })),
@@ -1181,7 +1192,7 @@
     if (date) {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      date.min = tomorrow.toISOString().slice(0, 10);
+      date.min = localDateInput(tomorrow);
       date.addEventListener("change", updateRentalPanel);
     }
     $("#citaServicio")?.addEventListener("change", updateRentalPanel);
@@ -1232,6 +1243,17 @@
         ...(isRental ? rentalDetails : {}),
       },
     });
+    /* Si la persona llegó desde el botón "Reservar horario" del asistente,
+       la conversación inicial ya existe en el CRM. Al completar este
+       formulario la cerramos para que no queden dos casos pendientes por la
+       misma reserva. */
+    try {
+      const pendingChatLead = sessionStorage.getItem("csc_chat_pending_lead");
+      if (pendingChatLead) {
+        const result = await DB.updateLead(pendingChatLead, { status: "completado" });
+        if (result?.savedToServer || result?.savedLocally) sessionStorage.removeItem("csc_chat_pending_lead");
+      }
+    } catch (err) {}
     let msg = `*Nueva solicitud de cita - Car Seat Clinic*%0A%0A`;
     msg += `Servicio: ${d.servicio}%0AFecha: ${d.fecha}%0AHora: ${d.hora}%0ANombre: ${d.nombre}%0ATelefono: ${d.telefono}`;
     if (d.zona) msg += `%0AZona: ${d.zona}`;
@@ -1450,7 +1472,8 @@
         book.type = "button";
         book.textContent = "Reservar horario";
         book.addEventListener("click", () => {
-          saveAdvisorLead(reply, originalText, "esperando_reserva");
+          // Referencia antigua: la consulta ya se guardó al responder; no se
+          // crea otra fila al abrir el calendario.
           prefillAppointment(reply, originalText);
         });
         wrap.appendChild(book);
@@ -1459,8 +1482,7 @@
       save.type = "button";
       save.textContent = reply.action === "case" ? "Guardar caso" : "Guardar consulta";
       save.addEventListener("click", async () => {
-        await saveAdvisorLead(reply, originalText, "nuevo");
-        toast("Consulta guardada en el CRM");
+        toast("La consulta ya quedó guardada en el CRM");
       });
       wrap.appendChild(save);
       const wa = document.createElement("a");

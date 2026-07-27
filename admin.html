@@ -8,7 +8,7 @@
   <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-27a" />
 </head>
 <body class="admin">
 
@@ -57,13 +57,13 @@
       <aside class="admin-sidebar" aria-label="Navegación del CRM">
         <span class="admin-sidebar__eyebrow">CRM</span>
         <h1>Centro de control</h1>
-        <p>Inventario, pedidos, agenda y consultas de la IA en un solo lugar.</p>
+        <p>Inventario, pedidos, solicitudes y conversaciones en un solo lugar.</p>
         <div class="admin__tabs" role="tablist" aria-label="Secciones del panel">
-          <button class="tab is-active" data-tab="dashboard" type="button">Resumen</button>
-          <button class="tab" data-tab="productos" type="button">Productos</button>
-          <button class="tab" data-tab="pedidos" type="button">Pedidos <span class="tab__badge" id="badge-pedidos" hidden></span></button>
-          <button class="tab" data-tab="agenda" type="button">Agenda IA <span class="tab__badge" id="badge-agenda" hidden></span></button>
-          <button class="tab" data-tab="conversaciones" type="button">Conversaciones <span class="tab__badge" id="badge-conversaciones" hidden></span></button>
+          <button class="tab is-active" id="tab-button-dashboard" data-tab="dashboard" type="button" role="tab" aria-controls="tab-dashboard" aria-selected="true">Resumen</button>
+          <button class="tab" id="tab-button-productos" data-tab="productos" type="button" role="tab" aria-controls="tab-productos" aria-selected="false">Productos</button>
+          <button class="tab" id="tab-button-pedidos" data-tab="pedidos" type="button" role="tab" aria-controls="tab-pedidos" aria-selected="false">Pedidos <span class="tab__badge" id="badge-pedidos" hidden></span></button>
+          <button class="tab" id="tab-button-agenda" data-tab="agenda" type="button" role="tab" aria-controls="tab-agenda" aria-selected="false">Solicitudes <span class="tab__badge" id="badge-agenda" hidden></span></button>
+          <button class="tab" id="tab-button-conversaciones" data-tab="conversaciones" type="button" role="tab" aria-controls="tab-conversaciones" aria-selected="false">Conversaciones <span class="tab__badge" id="badge-conversaciones" hidden></span></button>
         </div>
       </aside>
 
@@ -80,7 +80,7 @@
         </div>
 
         <!-- Resumen -->
-        <div id="tab-dashboard" class="tab-panel">
+        <div id="tab-dashboard" class="tab-panel" role="tabpanel" aria-labelledby="tab-button-dashboard">
           <div class="admin-dashboard" id="dashboardStats"></div>
 
           <div class="admin-grid admin-grid--dashboard">
@@ -108,10 +108,10 @@
             <section class="admin-panel admin-panel--wide">
               <div class="admin-panel__head">
                 <div>
-                  <span class="eyebrow">Atencion inteligente</span>
-                  <h3>Agenda y casos por atender</h3>
+                  <span class="eyebrow">Atención al cliente</span>
+                  <h3>Solicitudes por atender</h3>
                 </div>
-                <button class="link-btn" type="button" data-jump-tab="agenda">Ver agenda</button>
+                <button class="link-btn" type="button" data-jump-tab="agenda">Ver solicitudes</button>
               </div>
               <div id="dashboardLeads" class="admin-mini-list admin-mini-list--grid"></div>
             </section>
@@ -130,7 +130,7 @@
         </div>
 
         <!-- Productos -->
-        <div id="tab-productos" class="tab-panel" hidden>
+        <div id="tab-productos" class="tab-panel" role="tabpanel" aria-labelledby="tab-button-productos" hidden>
           <div class="admin__bar">
             <div>
               <span class="eyebrow">Inventario</span>
@@ -165,7 +165,7 @@
         </div>
 
         <!-- Pedidos -->
-        <div id="tab-pedidos" class="tab-panel" hidden>
+        <div id="tab-pedidos" class="tab-panel" role="tabpanel" aria-labelledby="tab-button-pedidos" hidden>
           <div class="admin__bar">
             <div>
               <span class="eyebrow">Seguimiento</span>
@@ -197,56 +197,65 @@
           <div id="ordersList" class="admin__list"></div>
         </div>
 
-        <!-- Agenda IA -->
-        <div id="tab-agenda" class="tab-panel" hidden>
+        <!-- Solicitudes -->
+        <div id="tab-agenda" class="tab-panel" role="tabpanel" aria-labelledby="tab-button-agenda" hidden>
           <div class="admin__bar">
             <div>
-              <span class="eyebrow">Atencion inteligente</span>
-              <h2>Agenda, casos y consultas IA</h2>
+              <span class="eyebrow">Atención al cliente</span>
+              <h2>Solicitudes de clientes</h2>
             </div>
             <button class="btn btn--ghost btn--sm" id="exportLeads" type="button">⬇ Exportar a Excel</button>
           </div>
 
-          <span class="eyebrow">Embudo de ventas</span>
-          <div class="lead-pipeline" id="leadPipeline"></div>
+          <div class="agenda-insights">
+            <span class="eyebrow">Embudo de ventas</span>
+            <div class="lead-pipeline" id="leadPipeline"></div>
 
-          <span class="eyebrow">Estadísticas</span>
-          <div class="lead-stats" id="leadStats"></div>
+            <span class="eyebrow">Estadísticas</span>
+            <div class="lead-stats" id="leadStats"></div>
 
-          <span class="eyebrow">Próximos días</span>
-          <div class="schedule-board" id="scheduleBoard"></div>
-          <div class="admin-filters admin-filters--leads" aria-label="Filtros de agenda">
-            <label>Buscar
-              <input class="admin__search" id="leadSearch" type="search" placeholder="Cliente, telefono, servicio o mensaje" />
-            </label>
-            <label>Tipo
-              <select id="leadTypeFilter">
-                <option value="all">Todos</option>
-                <option value="cita">Citas</option>
-                <option value="alquiler">Alquileres</option>
-                <option value="consulta-ia">Consultas IA</option>
-                <option value="cita-sugerida">Reservas sugeridas</option>
-              </select>
-            </label>
-            <label>Estado
-              <select id="leadStatusFilter">
-                <option value="all">Todos</option>
-                <option value="nuevo">Nuevo</option>
-                <option value="contactado">Contactado</option>
-                <option value="cotizado">Cotizado</option>
-                <option value="ganado">Ganado</option>
-                <option value="perdido">Perdido</option>
-              </select>
-            </label>
+            <span class="eyebrow">Próximos días</span>
+            <div class="schedule-board" id="scheduleBoard"></div>
           </div>
-          <div class="admin-list-head">
-            <p class="muted" id="leadsCount">Cargando agenda...</p>
-            <p class="muted">Prioriza seguridad, lavado, revisiones y citas del dia.</p>
+
+          <div class="agenda-workqueue">
+            <div class="admin-filters admin-filters--leads" aria-label="Filtros de solicitudes">
+              <label>Buscar
+                <input class="admin__search" id="leadSearch" type="search" placeholder="Nombre, teléfono, producto o mensaje" />
+              </label>
+              <label>Tipo
+                <select id="leadTypeFilter">
+                  <option value="all">Todos</option>
+                  <option value="pedido">Pedidos de la tienda</option>
+                  <option value="cotizacion">Cotizaciones</option>
+                  <option value="alquiler">Alquileres</option>
+                  <option value="cita">Citas</option>
+                  <option value="consulta-ia">Consultas del asistente</option>
+                  <option value="cita-sugerida">Reservas sugeridas</option>
+                </select>
+              </label>
+              <label>Estado
+                <select id="leadStatusFilter">
+                  <option value="all">Todos</option>
+                  <option value="nuevo">Nuevo</option>
+                  <option value="esperando_reserva">Reserva pendiente</option>
+                  <option value="contactado">Contactado</option>
+                  <option value="cotizado">Cotizado</option>
+                  <option value="ganado">Ganado</option>
+                  <option value="perdido">Perdido</option>
+                </select>
+              </label>
+              <button class="btn btn--ghost" id="clearLeadFilters" type="button">Limpiar filtros</button>
+            </div>
+            <div class="admin-list-head">
+              <p class="muted" id="leadsCount">Cargando solicitudes...</p>
+              <p class="muted">Lo más urgente primero: seguimientos vencidos, citas de hoy y casos nuevos.</p>
+            </div>
+            <div id="leadList" class="admin__list"></div>
           </div>
-          <div id="leadList" class="admin__list"></div>
         </div>
 
-        <div id="tab-conversaciones" class="tab-panel" hidden>
+        <div id="tab-conversaciones" class="tab-panel" role="tabpanel" aria-labelledby="tab-button-conversaciones" hidden>
           <div class="admin__bar"><div><span class="eyebrow">Asistente</span><h2>Conversaciones del chat</h2></div></div>
           <p class="muted">Lo que preguntaron los clientes y lo que respondió el asistente. Te sirve para captar consultas y mejorar la atención.</p>
           <div id="convList" class="admin__list"></div>
@@ -307,8 +316,8 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="js/data.js?v=2026-07-27a"></script>
+  <script src="js/supabase.js?v=2026-07-27a"></script>
+  <script src="js/admin.js?v=2026-07-27a"></script>
 </body>
 </html>

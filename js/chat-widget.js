@@ -70,7 +70,7 @@
     const NO_GUARDAR = ["greeting", "thanks", "empty"];
     async function saveAdvisorLead(reply, originalText, status = "nuevo") {
       if (!reply || !hasDB || NO_GUARDAR.includes(reply.intent)) return;
-      await DB.guardarLead({
+      return DB.guardarLead({
         type: reply.action === "book" ? "cita-sugerida" : "consulta-ia",
         source: "asistente-web",
         status,
@@ -113,21 +113,37 @@
         window.location.href = "index.html#citas";
       }
     }
-    function renderAdvisorActions(reply, originalText) {
+    function renderAdvisorActions(reply, originalText, savedLead) {
       if (!reply || !reply.needsHuman) return;
       const wrap = document.createElement("div");
       wrap.className = "chat__actions";
       if (reply.action === "book") {
         const book = document.createElement("button");
         book.type = "button"; book.textContent = "Reservar horario";
-        book.addEventListener("click", () => { saveAdvisorLead(reply, originalText, "esperando_reserva"); prefillAppointment(reply, originalText); });
+        book.addEventListener("click", async () => {
+          book.disabled = true; book.textContent = "Preparando…";
+          /* La pregunta ya se registró al responder. Aquí solo cambiamos SU
+             estado, para no crear una segunda solicitud igual en el CRM. */
+          if (savedLead?.id && hasDB) {
+            const details = { ...(savedLead.details || {}), reserva_solicitada: true };
+            savedLead.status = "esperando_reserva";
+            savedLead.details = details;
+            try {
+              const result = await DB.updateLead(savedLead.id, { status: "esperando_reserva", details }, savedLead);
+              if (!result?.savedToServer && !result?.savedLocally) toast("No se pudo guardar la reserva pendiente");
+              try { sessionStorage.setItem("csc_chat_pending_lead", savedLead.id); } catch (e) {}
+            } catch (e) { toast("No se pudo guardar la reserva pendiente"); }
+          }
+          prefillAppointment(reply, originalText);
+        });
         wrap.appendChild(book);
       }
-      const save = document.createElement("button");
-      save.type = "button";
-      save.textContent = reply.action === "case" ? "Guardar caso" : "Guardar consulta";
-      save.addEventListener("click", async () => { await saveAdvisorLead(reply, originalText, "nuevo"); toast("Consulta guardada en el CRM"); });
-      wrap.appendChild(save);
+      if (savedLead?.id) {
+        const saved = document.createElement("small");
+        saved.className = "chat__saved";
+        saved.textContent = "Consulta guardada para seguimiento";
+        wrap.appendChild(saved);
+      }
       const wa = document.createElement("a");
       wa.href = waUrl(originalText); wa.target = "_blank"; wa.rel = "noopener"; wa.textContent = "WhatsApp";
       wrap.appendChild(wa);
@@ -208,14 +224,14 @@
         bubble("bot", answerHtml(answer, !!local.needsHuman, text), "chat__bubble--ai");
         history.push({ role: "assistant", content: answer });
         if (hasDB) DB.guardarMensaje(sid, "asistente", answer);
-        saveAdvisorLead({ ...local, answer }, text);
-        renderAdvisorActions({ ...local, answer }, text);
+        const savedLead = await saveAdvisorLead({ ...local, answer }, text);
+        renderAdvisorActions({ ...local, answer }, text, savedLead);
       } else {
         bubble("bot", answerHtml(local.answer, !!local.needsHuman, text), "chat__bubble--smart");
         history.push({ role: "assistant", content: local.answer });
         if (hasDB) DB.guardarMensaje(sid, "asistente", "[asistente local] " + local.answer);
-        saveAdvisorLead(local, text);
-        renderAdvisorActions(local, text);
+        const savedLead = await saveAdvisorLead(local, text);
+        renderAdvisorActions(local, text, savedLead);
       }
       recoActions((answer || local.answer || "") + " " + text);
     });

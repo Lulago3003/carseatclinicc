@@ -1126,7 +1126,7 @@ body.admin [hidden] { display: none !important; }
 }
 .ai-intake h3 { color: #fff; font-size: clamp(1.08rem, 2vw, 1.35rem); margin-top: 4px; }
 .ai-intake p { max-width: 34em; color: rgba(255,255,255,.82); margin: 0; font-size: .9rem; }
-.admin-filters--leads { grid-template-columns: minmax(220px, 1fr) minmax(160px, .45fr) minmax(160px, .45fr); }
+.admin-filters--leads { grid-template-columns: minmax(220px, 1fr) minmax(160px, .45fr) minmax(160px, .45fr) auto; }
 .schedule-board {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px;
 }
@@ -1159,9 +1159,11 @@ body.admin [hidden] { display: none !important; }
 .lead-priority--media { background: #fbeede; color: #8a5d25; }
 .lead-status { background: var(--surface-warm); color: var(--muted); margin-left: 6px; }
 .lead-meta {
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; color: var(--muted); font-size: .86rem;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 14px;
+  color: var(--ink); font-size: .86rem;
   padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
 }
+.lead-meta i { display: block; color: var(--muted); font-size: .72rem; font-style: normal; font-weight: 700; }
 .lead-rental {
   border-color: #efd3b1;
   background: linear-gradient(180deg, #fff 0%, #fff9f1 100%);
@@ -1170,24 +1172,32 @@ body.admin [hidden] { display: none !important; }
   display: inline-flex; align-items: center; min-height: 24px; margin-left: 6px; padding: 0 9px;
   border-radius: 999px; background: #fff1e3; color: #8a5d25; font-size: .7rem; font-weight: 800;
 }
-.lead-rental__box {
-  margin: 12px 0 0; padding: 12px; border: 1px solid #efd3b1; border-radius: 14px; background: rgba(255,255,255,.78);
+/* Recuadro de detalle dentro de una tarjeta del CRM (alquiler o pedido).
+   Sirve para los dos: las clases ya no dependen del tipo de solicitud. */
+.lead-box {
+  margin: 12px 0 0; padding: 12px; border: 1px solid var(--line); border-radius: 14px;
+  background: rgba(255,255,255,.78);
 }
-.lead-rental .rental-kpi {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; min-height: 0; padding: 0;
-  background: transparent; color: var(--brand-dark); text-align: left;
-}
-.lead-rental .rental-kpi span {
+.lead-box__kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+.lead-box__kpi {
   display: block; padding: 10px; border-radius: 12px; background: var(--surface-warm);
   color: var(--muted); font-size: .72rem; font-weight: 700;
 }
-.lead-rental .rental-kpi b {
+.lead-box__kpi b {
   display: block; color: var(--brand-dark); font-size: .92rem; overflow-wrap: anywhere;
 }
-.lead-rental__grid {
+.lead-box__grid {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; margin-top: 10px;
-  color: var(--muted); font-size: .84rem;
+  color: var(--ink); font-size: .84rem;
 }
+.lead-box__grid i { display: block; color: var(--muted); font-size: .72rem; font-style: normal; font-weight: 700; }
+.lead-box__items { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 5px; }
+.lead-box__items li {
+  display: flex; align-items: center; gap: 7px; font-size: .86rem; color: var(--ink);
+  padding: 8px 11px; background: #fff; border: 1px solid var(--line); border-radius: 10px;
+}
+.lead-box__items b { color: var(--brand-dark); }
+.lead-box__items span { margin-left: auto; color: var(--muted); font-weight: 700; white-space: nowrap; }
 .lead-message { color: var(--ink); font-size: .9rem; margin-top: 12px; overflow-wrap: anywhere; }
 
 /* ---------- CRM: badges, embudo, estadísticas, notas ---------- */
@@ -1238,10 +1248,11 @@ body.admin [hidden] { display: none !important; }
 .lead-status--perdido { background: #fdeaea; color: var(--accent-dark); }
 .lead-status--cotizado { background: #eef0fb; color: #4a51a8; }
 .lead-status--contactado { background: #fbeede; color: #8a5d25; }
+.lead-status--esperando_reserva { background: #fff1e3; color: #8a5d25; }
 
 .conv__summary { margin: 8px 0 10px; padding: 10px 12px; border-radius: 12px; background: var(--brand-soft); color: var(--brand-dark); font-size: .88rem; font-weight: 600; }
 @media (max-width: 620px) {
-  .lead-rental .rental-kpi, .lead-rental__grid { grid-template-columns: 1fr; }
+  .lead-box__kpis, .lead-box__grid { grid-template-columns: 1fr; }
 }
 
 /* ---------- CRM: pedidos ---------- */
@@ -1447,6 +1458,7 @@ body.admin [hidden] { display: none !important; }
 .chat__actions button:first-child { background: var(--brand); border-color: var(--brand); color: #fff; }
 .chat__actions button:hover, .chat__actions a:hover { transform: translateY(-1px); border-color: var(--sage); background: var(--brand-soft); }
 .chat__actions button:first-child:hover { background: var(--brand-dark); color: #fff; }
+.chat__saved { align-self: center; color: var(--muted); font-size: .72rem; font-weight: 700; }
 .chat__wa { display: inline-flex; align-items: center; justify-content: center; margin-top: 10px; min-height: 36px; padding: 0 12px; border-radius: 999px; background: var(--whatsapp); color: #fff; font-weight: 800; box-shadow: 0 10px 22px rgba(37,211,102,.22); }
 .chat__typing { color: var(--muted); font-style: italic; }
 .chat__form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); background: #fff; }
@@ -2086,13 +2098,6 @@ body.nav-open { overflow: hidden; }
   .ig__avatar:hover { transform: none; }
 }
 
-/* Lista de productos dentro de una tarjeta de pedido/cotización del CRM */
-.lead-cart__list { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 5px; }
-.lead-cart__list li {
-  font-size: .88rem; color: var(--ink); padding: 7px 11px;
-  background: rgba(255, 255, 255, .7); border-radius: 9px;
-}
-
 /* Contacto: el renglón de Instagram tiene 2 enlaces + separador. Antes eran
    hijos sueltos del <li> (flex sin wrap) y se cortaban en pantallas angostas.
    Ahora van agrupados en un span que sí puede partirse en dos líneas. */
@@ -2129,4 +2134,91 @@ body.nav-open { overflow: hidden; }
   .np__form input { min-height: 44px; font-size: .9rem; }
   .np__form .btn { padding: 0 14px; min-height: 44px; font-size: .85rem; white-space: nowrap; }
   .np__close { top: 6px; right: 8px; padding: 6px; }
+}
+
+/* --- Solicitudes plegables (CRM) ---
+   Cada tarjeta es un <details>: el encabezado siempre visible y el detalle se
+   abre al tocarla. Antes todas estaban abiertas y con pocas solicitudes la
+   lista ya era interminable. */
+.lead-card > summary {
+  cursor: pointer; list-style: none; margin-bottom: 0;
+  border-radius: 12px; transition: background .15s ease;
+}
+.lead-card > summary::-webkit-details-marker { display: none; }
+.lead-card > summary:hover { background: var(--surface-warm); }
+.lead-card > summary::after {
+  content: ""; flex-shrink: 0; align-self: center; width: 9px; height: 9px;
+  margin-left: 2px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg); transition: transform .2s ease;
+}
+.lead-card[open] > summary::after { transform: rotate(-135deg); }
+.lead-card[open] > summary { margin-bottom: 12px; }
+.lead-card > summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+/* El texto del encabezado no debe empujar a la flecha fuera de la tarjeta */
+.lead-card__top > div { min-width: 0; }
+
+/* En teléfono el encabezado de la solicitud se apila: antes el origen
+   ("Desde el carrito · hace 26 min") peleaba por el ancho con los badges y
+   se partía en dos líneas. */
+@media (max-width: 620px) {
+  .lead-card__top { flex-wrap: wrap; gap: 6px 10px; }
+  .lead-card__top > div { flex: 1 1 100%; order: 1; }
+  .lead-card__top > small { order: 2; font-size: .74rem; }
+  .lead-card > summary::after { order: 3; margin-left: auto; }
+}
+
+/* --- CRM más rápido de atender --- */
+/* En teléfono la cola accionable aparece antes que las métricas. Así se puede
+   responder una solicitud sin atravesar gráficas y calendario primero. */
+.agenda-insights, .agenda-workqueue { min-width: 0; }
+
+/* Conversaciones compactas: se identifica la última consulta sin desplegar
+   toda la transcripción. Conserva el mismo patrón plegable de solicitudes. */
+.conv-card > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  cursor: pointer; list-style: none; margin: 0; border-radius: 12px;
+}
+.conv-card > summary::-webkit-details-marker { display: none; }
+.conv-card > summary::after {
+  content: ""; flex: 0 0 auto; width: 8px; height: 8px; border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .2s ease;
+}
+.conv-card[open] > summary { margin-bottom: 12px; }
+.conv-card[open] > summary::after { transform: rotate(-135deg); }
+.conv-card > summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.conv-card .conv__head > div { min-width: 0; }
+.conv-card .conv__head strong, .conv-card .conv__head .muted { display: block; }
+.conv-card .conv__head .muted { margin-top: 2px; font-size: .76rem; }
+.conv__preview { min-width: 0; overflow: hidden; color: var(--muted); font-size: .82rem; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.conv__actions { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+
+@media (max-width: 1080px) {
+  .admin-sidebar { padding: 20px; }
+  .admin-sidebar p { display: none; }
+  .admin__tabs {
+    flex-wrap: nowrap; overflow-x: auto; margin-top: 18px; padding-bottom: 4px;
+    scrollbar-width: thin; -webkit-overflow-scrolling: touch;
+  }
+  .tab { flex: 0 0 auto; min-width: max-content; text-align: center; white-space: nowrap; }
+}
+
+@media (max-width: 820px) {
+  #tab-agenda { display: flex; flex-direction: column; }
+  .agenda-workqueue { order: 1; }
+  .agenda-insights { order: 2; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
+}
+
+@media (max-width: 620px) {
+  .conv-card > summary { align-items: flex-start; }
+  .conv__preview { flex: 1 1 100%; order: 2; text-align: left; white-space: normal; }
+  .conv-card > summary::after { order: 3; margin-left: auto; }
+}
+
+@media (max-width: 560px) {
+  body.admin .header__inner { gap: 8px; }
+  body.admin .brand__text small { display: none; }
+  body.admin .header__actions .btn { min-height: 38px; padding: 0 10px; font-size: .78rem; }
+  .lead-pipeline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pipe { min-width: 0; }
+  .pipe-arrow { display: none; }
 }

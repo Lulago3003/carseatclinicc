@@ -178,7 +178,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-07-24f";
+const VERSION = "2026-07-27a";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {
@@ -236,4 +236,21 @@ for (const { file, slim } of PAGES) {
   if (html !== original) { writeFileSync(path, html); cambiados++; console.log(`  ✓ ${file}`); }
   else console.log(`  = ${file} (sin cambios)`);
 }
+
+/* --- El panel (admin.html) ---
+   No lleva el menú ni el pie del sitio, pero SÍ necesita la versión en sus
+   archivos: sin ella, quien ya entró al panel se queda con el CSS y el JS
+   viejos guardados en el navegador y no ve los cambios. */
+{
+  const path = join(ROOT, "admin.html");
+  try {
+    let html = readFileSync(path, "utf8");
+    const original = html;
+    html = html.replace(/href="css\/styles\.css(?:\?v=[^"]*)?"/g, `href="css/styles.css?v=${VERSION}"`);
+    html = html.replace(/src="(js\/(?:data|supabase|admin)\.js)(?:\?v=[^"]*)?"/g, `src="$1?v=${VERSION}"`);
+    if (html !== original) { writeFileSync(path, html); cambiados++; console.log("  ✓ admin.html (versión de css/js)"); }
+    else console.log("  = admin.html (sin cambios)");
+  } catch { console.log("  (saltada) admin.html no existe"); }
+}
+
 console.log(`\nListo: ${cambiados} página(s) actualizada(s).`);

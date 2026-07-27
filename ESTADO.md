@@ -158,10 +158,12 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] Dashboard (resumen), Productos (lista + editor con varias fotos, características, stock), buscador, filtros.
 - [x] Pedidos con estados (nuevo → pagado → listo para instalar…) y contacto por WhatsApp.
 - [x] Conversaciones del chat (ver abajo).
-- [x] Nueva pestaña **Agenda IA**: calendario de solicitudes, filtros por tipo/estado, tarjetas de casos, cambio de estado, resumen copiable y botón de WhatsApp.
-- [x] **CRM potenciado (6 mejoras)**: (1) **Embudo de ventas** Nuevo→Contactado→Cotizado→Ganado/Perdido con conteos y botón "Avanzar"; (2) **Notas + fecha de seguimiento** por consulta (guarda en `details`, marca "vencido"); (3) **Resumen IA** de cada conversación (botón que llama a la Edge Function); (4) **Estadísticas** (consultas total/hoy/semana, ganados, barras por día, temas top); (5) **Badges de "nuevos"** en pestañas Agenda/Pedidos/Conversaciones; (6) **Exportar a Excel/CSV**. Código en `js/admin.js` + `DB.updateLead` en `supabase.js` + estilos en `styles.css`.
+- [x] Nueva pestaña **Solicitudes**: calendario de solicitudes, filtros por tipo/estado, tarjetas de casos, cambio de estado, resumen copiable y botón de WhatsApp.
+- [x] **CRM potenciado (6 mejoras)**: (1) **Embudo de ventas** Nuevo→Reserva pendiente→Contactado→Cotizado→Ganado/Perdido con conteos y botón "Avanzar"; (2) **Notas + fecha de seguimiento** por consulta (guarda en `details`, marca "vencido"); (3) **Resumen IA** de cada conversación (botón que llama a la Edge Function); (4) **Estadísticas** (consultas total/hoy/semana, ganados, barras por día, temas top); (5) **Badges de "nuevos"** en pestañas Solicitudes/Pedidos/Conversaciones; (6) **Exportar a Excel/CSV**. Código en `js/admin.js` + `DB.updateLead` en `supabase.js` + estilos en `styles.css`.
 - [x] Captura de leads/casos en `crm_leads`: citas, reservas sugeridas, consultas de IA, revisión de silla, lavado, instalación y cotización. Funciona con Supabase si se corre `supabase-crm-atencion.sql` y se activa `CONFIG.crm.guardarSolicitudes=true`; mientras tanto usa `localStorage`.
 - [x] CRM reconoce solicitudes de **alquiler** como tipo propio: badge, dias, equipo, entrega, devolucion, recogida, edad/peso y resumen listo para WhatsApp.
+- [x] **Cierre y mejora del CRM (27 jul 2026)**: las solicitudes se ordenan de verdad por seguimiento vencido, reserva pendiente, cita de hoy, prioridad y fecha; la cola aparece antes que estadísticas en teléfono y las tarjetas/conversaciones quedan compactas. Se separaron las notas internas de las instrucciones de la clienta, los pedidos ya no aparecen como citas, las fechas usan el día local de Panamá y el buscador cubre productos, dirección, notas y demás detalles.
+- [x] **Seguimiento seguro**: el chat ya no duplica solicitudes al reservar, la reserva del chat se cierra al completar el formulario real, y el CRM avisa cuando un cambio solo quedó guardado en el navegador porque Supabase no lo confirmó. Pruebas: `scripts/admin-crm-check.mjs` + `scripts/crm-data-check.mjs`.
 
 **Asistente con IA (estructura)**
 - [x] Chat flotante en la web con asistente inteligente local: responde dudas comunes, pide datos si faltan y ofrece WhatsApp cuando hace falta asesor. (Guía: `CHATBOT.md`)
@@ -171,7 +173,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] Interruptor del CRM inteligente en `js/data.js` → `CONFIG.crm.guardarSolicitudes=false` mientras no esté corrida la tabla `crm_leads`.
 - [x] **IA activada**: `CONFIG.chat.iaActiva=true`, `guardarConversaciones=true`, `crm.guardarSolicitudes=true`. Tablas `conversaciones` y `crm_leads` creadas en Supabase.
 - [x] **Chat en TODAS las páginas**: extraído a `js/chat-widget.js` (autocontenido, se auto-inicia). Está en `index.html`, `servicios.html`, `terminos.html` y `privacidad.html`. La copia vieja en `store.js` quedó como obsoleta (no se llama). Nota: `DB` es `const` (no `window.DB`); el módulo lo referencia directo.
-- [x] La Edge Function quedó desplegada como **`super-api`** (no `asistente`). El sitio ya apunta ahí via `CONFIG.chat.funcion="super-api"`. La función soporta **Groq / Gemini / Claude** (usa el secret que exista, en ese orden).
+- [ ] **Confirmar la Edge Function del resumen de conversaciones**: `CONFIG.chat.funcion` hoy dice `super-service`, pero notas anteriores mencionan `super-api`. Probar "Resumir" tras iniciar sesión y dejar el nombre real en `js/data.js` antes de redeploy.
 - [x] El asistente **guarda en el CRM toda pregunta real** automáticamente (no solo las que piden asesor): se quitó el filtro `needsHuman` en `saveAdvisorLead`. Verificado: inserts a `conversaciones` y `crm_leads` responden HTTP 201.
 - [x] Prompt de la IA reescrito para **asesorar, no interrogar** (recomienda tipo de silla por etapa y guía a Productos/test). Marca/logo sin "Center"; menú dice "Preguntas".
 - [ ] **Pendiente del dueño**: redeploy de `super-service` con el código nuevo (prompt mejorado) para que la IA asesore mejor. (Borra filas de prueba: `delete from conversaciones where session_id='test_curl'; delete from crm_leads where id='test_curl_1';`)
@@ -187,7 +189,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] Animaciones (aparición al scroll, hero, barra de progreso) que respetan "reducir movimiento".
 - [x] Responsive (PC / iPhone / Android) + modo claro forzado (`color-scheme: light`).
 - [x] Rutas de imágenes relativas → portable a dominio propio sin romperse.
-- [x] Scripts de verificación: `scripts/site-experience-check.mjs`, `scripts/admin-crm-check.mjs`.
+- [x] Scripts de verificación: `scripts/site-experience-check.mjs`, `scripts/admin-crm-check.mjs`, `scripts/crm-data-check.mjs`.
 - [x] Documentación para IAs: `AGENTS.md`, `CLAUDE.md`, `ESTADO.md`.
 
 ---
