@@ -153,6 +153,10 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] **Acceso al panel cerrado** (jul 2026): se quitaron del código el usuario
       `admin`/`admin` y la contraseña de la cuenta admin. Ahora solo se entra con
       correo y contraseña reales (o Google) de alguien en `CONFIG.adminEmails`.
+- [x] **Accesos autorizados del CRM**: `luislassogonzalez@gmail.com` y
+      `sripanama1@gmail.com`. La cuenta antigua `admin@carseatclinic.app` fue
+      eliminada desde Supabase por seguridad. Falta ejecutar la versión actual de
+      `supabase-admin.sql` para aplicar la misma lista en el servidor.
 
 **CRM (panel `admin.html`) "Centro de control"**
 - [x] Dashboard (resumen), Productos (lista + editor con varias fotos, características, stock), buscador, filtros.

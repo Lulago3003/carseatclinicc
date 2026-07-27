@@ -26,7 +26,8 @@ create or replace function public.is_admin()
 returns boolean language sql security definer stable set search_path = public as $$
   select coalesce((select is_admin from public.profiles where id = auth.uid()), false)
       or lower(coalesce(auth.jwt() ->> 'email', '')) = any (array[
-           'luislassogonzalez@gmail.com'   -- 👈 pon aquí el correo de la dueña
+           'luislassogonzalez@gmail.com',
+           'sripanama1@gmail.com'          -- 👈 correos autorizados para el CRM
          ]);
 $$;
 

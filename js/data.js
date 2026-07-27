@@ -88,7 +88,7 @@ const CONFIG = {
      al panel: abre admin.html e inicia sesión con tu correo y tu contraseña, o
      con el botón de Google. Si olvidas la clave, se cambia desde Supabase →
      Authentication → Users. */
-  adminEmails: ["luislassogonzalez@gmail.com"],
+  adminEmails: ["luislassogonzalez@gmail.com", "sripanama1@gmail.com"],
 };
 
 /* =====================================================================
