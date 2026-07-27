@@ -8,7 +8,7 @@
   <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=2026-07-27b" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-27c" />
 </head>
 <body class="admin">
 
@@ -105,6 +105,17 @@
               <div id="dashboardOrders" class="admin-mini-list"></div>
             </section>
 
+            <section class="admin-panel admin-panel--wide admin-panel--offers">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Promociones</span>
+                  <h3>Ofertas activas</h3>
+                </div>
+                <button class="link-btn" type="button" data-jump-tab="productos" data-product-filter="sale">Gestionar ofertas</button>
+              </div>
+              <div id="dashboardOffers" class="admin-mini-list admin-mini-list--grid"></div>
+            </section>
+
             <section class="admin-panel admin-panel--wide">
               <div class="admin-panel__head">
                 <div>
@@ -152,6 +163,7 @@
                 <option value="out">Agotados</option>
                 <option value="no-photo">Sin foto</option>
                 <option value="no-price">Sin precio</option>
+                <option value="sale">En oferta</option>
                 <option value="hidden">Ocultos</option>
               </select>
             </label>
@@ -275,13 +287,27 @@
         <label>Categoría <select id="f-categoria"></select></label>
         <label>Marca <input id="f-marca" placeholder="Ej. Chicco" /></label>
         <label>Recomendado para <input id="f-recomendado" placeholder="0–13 kg · 0–15 meses" /></label>
-        <label>Precio ($) <input id="f-precio" type="number" min="0" step="0.01" /></label>
-        <label>Precio antes ($) <input id="f-antes" type="number" min="0" step="0.01" placeholder="Opcional (oferta)" /></label>
+        <label><span id="f-precio-label">Precio de venta ($)</span> <input id="f-precio" type="number" min="0" step="0.01" /></label>
         <label>Stock <input id="f-stock" type="number" min="0" step="1" /></label>
-        <label>Etiqueta <input id="f-badge" placeholder="Más vendido / Oferta" /></label>
+        <label>Etiqueta opcional <input id="f-badge" placeholder="Nuevo / Más vendido" /></label>
         <label>Orden <input id="f-sort" type="number" step="1" /></label>
         <label class="check col-2"><input id="f-activo" type="checkbox" /> Visible en la tienda</label>
       </div>
+
+      <section class="offer-editor" aria-labelledby="offerTitle">
+        <div class="offer-editor__head">
+          <div>
+            <span class="eyebrow">Promoción</span>
+            <h4 id="offerTitle">Oferta del producto</h4>
+            <p>La tienda mostrará el precio anterior, el descuento y cuánto ahorra la familia.</p>
+          </div>
+          <label class="offer-switch"><input id="f-oferta" type="checkbox" /><span>Este producto está en oferta</span></label>
+        </div>
+        <div class="offer-editor__fields" id="offerFields" hidden>
+          <label>Precio normal ($)<input id="f-antes" type="number" min="0" step="0.01" placeholder="Ej. 379" /></label>
+          <div class="offer-preview" id="offerPreview" aria-live="polite"></div>
+        </div>
+      </section>
 
       <div class="edit-block">
         <h4>Fotos</h4>
@@ -316,8 +342,8 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=2026-07-27b"></script>
-  <script src="js/supabase.js?v=2026-07-27b"></script>
-  <script src="js/admin.js?v=2026-07-27b"></script>
+  <script src="js/data.js?v=2026-07-27c"></script>
+  <script src="js/supabase.js?v=2026-07-27c"></script>
+  <script src="js/admin.js?v=2026-07-27c"></script>
 </body>
 </html>

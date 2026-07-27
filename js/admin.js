@@ -26,6 +26,17 @@
   ];
   const catLabel = (c) => (CATS.find((x) => x[0] === c) || [c, c])[1];
 
+  // Una oferta existe únicamente cuando el precio normal es mayor que el
+  // precio de venta. Así una cifra vieja o incompleta nunca se muestra como
+  // descuento en la tienda.
+  function saleInfo(p) {
+    const price = Number(p && p.precio);
+    const before = Number(p && p.antes);
+    if (!Number.isFinite(price) || !Number.isFinite(before) || price <= 0 || before <= price) return null;
+    const saving = before - price;
+    return { price, before, saving, percent: Math.round((saving / before) * 100) };
+  }
+
   // Las fechas del CRM son de Panamá. toISOString() usa UTC y desde las 7 p. m.
   // podía convertir "hoy" en mañana, dejando citas fuera de la agenda.
   function localDateKey(value = new Date()) {
@@ -255,8 +266,10 @@
     const out = products.filter((p) => p.stock <= 0).length;
     const low = products.filter((p) => p.stock > 0 && p.stock <= 5).length;
     const noPhoto = products.filter((p) => !p.imagen).length;
+    const sales = products.filter((p) => saleInfo(p)).length;
     $("#adminStats").innerHTML = `
       <div class="astat"><b>${products.length}</b><span>productos</span></div>
+      <div class="astat astat--sale"><b>${sales}</b><span>en oferta</span></div>
       <div class="astat astat--warn"><b>${low}</b><span>stock bajo</span></div>
       <div class="astat astat--out"><b>${out}</b><span>agotados</span></div>
       <div class="astat"><b>${noPhoto}</b><span>sin foto</span></div>`;
@@ -287,6 +300,7 @@
         (stock === "out" && p.stock <= 0) ||
         (stock === "no-photo" && !p.imagen) ||
         (stock === "no-price" && !Number(p.precio)) ||
+        (stock === "sale" && Boolean(saleInfo(p))) ||
         (stock === "hidden" && !p.activo);
       return matchesQuery && matchesCategory && matchesStock;
     });
@@ -296,13 +310,18 @@
     const img = p.imagen ? `<img src="${esc(p.imagen)}" alt="" loading="lazy" />` : `<span>Silla</span>`;
     const stockCls = p.stock <= 0 ? "is-out" : p.stock <= 5 ? "is-low" : "";
     const stockTxt = p.stock <= 0 ? "Agotado" : `${p.stock} en stock`;
+    const sale = saleInfo(p);
     const issues = productIssues(p).slice(0, 3).map(([kind, label]) => `<span class="issue issue--${kind}">${label}</span>`).join("");
-    return `<div class="prow" data-id="${p.id}">
+    const offerState = sale ? `<span class="issue issue--sale">Oferta · -${sale.percent}%</span>` : "";
+    const price = sale
+      ? `<span class="prow__price prow__price--sale"><s>${money(sale.before)}</s><b>${money(sale.price)}</b><em>Ahorras ${money(sale.saving)}</em></span>`
+      : (Number(p.precio) ? money(p.precio) : "Consultar");
+    return `<div class="prow ${sale ? "prow--sale" : ""}" data-id="${p.id}">
       <div class="prow__img">${img}</div>
       <div class="prow__main">
         <strong>${esc(p.nombre)}${p.activo ? "" : ' <em class="prow__hidden">(oculto)</em>'}</strong>
-        <span class="prow__meta">${catLabel(p.categoria)}${p.marca ? " · " + esc(p.marca) : ""} · ${Number(p.precio) ? money(p.precio) : "Consultar"}</span>
-        <span class="prow__issues">${issues || '<span class="issue issue--ok">Listo para tienda</span>'}</span>
+        <span class="prow__meta">${catLabel(p.categoria)}${p.marca ? " · " + esc(p.marca) : ""} · ${price}</span>
+        <span class="prow__issues">${offerState}${issues || '<span class="issue issue--ok">Listo para tienda</span>'}</span>
       </div>
       <span class="prow__stock ${stockCls}">${stockTxt}</span>
       <div class="prow__quick" aria-label="Edición rápida">
@@ -336,6 +355,11 @@
       if (!p || !row) return;
       const precio = parseFloat(row.querySelector("[data-quick-price]").value) || 0;
       const stock = parseInt(row.querySelector("[data-quick-stock]").value, 10) || 0;
+      const sale = saleInfo(p);
+      if (sale && (precio <= 0 || precio >= sale.before)) {
+        toast("Este producto está en oferta. Usa Editar para cambiar su precio sin perder la oferta.");
+        return;
+      }
       quick.disabled = true; quick.textContent = "Guardando";
       try {
         await DB.saveProduct({ ...p, precio, stock });
@@ -379,6 +403,7 @@
     const out = products.filter((p) => p.stock <= 0);
     const noPhoto = products.filter((p) => !p.imagen);
     const noPrice = products.filter((p) => !Number(p.precio));
+    const sales = products.map((p) => ({ product: p, sale: saleInfo(p) })).filter((item) => item.sale);
     const openOrders = orders.filter(orderIsOpen);
     const newOrders = orders.filter((o) => (o.status || "nuevo") === "nuevo");
     const openLeads = serviceLeads.filter(leadIsOpen);
@@ -391,6 +416,7 @@
         <article class="dash-card dash-card--rose"><span>Solicitudes pendientes</span><b>${openLeads.length}</b><small>${todayLeads.length} para hoy</small></article>
         <article class="dash-card"><span>Productos activos</span><b>${products.filter((p) => p.activo).length}</b><small>${products.length} total en inventario</small></article>
         <article class="dash-card dash-card--warn"><span>Stock bajo</span><b>${low.length}</b><small>${out.length} agotados</small></article>
+        <article class="dash-card dash-card--sale"><span>Ofertas activas</span><b>${sales.length}</b><small>visibles con precio y ahorro</small></article>
         <article class="dash-card dash-card--rose"><span>Revisar ficha</span><b>${noPhoto.length + noPrice.length}</b><small>${noPhoto.length} sin foto · ${noPrice.length} sin precio</small></article>`;
     }
 
@@ -398,6 +424,7 @@
     renderDashboardOrders();
     renderDashboardLeads();
     renderDashboardStock([...out, ...low].slice(0, 8));
+    renderDashboardOffers(sales);
     updateBadges();
   }
 
@@ -536,6 +563,21 @@
       </button>`).join("");
   }
 
+  function renderDashboardOffers(list) {
+    const target = $("#dashboardOffers");
+    if (!target) return;
+    if (!list.length) {
+      target.innerHTML = `<p class="muted empty-state">Aún no hay ofertas activas. Abre un producto y enciende “Este producto está en oferta”.</p>`;
+      return;
+    }
+    target.innerHTML = list.slice(0, 6).map(({ product, sale }) => `
+      <button class="mini-product mini-product--sale" type="button" data-offer-edit="${product.id}">
+        <span>Oferta · -${sale.percent}% · Ahorras ${money(sale.saving)}</span>
+        <strong>${esc(product.nombre)}</strong>
+        <small><s>${money(sale.before)}</s> · Ahora ${money(sale.price)}</small>
+      </button>`).join("");
+  }
+
   $("#crmAlerts").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-alert-edit]");
     if (!btn) return;
@@ -546,6 +588,11 @@
     const btn = e.target.closest("[data-alert-edit]");
     if (!btn) return;
     openEditor(products.find((p) => p.id === btn.getAttribute("data-alert-edit")));
+  });
+  $("#dashboardOffers")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-offer-edit]");
+    if (!btn) return;
+    openEditor(products.find((p) => p.id === btn.getAttribute("data-offer-edit")));
   });
 
   /* ---------- Ventana de edición ---------- */
@@ -1037,15 +1084,40 @@
     set("#f-precio", p ? p.precio : 0);
     set("#f-antes", p && p.antes ? p.antes : "");
     set("#f-stock", p ? p.stock : 0);
-    set("#f-badge", p ? p.badge : "");
+    set("#f-badge", p && !(saleInfo(p) && String(p.badge || "").trim().toLowerCase() === "oferta") ? p.badge : "");
     set("#f-sort", p && p.sort ? p.sort : 0);
     $("#f-activo").checked = p ? p.activo !== false : true;
+    $("#f-oferta").checked = Boolean(saleInfo(p));
     set("#f-descripcion", p ? p.descripcion : "");
     $("#imgStatus").textContent = "";
-    renderImgList(); renderFeatList();
+    renderImgList(); renderFeatList(); updateOfferEditor();
     $("#editModal").classList.add("is-open");
   }
   function closeEditor() { $("#editModal").classList.remove("is-open"); }
+
+  function updateOfferEditor() {
+    const enabled = $("#f-oferta").checked;
+    const fields = $("#offerFields");
+    const preview = $("#offerPreview");
+    fields.hidden = !enabled;
+    $("#f-precio-label").textContent = enabled ? "Precio de oferta ($)" : "Precio de venta ($)";
+    if (!enabled) {
+      preview.textContent = "";
+      return;
+    }
+    const sale = saleInfo({ precio: $("#f-precio").value, antes: $("#f-antes").value });
+    if (!sale) {
+      preview.innerHTML = `<strong>Completa los dos precios</strong><span>El precio normal debe ser mayor que el precio de oferta.</span>`;
+      return;
+    }
+    preview.innerHTML = `<strong>Ahora ${money(sale.price)}</strong><span>Antes ${money(sale.before)} · Ahorras ${money(sale.saving)} (${sale.percent}%)</span>`;
+  }
+
+  ["f-oferta", "f-precio", "f-antes"].forEach((id) => {
+    const field = $(`#${id}`);
+    if (!field) return;
+    field.addEventListener(id === "f-oferta" ? "change" : "input", updateOfferEditor);
+  });
 
   function renderImgList() {
     const c = $("#imgList");
@@ -1106,16 +1178,27 @@
 
   $("#editSave").addEventListener("click", async () => {
     const v = (id) => $(id).value;
+    const ofertaActiva = $("#f-oferta").checked;
+    const precio = parseFloat(v("#f-precio")) || 0;
+    const antes = ofertaActiva ? (parseFloat(v("#f-antes")) || 0) : 0;
+    const oferta = saleInfo({ precio, antes });
+    if (ofertaActiva && !oferta) {
+      toast("Para activar la oferta, el precio normal debe ser mayor que el precio de oferta.");
+      return;
+    }
+    const badge = v("#f-badge").trim();
     const p = {
       id: editingId || "p_" + Date.now(),
       nombre: v("#f-nombre").trim(),
       categoria: v("#f-categoria"),
       marca: v("#f-marca").trim(),
       recomendado: v("#f-recomendado").trim(),
-      precio: parseFloat(v("#f-precio")) || 0,
-      antes: parseFloat(v("#f-antes")) || 0,
+      precio,
+      antes,
       stock: parseInt(v("#f-stock")) || 0,
-      badge: v("#f-badge").trim(),
+      // La palabra "Oferta" ya la pone la tienda automáticamente. Se reserva
+      // esta etiqueta para mensajes distintos como "Nuevo" o "Más vendido".
+      badge: oferta && badge.toLowerCase() === "oferta" ? "" : badge,
       sort: parseInt(v("#f-sort")) || 0,
       activo: $("#f-activo").checked,
       descripcion: v("#f-descripcion").trim(),

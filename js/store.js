@@ -117,6 +117,13 @@
 
   const productById = (id) => products.find((p) => p.id === id);
   const isPriced = (p) => Number(p && p.precio) > 0;
+  function saleInfo(p) {
+    const price = Number(p && p.precio);
+    const before = Number(p && p.antes);
+    if (!Number.isFinite(price) || !Number.isFinite(before) || price <= 0 || before <= price) return null;
+    const saving = before - price;
+    return { price, before, saving, percent: Math.round((saving / before) * 100) };
+  }
 
   function consultUrl(p) {
     const name = p && p.nombre ? p.nombre : "un producto";
@@ -206,6 +213,7 @@
     grid.innerHTML = list.map((p) => {
       const agotado = p.stock <= 0;
       const sinPrecio = !isPriced(p);
+      const sale = saleInfo(p);
       const canBuy = !agotado;
       const rentable = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster"].includes(p.categoria);
       const desc = shortText(p.descripcion || p.recomendado || "", 118);
@@ -216,14 +224,16 @@
       else if (sinPrecio) stockTag = `<span class="card__stock card__stock--consult">Asesoría y cotización</span>`;
       else if (p.stock <= 5) stockTag = `<span class="card__stock card__stock--low">¡Solo quedan ${p.stock}!</span>`;
       else stockTag = `<span class="card__stock card__stock--ok">Disponible</span>`;
-      return `<article class="card ${agotado ? "card--out" : ""}">
+      const badge = String(p.badge || "").trim();
+      const showBadge = badge && !(sale && badge.toLowerCase() === "oferta");
+      return `<article class="card ${agotado ? "card--out" : ""} ${sale ? "card--sale" : ""}">
         <div class="card__media" data-detail="${p.id}">
           <span class="card__shine" aria-hidden="true"></span>
           ${media(p)}
           <span class="card__peek">Ver detalles</span>
           ${imgs.length > 1 ? `<span class="card__imageCount">${imgs.length} fotos</span>` : ""}
-          ${p.badge ? `<span class="card__badge">${p.badge}</span>` : ""}
-          ${(p.antes && p.precio > 0 && p.antes > p.precio) ? `<span class="card__off">-${Math.round((1 - p.precio / p.antes) * 100)}%</span>` : ""}
+          ${showBadge ? `<span class="card__badge">${esc(badge)}</span>` : ""}
+          ${sale ? `<span class="card__off">Oferta · -${sale.percent}%</span>` : ""}
           ${productThumbs(p)}
         </div>
         <div class="card__body">
@@ -236,7 +246,7 @@
           ${desc ? `<p class="card__desc">${esc(desc)}</p>` : ""}
           <div class="card__status">${stockTag}${rentable ? `<span class="card__rent">${icon("calendar")}También en alquiler</span>` : ""}${SEAT_CATS.includes(p.categoria) ? `<button class="card__cmp" type="button" data-compare="${p.id}" aria-label="Comparar ${esc(p.nombre)}">${icon("compare")}Comparar</button>` : ""}</div>
           <div class="card__foot">
-            <div class="card__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
+            <div class="card__price">${sale ? `<s>${money(sale.before)}</s>` : ""}<b>${precioTxt(p)}</b>${sale ? `<span class="card__saving">Ahorras ${money(sale.saving)}</span>` : ""}</div>
             ${canBuy
               ? `<button class="card__add" data-add="${p.id}" aria-label="Agregar ${esc(p.nombre)}">+</button>`
               : agotado
@@ -325,7 +335,10 @@
     const list = compareIds.map(productById).filter(Boolean);
     if (list.length < 2) { toast("Elige al menos 2 sillas para comparar"); return; }
     const rows = [
-      ["Precio", (p) => `<b>${precioTxt(p)}</b>${p.antes && isPriced(p) ? ` <s>${money(p.antes)}</s>` : ""}`],
+      ["Precio", (p) => {
+        const sale = saleInfo(p);
+        return `<b>${precioTxt(p)}</b>${sale ? ` <s>${money(sale.before)}</s><small class="cmp__saving">Ahorras ${money(sale.saving)} · -${sale.percent}%</small>` : ""}`;
+      }],
       ["Etapa recomendada", (p) => esc(p.recomendado || "Te confirmamos por WhatsApp")],
       ["Tipo", (p) => esc(CAT_LABEL[p.categoria] || p.categoria || "—")],
       ["Marca", (p) => esc(p.marca || "—")],
@@ -544,6 +557,7 @@
       ? `<ul class="detail__feats">${p.caracteristicas.map((f) => `<li>${f}</li>`).join("")}</ul>` : "";
     const agotado = p.stock <= 0;
     const sinPrecio = !isPriced(p);
+    const sale = saleInfo(p);
     const rentable = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster"].includes(p.categoria);
     $("#detailBody").innerHTML = `
       <div>${main}${thumbs}</div>
@@ -552,7 +566,7 @@
         ${p.marca ? `<span class="detail__brand">${p.marca}</span>` : ""}
         <h3>${p.nombre}</h3>
         ${p.recomendado ? `<p class="card__fit">${esc(p.recomendado)}</p>` : ""}
-        <div class="detail__price">${p.antes ? `<s>${money(p.antes)}</s>` : ""}<b>${precioTxt(p)}</b></div>
+        <div class="detail__price">${sale ? `<s>${money(sale.before)}</s>` : ""}<b>${precioTxt(p)}</b>${sale ? `<span class="detail__saving">Ahorras ${money(sale.saving)} · ${sale.percent}% menos</span>` : ""}</div>
         <p class="detail__desc">${p.descripcion || ""}</p>
         ${feats}
         ${agotado
