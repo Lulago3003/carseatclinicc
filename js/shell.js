@@ -18,6 +18,16 @@
 
   if (document.getElementById("cscShell")) return;
 
+  // La novedad destacada se llena después desde store.js. Se crea aquí para
+  // que pueda aparecer igual en Inicio, Tienda, Alquiler, Servicios y FAQ.
+  const instagramNotice = document.createElement("section");
+  instagramNotice.id = "instagramNotice";
+  instagramNotice.className = "instagram-notice";
+  instagramNotice.hidden = true;
+  instagramNotice.setAttribute("aria-live", "polite");
+  const pageHeader = document.querySelector("header");
+  if (pageHeader) pageHeader.insertAdjacentElement("afterend", instagramNotice);
+
   const shell = document.createElement("div");
   shell.id = "cscShell";
   shell.innerHTML = `

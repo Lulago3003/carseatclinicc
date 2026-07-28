@@ -68,8 +68,10 @@
   let products = [];          // cache para el panel
   let orders = [];
   let serviceLeads = [];
+  let instagramPosts = [];
   let ordersCount = 0;
   let editingId = null;
+  let editingInstagramId = null;
   let editorImages = [];
   let editorFeatures = [];
 
@@ -120,6 +122,7 @@
     await renderProducts();
     await renderOrders();
     await renderServiceLeads();
+    await renderInstagramPosts();
     renderDashboard();
     updateConvBadge();
   }
@@ -145,12 +148,13 @@
       x.classList.toggle("is-active", active);
       x.setAttribute("aria-selected", String(active));
     });
-    ["dashboard", "productos", "pedidos", "agenda", "conversaciones"].forEach((tab) => {
+    ["dashboard", "productos", "pedidos", "agenda", "conversaciones", "instagram"].forEach((tab) => {
       const panel = $(`#tab-${tab}`);
       if (panel) panel.hidden = tab !== name;
     });
     if (name === "agenda") renderServiceLeads();
     if (name === "conversaciones") renderConversaciones();
+    if (name === "instagram") renderInstagramPosts();
   }
 
   async function renderConversaciones() {
@@ -239,6 +243,227 @@
     }
     activateTab(btn.getAttribute("data-jump-tab"));
   }));
+
+  /* ---------- Instagram: novedades que se ven en la web ---------- */
+  // Valida el dominio y la ruta exacta. Un enlace de perfil o uno copiado de
+  // otra web no se guarda como si fuera una publicación de Instagram.
+  function normalizeInstagramUrl(value) {
+    try {
+      const parsed = new URL(String(value || "").trim());
+      const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+      const parts = parsed.pathname.split("/").filter(Boolean);
+      const rawType = (parts[0] || "").toLowerCase();
+      const type = rawType === "reels" ? "reel" : rawType;
+      const id = parts[1] || "";
+      if (parsed.protocol !== "https:" || host !== "instagram.com" || !["p", "reel", "tv"].includes(type) || !/^[A-Za-z0-9_-]+$/.test(id)) return "";
+      return `https://www.instagram.com/${type}/${id}/`;
+    } catch (e) { return ""; }
+  }
+
+  function isoToDatetimeLocal(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    const local = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    return local.toISOString().slice(0, 16);
+  }
+
+  function datetimeLocalToIso(value) {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString();
+  }
+
+  function formatInstagramDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleString("es-PA", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+  }
+
+  function isInstagramPostVisible(post) {
+    if (!post || !post.activo) return false;
+    return !post.ocultarEl || new Date(post.ocultarEl).getTime() > Date.now();
+  }
+
+  function instagramPostState(post) {
+    if (!post.activo) return { label: "Oculta", kind: "hidden" };
+    if (post.ocultarEl && new Date(post.ocultarEl).getTime() <= Date.now()) return { label: "Vencida", kind: "expired" };
+    if (post.destacado) return { label: "Arriba de la web", kind: "featured" };
+    return { label: "Visible en portada", kind: "visible" };
+  }
+
+  function instagramDatabaseMessage(error) {
+    const text = String((error && (error.message || error.details || error.hint)) || error || "").toLowerCase();
+    if (/instagram_posts|relation|schema cache|permission|row-level/.test(text)) {
+      return "Falta activar esta sección una sola vez. Abre Supabase → SQL Editor y ejecuta el archivo supabase-instagram.sql.";
+    }
+    return "No se pudieron cargar las novedades. Revisa la conexión e inténtalo de nuevo.";
+  }
+
+  async function renderInstagramPosts() {
+    const target = $("#instagramPostsList");
+    if (!target) return;
+    target.innerHTML = `<p class="muted">Cargando novedades…</p>`;
+    try {
+      instagramPosts = await DB.getInstagramPostsAdmin();
+    } catch (error) {
+      instagramPosts = [];
+      target.innerHTML = `<p class="muted empty-state">${esc(instagramDatabaseMessage(error))}</p>`;
+      renderDashboardInstagram();
+      return;
+    }
+
+    if (!instagramPosts.length) {
+      target.innerHTML = `<p class="muted empty-state">Aún no hay novedades. Crea una y podrás mostrarla arriba de toda la web.</p>`;
+      renderDashboardInstagram();
+      return;
+    }
+
+    target.innerHTML = instagramPosts.map((post) => {
+      const state = instagramPostState(post);
+      const url = normalizeInstagramUrl(post.enlace);
+      const expires = post.ocultarEl ? ` · se oculta ${formatInstagramDate(post.ocultarEl)}` : "";
+      const changed = post.updated_at ? `Actualizada ${formatInstagramDate(post.updated_at)}` : "";
+      return `<article class="ig-admin-card ${post.destacado && isInstagramPostVisible(post) ? "ig-admin-card--featured" : ""}">
+        <div class="ig-admin-card__head">
+          <div>
+            <strong>${esc(post.titulo || "Nueva publicación en Instagram")}</strong>
+            <small>${esc(`${changed}${expires}`.replace(/^ · | · $/g, "") || "Sin fecha")}</small>
+          </div>
+          <span class="ig-admin-card__state ig-admin-card__state--${state.kind}">${esc(state.label)}</span>
+        </div>
+        ${post.texto ? `<p class="ig-admin-card__text">${esc(post.texto)}</p>` : ""}
+        <div class="ig-admin-card__actions">
+          ${url ? `<a class="btn btn--ghost" href="${url}" target="_blank" rel="noopener">Abrir Instagram</a>` : ""}
+          <button class="btn btn--ghost" type="button" data-ig-edit="${esc(post.id)}">Editar</button>
+          ${!post.destacado && post.activo ? `<button class="btn btn--ghost" type="button" data-ig-feature="${esc(post.id)}">Mostrar arriba</button>` : ""}
+          <button class="btn btn--ghost" type="button" data-ig-toggle="${esc(post.id)}">${post.activo ? "Ocultar" : "Activar"}</button>
+          <button class="btn btn--ghost" type="button" data-ig-delete="${esc(post.id)}">Eliminar</button>
+        </div>
+      </article>`;
+    }).join("");
+    renderDashboardInstagram();
+  }
+
+  function openInstagramEditor(post) {
+    const form = $("#instagramPostForm");
+    if (!form) return;
+    editingInstagramId = post ? post.id : null;
+    form.reset();
+    $("#instagramEditorTitle").textContent = post ? "Editar novedad" : "Nueva novedad";
+    $("#ig-post-link").value = post ? post.enlace : "";
+    $("#ig-post-title").value = post ? post.titulo : "Nueva publicación en Instagram";
+    $("#ig-post-text").value = post ? post.texto : "";
+    $("#ig-post-expire").value = post ? isoToDatetimeLocal(post.ocultarEl) : "";
+    $("#ig-post-active").checked = post ? post.activo : true;
+    $("#ig-post-featured").checked = post ? post.destacado : true;
+    $("#saveInstagramPost").textContent = post ? "Guardar cambios" : "Guardar y mostrar";
+    $("#instagramPostStatus").textContent = "";
+    updateInstagramPreview();
+    if (post) $("#ig-post-link").focus();
+  }
+
+  function updateInstagramPreview() {
+    const target = $("#instagramPostPreview");
+    if (!target) return;
+    const rawUrl = $("#ig-post-link").value;
+    const url = normalizeInstagramUrl(rawUrl);
+    const title = $("#ig-post-title").value.trim() || "Nueva publicación en Instagram";
+    const message = $("#ig-post-text").value.trim() || "La familia verá este aviso y podrá abrir la publicación.";
+    const active = $("#ig-post-active").checked;
+    const featured = active && $("#ig-post-featured").checked;
+    if (!rawUrl.trim()) {
+      target.classList.remove("is-valid");
+      target.textContent = "Pega aquí el enlace de un post o Reel para ver cómo quedará.";
+      return;
+    }
+    if (!url) {
+      target.classList.remove("is-valid");
+      target.textContent = "Ese enlace no parece una publicación o Reel de Instagram. Abre la publicación y copia el enlace completo.";
+      return;
+    }
+    target.classList.add("is-valid");
+    target.innerHTML = `<span class="instagram-preview__pill">${featured ? "Arriba de la web" : active ? "Visible en portada" : "Guardada, no visible"}</span>
+      <div class="instagram-preview__copy"><strong>${esc(title)}</strong><span>${esc(message)}</span></div>`;
+  }
+
+  $("#newInstagramPost")?.addEventListener("click", () => openInstagramEditor(null));
+  $("#cancelInstagramPost")?.addEventListener("click", () => openInstagramEditor(null));
+  ["ig-post-link", "ig-post-title", "ig-post-text", "ig-post-expire", "ig-post-active", "ig-post-featured"].forEach((id) => {
+    const input = $(`#${id}`);
+    if (input) input.addEventListener("input", updateInstagramPreview);
+    if (input) input.addEventListener("change", updateInstagramPreview);
+  });
+
+  $("#instagramPostForm")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const link = normalizeInstagramUrl($("#ig-post-link").value);
+    const title = $("#ig-post-title").value.trim();
+    const status = $("#instagramPostStatus");
+    if (!link) {
+      status.textContent = "Pega un enlace válido de una publicación o Reel de Instagram.";
+      toast("Revisa el enlace de Instagram");
+      return;
+    }
+    if (!title) {
+      status.textContent = "Escribe un título corto para que la familia entienda la novedad.";
+      return;
+    }
+    const active = $("#ig-post-active").checked;
+    const featured = active && $("#ig-post-featured").checked;
+    const post = {
+      id: editingInstagramId,
+      enlace: link,
+      titulo: title,
+      texto: $("#ig-post-text").value.trim(),
+      activo: active,
+      destacado: featured,
+      ocultarEl: datetimeLocalToIso($("#ig-post-expire").value),
+    };
+    const button = $("#saveInstagramPost");
+    button.disabled = true;
+    button.textContent = "Guardando…";
+    status.textContent = "";
+    try {
+      await DB.saveInstagramPost(post);
+      toast(featured ? "Novedad guardada y mostrada arriba de la web" : active ? "Publicación guardada en la portada" : "Novedad guardada como oculta");
+      await renderInstagramPosts();
+      openInstagramEditor(null);
+      renderDashboard();
+    } catch (error) {
+      status.textContent = instagramDatabaseMessage(error);
+      toast("No se pudo guardar la novedad");
+    }
+    button.disabled = false;
+    button.textContent = editingInstagramId ? "Guardar cambios" : "Guardar y mostrar";
+  });
+
+  $("#instagramPostsList")?.addEventListener("click", async (event) => {
+    const edit = event.target.closest("[data-ig-edit]");
+    const feature = event.target.closest("[data-ig-feature]");
+    const toggle = event.target.closest("[data-ig-toggle]");
+    const del = event.target.closest("[data-ig-delete]");
+    const id = (edit || feature || toggle || del)?.getAttribute(edit ? "data-ig-edit" : feature ? "data-ig-feature" : toggle ? "data-ig-toggle" : "data-ig-delete");
+    const post = instagramPosts.find((item) => item.id === id);
+    if (!id || !post) return;
+    if (edit) { openInstagramEditor(post); return; }
+    try {
+      if (feature) {
+        await DB.saveInstagramPost({ ...post, activo: true, destacado: true });
+        toast("Ahora esta publicación aparece arriba de la web");
+      } else if (toggle) {
+        const nextActive = !post.activo;
+        await DB.saveInstagramPost({ ...post, activo: nextActive, destacado: nextActive ? post.destacado : false });
+        toast(nextActive ? "Publicación activada" : "Publicación ocultada");
+      } else if (del) {
+        if (!confirm("¿Eliminar esta novedad? No se puede deshacer.")) return;
+        await DB.deleteInstagramPost(id);
+        toast("Novedad eliminada");
+      }
+      await renderInstagramPosts();
+      renderDashboard();
+    } catch (error) { toast("No se pudo actualizar la novedad"); }
+  });
 
   function setAdminDate() {
     const target = $("#adminDate");
@@ -408,6 +633,7 @@
     const newOrders = orders.filter((o) => (o.status || "nuevo") === "nuevo");
     const openLeads = serviceLeads.filter(leadIsOpen);
     const todayLeads = serviceLeads.filter(isLeadToday);
+    const featuredInstagram = instagramPosts.find((post) => post.destacado && isInstagramPostVisible(post));
 
     const stats = $("#dashboardStats");
     if (stats) {
@@ -417,6 +643,7 @@
         <article class="dash-card"><span>Productos activos</span><b>${products.filter((p) => p.activo).length}</b><small>${products.length} total en inventario</small></article>
         <article class="dash-card dash-card--warn"><span>Stock bajo</span><b>${low.length}</b><small>${out.length} agotados</small></article>
         <article class="dash-card dash-card--sale"><span>Ofertas activas</span><b>${sales.length}</b><small>visibles con precio y ahorro</small></article>
+        <article class="dash-card"><span>Instagram</span><b>${featuredInstagram ? "Sí" : "—"}</b><small>${featuredInstagram ? "una novedad arriba de la web" : "sin novedad destacada"}</small></article>
         <article class="dash-card dash-card--rose"><span>Revisar ficha</span><b>${noPhoto.length + noPrice.length}</b><small>${noPhoto.length} sin foto · ${noPrice.length} sin precio</small></article>`;
     }
 
@@ -425,6 +652,7 @@
     renderDashboardLeads();
     renderDashboardStock([...out, ...low].slice(0, 8));
     renderDashboardOffers(sales);
+    renderDashboardInstagram();
     updateBadges();
   }
 
@@ -578,6 +806,25 @@
       </button>`).join("");
   }
 
+  function renderDashboardInstagram() {
+    const target = $("#dashboardInstagram");
+    if (!target) return;
+    const featured = instagramPosts.find((post) => post.destacado && isInstagramPostVisible(post));
+    if (!featured) {
+      target.innerHTML = `<button class="mini-product" type="button" data-jump-tab="instagram">
+        <span>Sin novedad destacada</span>
+        <strong>Elige una publicación para mostrarla arriba de toda la web</strong>
+        <small>La clienta solo pega el enlace de Instagram desde el CRM.</small>
+      </button>`;
+      return;
+    }
+    target.innerHTML = `<button class="mini-product mini-product--sale" type="button" data-ig-edit="${esc(featured.id)}">
+      <span>Visible arriba de la web</span>
+      <strong>${esc(featured.titulo || "Nueva publicación en Instagram")}</strong>
+      <small>${esc(featured.texto || "La familia puede abrir esta publicación desde el aviso.")}</small>
+    </button>`;
+  }
+
   $("#crmAlerts").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-alert-edit]");
     if (!btn) return;
@@ -593,6 +840,16 @@
     const btn = e.target.closest("[data-offer-edit]");
     if (!btn) return;
     openEditor(products.find((p) => p.id === btn.getAttribute("data-offer-edit")));
+  });
+  $("#dashboardInstagram")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-ig-edit]");
+    if (btn) {
+      const post = instagramPosts.find((item) => item.id === btn.getAttribute("data-ig-edit"));
+      activateTab("instagram");
+      if (post) openInstagramEditor(post);
+      return;
+    }
+    if (e.target.closest("[data-jump-tab]")) activateTab("instagram");
   });
 
   /* ---------- Ventana de edición ---------- */

@@ -5,8 +5,10 @@ const files = {
   js: readFileSync("js/admin.js", "utf8"),
   css: readFileSync("css/styles.css", "utf8"),
   db: readFileSync("js/supabase.js", "utf8"),
+  shell: readFileSync("js/shell.js", "utf8"),
   chat: readFileSync("js/chat-widget.js", "utf8"),
   store: readFileSync("js/store.js", "utf8"),
+  instagramSql: readFileSync("supabase-instagram.sql", "utf8"),
 };
 
 const checks = [
@@ -44,6 +46,14 @@ const checks = [
   ["Panama local dates", files.js.includes("function localDateKey") && files.store.includes("const localDateInput")],
   ["server update outcome is exposed", files.db.includes("savedToServer") && files.db.includes("avisarCrmCaido(error)")],
   ["conversations use latest message", files.js.includes("function renderConversaciones") && files.js.includes("const latest = (msgs)")],
+  ["instagram CRM tab", files.html.includes('data-tab="instagram"') && files.html.includes('id="tab-instagram"')],
+  ["instagram CRM form", files.html.includes('id="instagramPostForm"') && files.html.includes('id="ig-post-link"') && files.html.includes('id="ig-post-featured"')],
+  ["instagram CRM actions", files.js.includes("function renderInstagramPosts") && files.js.includes("DB.saveInstagramPost") && files.js.includes("DB.deleteInstagramPost")],
+  ["instagram URL validation", files.js.includes("function normalizeInstagramUrl") && files.js.includes('host !== "instagram.com"')],
+  ["instagram database API", files.db.includes("getInstagramPostsAdmin") && files.db.includes("saveInstagramPost") && files.db.includes("instagram_posts")],
+  ["instagram database is protected", files.instagramSql.includes("enable row level security") && files.instagramSql.includes("Public can view active Instagram posts") && files.instagramSql.includes("Admins manage Instagram posts")],
+  ["instagram banner shell", files.shell.includes('id = "instagramNotice"')],
+  ["instagram CRM styles", files.css.includes(".instagram-admin-grid") && files.css.includes(".ig-admin-card")],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);

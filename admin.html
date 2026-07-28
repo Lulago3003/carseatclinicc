@@ -8,7 +8,7 @@
   <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=2026-07-27c" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-28a" />
 </head>
 <body class="admin">
 
@@ -64,6 +64,7 @@
           <button class="tab" id="tab-button-pedidos" data-tab="pedidos" type="button" role="tab" aria-controls="tab-pedidos" aria-selected="false">Pedidos <span class="tab__badge" id="badge-pedidos" hidden></span></button>
           <button class="tab" id="tab-button-agenda" data-tab="agenda" type="button" role="tab" aria-controls="tab-agenda" aria-selected="false">Solicitudes <span class="tab__badge" id="badge-agenda" hidden></span></button>
           <button class="tab" id="tab-button-conversaciones" data-tab="conversaciones" type="button" role="tab" aria-controls="tab-conversaciones" aria-selected="false">Conversaciones <span class="tab__badge" id="badge-conversaciones" hidden></span></button>
+          <button class="tab" id="tab-button-instagram" data-tab="instagram" type="button" role="tab" aria-controls="tab-instagram" aria-selected="false">Instagram</button>
         </div>
       </aside>
 
@@ -114,6 +115,17 @@
                 <button class="link-btn" type="button" data-jump-tab="productos" data-product-filter="sale">Gestionar ofertas</button>
               </div>
               <div id="dashboardOffers" class="admin-mini-list admin-mini-list--grid"></div>
+            </section>
+
+            <section class="admin-panel admin-panel--wide admin-panel--instagram">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Contenido</span>
+                  <h3>Novedad destacada de Instagram</h3>
+                </div>
+                <button class="link-btn" type="button" data-jump-tab="instagram">Gestionar Instagram</button>
+              </div>
+              <div id="dashboardInstagram" class="admin-mini-list"></div>
             </section>
 
             <section class="admin-panel admin-panel--wide">
@@ -272,6 +284,63 @@
           <p class="muted">Lo que preguntaron los clientes y lo que respondió el asistente. Te sirve para captar consultas y mejorar la atención.</p>
           <div id="convList" class="admin__list"></div>
         </div>
+
+        <!-- Instagram -->
+        <div id="tab-instagram" class="tab-panel" role="tabpanel" aria-labelledby="tab-button-instagram" hidden>
+          <div class="admin__bar">
+            <div>
+              <span class="eyebrow">Contenido</span>
+              <h2>Novedades de Instagram</h2>
+            </div>
+            <button class="btn btn--primary" id="newInstagramPost" type="button">Nueva novedad</button>
+          </div>
+          <p class="muted instagram-admin__intro">Pega el enlace de una publicación o Reel y elige si quieres mostrarlo arriba de toda la web. No necesitas contraseña de Instagram.</p>
+
+          <div class="instagram-admin-grid">
+            <section class="admin-panel instagram-editor">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Anuncio web</span>
+                  <h3 id="instagramEditorTitle">Nueva novedad</h3>
+                </div>
+              </div>
+              <form id="instagramPostForm" class="instagram-form">
+                <label>Enlace de Instagram
+                  <input id="ig-post-link" type="url" inputmode="url" required placeholder="https://www.instagram.com/p/..." />
+                </label>
+                <label>Título que verá la familia
+                  <input id="ig-post-title" type="text" required maxlength="90" placeholder="Ej. Consejos para viajar seguros" />
+                </label>
+                <label>Mensaje corto (opcional)
+                  <textarea id="ig-post-text" rows="3" maxlength="180" placeholder="Ej. Mira nuestra nueva publicación y guarda este consejo."></textarea>
+                </label>
+                <label>Ocultar automáticamente (opcional)
+                  <input id="ig-post-expire" type="datetime-local" />
+                </label>
+                <div class="instagram-form__checks">
+                  <label class="check-inline"><input id="ig-post-active" type="checkbox" checked /> Visible en la web</label>
+                  <label class="check-inline"><input id="ig-post-featured" type="checkbox" checked /> Mostrar arriba como novedad</label>
+                </div>
+                <div id="instagramPostPreview" class="instagram-preview" aria-live="polite"></div>
+                <p id="instagramPostStatus" class="instagram-form__status" aria-live="polite"></p>
+                <div class="edit-actions">
+                  <button class="btn btn--primary" id="saveInstagramPost" type="submit">Guardar y mostrar</button>
+                  <button class="btn btn--ghost" id="cancelInstagramPost" type="button">Limpiar</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="admin-panel">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Historial</span>
+                  <h3>Publicaciones preparadas</h3>
+                </div>
+              </div>
+              <div id="instagramPostsList" class="instagram-admin-list"></div>
+            </section>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -342,8 +411,8 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=2026-07-27c"></script>
-  <script src="js/supabase.js?v=2026-07-27c"></script>
-  <script src="js/admin.js?v=2026-07-27c"></script>
+  <script src="js/data.js?v=2026-07-28a"></script>
+  <script src="js/supabase.js?v=2026-07-28a"></script>
+  <script src="js/admin.js?v=2026-07-28a"></script>
 </body>
 </html>

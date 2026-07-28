@@ -1027,6 +1027,45 @@ body.admin [hidden] { display: none !important; }
 .admin-panel--wide { grid-column: 1 / -1; }
 .admin-panel__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
 .admin-panel h3 { font-size: 1.08rem; }
+
+/* ---------- CRM: novedades de Instagram ---------- */
+.instagram-admin__intro { max-width: 70ch; margin: -2px 0 18px; }
+.instagram-admin-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(320px, 1.05fr); gap: 18px; align-items: start; }
+.instagram-editor { position: sticky; top: 92px; }
+.instagram-form { display: flex; flex-direction: column; gap: 14px; }
+.instagram-form > label { margin: 0; color: var(--brand-dark); font-size: .8rem; font-weight: 800; letter-spacing: .035em; text-transform: uppercase; }
+.instagram-form input, .instagram-form textarea { width: 100%; margin-top: 7px; background: #fff; }
+.instagram-form textarea { resize: vertical; min-height: 86px; }
+.instagram-form__checks { display: flex; gap: 14px; flex-wrap: wrap; padding: 4px 0 0; }
+.instagram-form__checks .check-inline { margin: 0; }
+.instagram-preview {
+  min-height: 74px; display: flex; align-items: center; gap: 12px; padding: 14px;
+  border: 1px dashed var(--line); border-radius: 14px; background: var(--bg-alt); color: var(--muted); font-size: .86rem;
+}
+.instagram-preview.is-valid { border-style: solid; border-color: rgba(47,62,52,.22); background: linear-gradient(135deg, #f3f7f1, #fff); color: var(--ink); }
+.instagram-preview__pill, .ig-admin-card__state {
+  display: inline-flex; align-items: center; min-height: 24px; padding: 0 9px; border-radius: 999px;
+  background: var(--brand); color: #fff; font-size: .68rem; font-weight: 800; letter-spacing: .035em; text-transform: uppercase; white-space: nowrap;
+}
+.instagram-preview__copy { min-width: 0; }
+.instagram-preview__copy strong, .instagram-preview__copy span { display: block; }
+.instagram-preview__copy strong { color: var(--brand-dark); }
+.instagram-preview__copy span { color: var(--muted); font-size: .8rem; margin-top: 2px; }
+.instagram-form__status { min-height: 1.15em; margin: -3px 0 0; color: var(--accent-dark); font-size: .82rem; }
+.instagram-admin-list { display: flex; flex-direction: column; gap: 12px; }
+.ig-admin-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 15px; }
+.ig-admin-card--featured { border-color: rgba(47,62,52,.34); box-shadow: 0 10px 24px rgba(47,62,52,.08); }
+.ig-admin-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ig-admin-card__head > div { min-width: 0; }
+.ig-admin-card__head strong, .ig-admin-card__head small { display: block; }
+.ig-admin-card__head strong { color: var(--ink); overflow-wrap: anywhere; }
+.ig-admin-card__head small { color: var(--muted); font-size: .78rem; margin-top: 4px; }
+.ig-admin-card__state--hidden { background: #68716b; }
+.ig-admin-card__state--expired { background: #9a6a2f; }
+.ig-admin-card__state--featured { background: var(--accent-dark); }
+.ig-admin-card__text { margin: 10px 0 0; color: var(--muted); font-size: .86rem; line-height: 1.48; }
+.ig-admin-card__actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.ig-admin-card__actions .btn { padding: 7px 11px; font-size: .78rem; min-height: 34px; }
 .link-btn {
   background: transparent; border: none; color: var(--brand-dark); cursor: pointer; font: inherit; font-weight: 800;
   padding: 4px 0; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
@@ -1324,6 +1363,8 @@ body.admin [hidden] { display: none !important; }
 @media (max-width: 820px) {
   .admin-dashboard, .admin__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .admin-grid--dashboard, .admin-mini-list--grid, .schedule-board { grid-template-columns: 1fr; }
+  .instagram-admin-grid { grid-template-columns: 1fr; }
+  .instagram-editor { position: static; }
   .admin-filters, .admin-filters--orders, .admin-filters--leads { grid-template-columns: 1fr; }
   .admin-filters .btn { width: 100%; }
   .order-customer, .lead-meta { grid-template-columns: 1fr; }
@@ -1347,6 +1388,8 @@ body.admin [hidden] { display: none !important; }
   .offer-editor__fields { grid-template-columns: 1fr; }
   .offer-switch { font-size: .88rem; }
   .feat-add, .edit-actions { flex-direction: column; }
+  .instagram-form__checks { flex-direction: column; gap: 9px; }
+  .ig-admin-card__head { flex-direction: column; }
 }
 
 /* ---------- Ficha de producto (tienda) ---------- */
@@ -2042,6 +2085,22 @@ body.nav-open { overflow: hidden; }
    paleta de la marca: el aro del perfil va rosa→salvia en vez del
    degradado de Instagram, para que no pelee con el verde bosque.
    ===================================================================== */
+.instagram-notice {
+  position: relative; z-index: 4; background: linear-gradient(90deg, var(--brand) 0%, #45594a 100%);
+  color: #fff; border-bottom: 1px solid rgba(255,255,255,.18);
+}
+.instagram-notice__inner { min-height: 58px; display: flex; align-items: center; gap: 14px; padding-top: 9px; padding-bottom: 9px; }
+.instagram-notice__badge {
+  display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border-radius: 999px;
+  background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.2); color: #fff;
+  font-size: .7rem; font-weight: 800; letter-spacing: .055em; text-transform: uppercase; white-space: nowrap;
+}
+.instagram-notice__copy { min-width: 0; flex: 1; display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
+.instagram-notice__copy strong { color: #fff; font-size: .92rem; }
+.instagram-notice__copy span { color: rgba(255,255,255,.8); font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 56ch; }
+.instagram-notice__link { color: #fff; font-weight: 800; font-size: .84rem; white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; }
+.instagram-notice__link:hover { color: #fff; opacity: .8; }
+
 .iggram {
   background: linear-gradient(180deg, #fff 0%, var(--brand-soft) 100%);
   padding-bottom: 64px;
@@ -2114,6 +2173,10 @@ body.nav-open { overflow: hidden; }
 
 /* --- Teléfono: el riel se desliza de lado, como en Instagram --- */
 @media (max-width: 860px) {
+  .instagram-notice__inner { align-items: flex-start; flex-wrap: wrap; gap: 8px 11px; padding-top: 11px; padding-bottom: 11px; }
+  .instagram-notice__copy { flex: 1 1 220px; display: block; }
+  .instagram-notice__copy span { display: block; margin-top: 2px; max-width: 100%; }
+  .instagram-notice__link { margin-left: auto; }
   .iggram { padding-bottom: 48px; }
   .ig__head { align-items: flex-start; gap: 18px; }
   .ig__bar { width: 100%; }
@@ -2131,6 +2194,7 @@ body.nav-open { overflow: hidden; }
   .ig__invite .btn { width: 100%; }
 }
 @media (max-width: 400px) {
+  .instagram-notice__link { width: 100%; margin-left: 0; }
   .ig__card { flex-basis: 86%; }
 }
 

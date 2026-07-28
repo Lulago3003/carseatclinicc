@@ -319,6 +319,90 @@ const DB = (function () {
     if (error) throw error;
   }
 
+  /* ---------- Novedades de Instagram (CRM) ---------- */
+  // La web usa nombres en español; la tabla mantiene nombres cortos en inglés.
+  // Esta conversión deja el resto del sitio sencillo y evita duplicar lógica.
+  function normalizeInstagramPost(row = {}) {
+    return {
+      id: row.id || null,
+      enlace: row.url || row.enlace || "",
+      titulo: row.title || row.titulo || "Nuevo en Instagram",
+      texto: row.message || row.texto || "",
+      activo: row.active !== undefined ? Boolean(row.active) : row.activo !== false,
+      destacado: row.featured !== undefined ? Boolean(row.featured) : Boolean(row.destacado),
+      ocultarEl: row.expires_at || row.ocultarEl || null,
+      created_at: row.created_at || null,
+      updated_at: row.updated_at || row.created_at || null,
+    };
+  }
+
+  // Consulta pública: la política de Supabase ya deja pasar únicamente lo que
+  // está activo y no vencido. Si la tabla aún no existe, la portada conserva
+  // su bloque normal de Instagram sin mostrar un error al visitante.
+  async function getInstagramPosts() {
+    if (!ready) return [];
+    const { data, error } = await client
+      .from("instagram_posts")
+      .select("*")
+      .order("featured", { ascending: false })
+      .order("updated_at", { ascending: false })
+      .limit(6);
+    if (error) {
+      console.warn("[Car Seat Clinic] No se pudieron cargar las novedades de Instagram.", error.message || error);
+      return [];
+    }
+    return (data || []).map(normalizeInstagramPost);
+  }
+
+  // Consulta del CRM: incluye también los anuncios ocultos y vencidos.
+  async function getInstagramPostsAdmin() {
+    if (!ready) return [];
+    const { data, error } = await client
+      .from("instagram_posts")
+      .select("*")
+      .order("featured", { ascending: false })
+      .order("updated_at", { ascending: false });
+    if (error) throw error;
+    return (data || []).map(normalizeInstagramPost);
+  }
+
+  async function saveInstagramPost(post) {
+    if (!ready) throw new Error("Base de datos no conectada");
+    const item = normalizeInstagramPost(post);
+    const now = new Date().toISOString();
+
+    // El índice de la tabla protege que solo haya un anuncio arriba. Primero
+    // se desmarca el anterior y luego se guarda este, todo desde el CRM admin.
+    if (item.activo && item.destacado) {
+      const { error: clearError } = await client
+        .from("instagram_posts")
+        .update({ featured: false, updated_at: now })
+        .eq("featured", true)
+        .eq("active", true);
+      if (clearError) throw clearError;
+    }
+
+    const row = {
+      ...(item.id ? { id: item.id } : {}),
+      url: item.enlace,
+      title: item.titulo || "Nuevo en Instagram",
+      message: item.texto || null,
+      active: item.activo,
+      featured: item.activo && item.destacado,
+      expires_at: item.ocultarEl || null,
+      updated_at: now,
+    };
+    const { data, error } = await client.from("instagram_posts").upsert(row).select().single();
+    if (error) throw error;
+    return normalizeInstagramPost(data);
+  }
+
+  async function deleteInstagramPost(id) {
+    if (!ready) throw new Error("Base de datos no conectada");
+    const { error } = await client.from("instagram_posts").delete().eq("id", id);
+    if (error) throw error;
+  }
+
   /* ---------- Autenticación ---------- */
   async function signUp(email, password, meta) {
     if (!ready) throw new Error("DEMO");
@@ -369,6 +453,7 @@ const DB = (function () {
     placeOrder, getMyOrders, updateOrderStatus, crearPago,
     guardarMensaje, preguntarIA, getConversaciones,
     guardarLead, getServiceLeads, updateLeadStatus, updateLead,
+    getInstagramPosts, getInstagramPostsAdmin, saveInstagramPost, deleteInstagramPost,
     signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };
 })();

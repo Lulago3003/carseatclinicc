@@ -9,6 +9,7 @@ const files = {
   servicios: readFileSync("servicios.html", "utf8"),
   css: readFileSync("css/styles.css", "utf8"),
   js: readFileSync("js/store.js", "utf8"),
+  db: readFileSync("js/supabase.js", "utf8"),
   shell: readFileSync("js/shell.js", "utf8"),
   data: readFileSync("js/data.js", "utf8"),
   chat: readFileSync("js/chat-assistant.js", "utf8"),
@@ -85,6 +86,9 @@ const checks = [
   ["render de Instagram", files.js.includes("function renderInstagram") && files.js.includes("function instaId")],
   ["publicaciones incrustadas de la cuenta oficial", files.js.includes("/embed/") && files.js.includes("INSTAGRAM.usuario")],
   ["estilos de Instagram (con riel móvil)", files.css.includes(".ig__rail") && files.css.includes("scroll-snap-type")],
+  ["aviso de Instagram en toda la web", files.shell.includes('id = "instagramNotice"') && files.js.includes("function renderInstagramNotice") && files.css.includes(".instagram-notice")],
+  ["novedades públicas desde Supabase", files.db.includes("getInstagramPosts") && files.db.includes("instagram_posts")],
+  ["enlace de Instagram validado", files.js.includes("function instagramPostInfo") && files.js.includes('host !== "instagram.com"')],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);

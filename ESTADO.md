@@ -54,6 +54,13 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       con la publicación real incrustada. En teléfono es un riel que se desliza
       de lado. Se edita pegando enlaces en `js/data.js` → `INSTAGRAM.publicaciones`;
       con la lista vacía se convierte sola en "Síguenos en Instagram".
+- [x] **Novedades de Instagram desde el CRM**: nueva pestaña **Instagram** en
+      `admin.html`. La administradora pega un enlace de post o Reel, escribe un
+      título/mensaje, puede ocultarlo en una fecha y marcar una sola publicación
+      como destacada. Esa novedad aparece como franja arriba de todas las páginas
+      y también entra a la sección de la portada. No se piden ni guardan claves
+      de Facebook/Instagram. Código: `supabase-instagram.sql`, `js/supabase.js`,
+      `js/admin.js`, `js/store.js` y `js/shell.js`.
 
 - [x] **Mejoras de diseño (julio 2026)**, medidas en teléfono de 375px:
       (1) **Pop-up del boletín**: antes salía a los 16 s y tapaba el 40% de la
@@ -81,9 +88,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       solo por salir primero, no por ser un destacado real.
 
 ### ⬜ Pendiente de esta tanda
-- [ ] **Enlaces de las publicaciones de @carseatclinicc**: pegar de 3 a 6 en
-      `js/data.js` → `INSTAGRAM.publicaciones` para que la sección muestre el
-      contenido real. Mientras tanto se ve la invitación a seguir la cuenta.
+- [ ] **Activar novedades de Instagram (una vez)**: ejecutar
+      `supabase-instagram.sql` en Supabase → SQL Editor. Después se agregan los
+      enlaces desde el CRM, sin tocar código.
 - [ ] **Historias (stories)**: no salen sin la API Graph de Meta (cuenta de
       empresa + app + token renovable). Decidir si vale la pena montarlo.
 
@@ -169,6 +176,10 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] **Cierre y mejora del CRM (27 jul 2026)**: las solicitudes se ordenan de verdad por seguimiento vencido, reserva pendiente, cita de hoy, prioridad y fecha; la cola aparece antes que estadísticas en teléfono y las tarjetas/conversaciones quedan compactas. Se separaron las notas internas de las instrucciones de la clienta, los pedidos ya no aparecen como citas, las fechas usan el día local de Panamá y el buscador cubre productos, dirección, notas y demás detalles.
 - [x] **Seguimiento seguro**: el chat ya no duplica solicitudes al reservar, la reserva del chat se cierra al completar el formulario real, y el CRM avisa cuando un cambio solo quedó guardado en el navegador porque Supabase no lo confirmó. Pruebas: `scripts/admin-crm-check.mjs` + `scripts/crm-data-check.mjs`.
 - [x] **Ofertas claras desde el CRM**: cada producto tiene el interruptor “Este producto está en oferta”, precio normal, precio de oferta y cálculo de ahorro/porcentaje en vivo. El panel muestra contador, filtro y lista de ofertas activas; las filas resaltan el descuento. La tienda, ficha y comparador muestran “Oferta”, precio anterior, precio actual y ahorro. Se valida que el precio normal sea mayor y no se necesita SQL nuevo.
+- [x] **Novedades de Instagram administrables**: el CRM ya permite destacar una
+      publicación real encima de la web, editar su mensaje, ocultarla o eliminarla.
+      La integración automática de Meta se puede conectar después sin rehacer
+      esta experiencia ni exponer contraseñas en el sitio.
 
 **Asistente con IA (estructura)**
 - [x] Chat flotante en la web con asistente inteligente local: responde dudas comunes, pide datos si faltan y ofrece WhatsApp cuando hace falta asesor. (Guía: `CHATBOT.md`)

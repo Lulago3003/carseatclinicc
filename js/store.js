@@ -442,22 +442,70 @@
   }
 
   /* ---------- Render: Instagram de la cuenta oficial ---------- */
-  // Saca el código de la publicación de cualquier enlace de Instagram
-  // (post, reel o carrusel), para poder incrustarla.
-  function instaId(url) {
-    const m = String(url || "").match(/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/);
-    return m ? m[1] : "";
+  // Acepta solamente enlaces reales de Instagram. No basta con que el texto
+  // contenga "instagram.com": así el CRM no termina incrustando una URL rara.
+  function instagramPostInfo(url) {
+    try {
+      const parsed = new URL(String(url || "").trim());
+      const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+      const parts = parsed.pathname.split("/").filter(Boolean);
+      const rawType = (parts[0] || "").toLowerCase();
+      const type = rawType === "reels" ? "reel" : rawType;
+      const id = parts[1] || "";
+      if (parsed.protocol !== "https:" || host !== "instagram.com" || !["p", "reel", "tv"].includes(type) || !/^[A-Za-z0-9_-]+$/.test(id)) return null;
+      return {
+        id,
+        type,
+        enlace: `https://www.instagram.com/${type}/${id}/`,
+        embed: `https://www.instagram.com/${type}/${id}/embed/`,
+      };
+    } catch (e) { return null; }
   }
 
-  function renderInstagram() {
+  // Se conserva esta función porque es útil para detectar rápido una ficha
+  // válida, pero ahora comparte la validación estricta del CRM.
+  function instaId(url) {
+    const post = instagramPostInfo(url);
+    return post ? post.id : "";
+  }
+
+  function instagramItems(items) {
+    return (items || [])
+      .map((item) => (typeof item === "string" ? { enlace: item } : item))
+      .map((item) => ({ ...item, _post: instagramPostInfo(item && item.enlace) }))
+      .filter((item) => item && item._post);
+  }
+
+  function renderInstagramNotice(posts) {
+    const notice = $("#instagramNotice");
+    if (!notice) return;
+    const now = Date.now();
+    const featured = (posts || []).find((post) => post && post.destacado && post.activo !== false
+      && (!post.ocultarEl || new Date(post.ocultarEl).getTime() > now)
+      && instagramPostInfo(post.enlace));
+    if (!featured) {
+      notice.hidden = true;
+      notice.innerHTML = "";
+      return;
+    }
+    const link = instagramPostInfo(featured.enlace).enlace;
+    const title = featured.titulo || "Nueva publicación en Instagram";
+    const message = shortText(featured.texto || "Mira nuestra novedad más reciente.", 130);
+    notice.hidden = false;
+    notice.innerHTML = `
+      <div class="container instagram-notice__inner">
+        <span class="instagram-notice__badge">Nuevo en Instagram</span>
+        <div class="instagram-notice__copy">
+          <strong>${esc(title)}</strong>
+          <span>${esc(message)}</span>
+        </div>
+        <a class="instagram-notice__link" href="${link}" target="_blank" rel="noopener">Ver publicación <span aria-hidden="true">→</span></a>
+      </div>`;
+  }
+
+  function renderInstagramSection(lista, usuario, perfil) {
     const sec = $("#instagram");
     if (!sec || typeof INSTAGRAM === "undefined") return;
-
-    const usuario = INSTAGRAM.usuario || "carseatclinicc";
-    const perfil = `https://www.instagram.com/${usuario}/`;
-    const lista = (INSTAGRAM.publicaciones || [])
-      .map((item) => (typeof item === "string" ? { enlace: item } : item))
-      .filter((item) => item && instaId(item.enlace));
 
     // Cabecera tipo perfil (siempre visible)
     const bar = $("#igBar");
@@ -478,7 +526,6 @@
 
     if (!lista.length) {
       // Sin publicaciones configuradas: invitación, nunca una sección rota.
-      // El título cambia para que tenga sentido sin publicaciones debajo.
       const titulo = sec.querySelector(".ig__intro h2");
       const eyebrow = sec.querySelector(".ig__intro .eyebrow");
       if (titulo) titulo.textContent = "Síguenos en Instagram";
@@ -492,25 +539,48 @@
       return;
     }
 
+    const title = sec.querySelector(".ig__intro h2");
+    const eyebrow = sec.querySelector(".ig__intro .eyebrow");
+    if (title) title.textContent = "Lo último que publicamos";
+    if (eyebrow) eyebrow.textContent = "Día a día";
     rail.classList.remove("ig__rail--empty");
     rail.innerHTML = lista.slice(0, 6).map((item, i) => {
-      const id = instaId(item.enlace);
-      const enlace = `https://www.instagram.com/p/${id}/`;
+      const post = item._post || instagramPostInfo(item.enlace);
+      const enlace = post.enlace;
+      const texto = item.texto || item.titulo || "";
       const medio = item.imagen
         // Con foto propia: carga al instante y con el estilo de la web.
-        ? `<img class="ig__img" src="${esc(item.imagen)}" alt="${esc(item.texto || "Publicación de Instagram")}" loading="lazy" decoding="async" />`
+        ? `<img class="ig__img" src="${esc(item.imagen)}" alt="${esc(texto || "Publicación de Instagram")}" loading="lazy" decoding="async" />`
         // Sin foto: se incrusta la publicación real (se actualiza sola).
-        : `<iframe class="ig__frame" src="https://www.instagram.com/p/${id}/embed/" title="Publicación de Instagram" loading="lazy" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
+        : `<iframe class="ig__frame" src="${post.embed}" title="Publicación de Instagram" loading="lazy" frameborder="0" scrolling="no" allowtransparency="true"></iframe>`;
       return `
         <article class="ig__card" style="--i:${i}">
           <div class="ig__media ${item.imagen ? "ig__media--foto" : "ig__media--embed"}">${medio}</div>
-          ${item.texto ? `<p class="ig__text">${esc(shortText(item.texto, 96))}</p>` : ""}
+          ${texto ? `<p class="ig__text">${esc(shortText(texto, 96))}</p>` : ""}
           <a class="ig__open" href="${enlace}" target="_blank" rel="noopener">
             Ver publicación
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>
         </article>`;
     }).join("");
+  }
+
+  async function renderInstagram() {
+    if (typeof INSTAGRAM === "undefined") return;
+    const usuario = INSTAGRAM.usuario || "carseatclinicc";
+    const perfil = `https://www.instagram.com/${usuario}/`;
+    const fallback = instagramItems(INSTAGRAM.publicaciones || []);
+
+    // La portada sigue funcionando aun antes de que se ejecute el SQL nuevo.
+    renderInstagramNotice([]);
+    renderInstagramSection(fallback, usuario, perfil);
+
+    if (!window.DB || !DB.ready || typeof DB.getInstagramPosts !== "function") return;
+    const remote = instagramItems(await DB.getInstagramPosts());
+    const seen = new Set(remote.map((item) => item._post.enlace));
+    const combined = remote.concat(fallback.filter((item) => !seen.has(item._post.enlace)));
+    renderInstagramNotice(remote);
+    renderInstagramSection(combined, usuario, perfil);
   }
 
   /* ---------- Render: carrito ---------- */
