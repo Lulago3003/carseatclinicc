@@ -57,6 +57,7 @@ const checks = [
   ["rental planner fields", files.alquiler.includes('id="rentalPanel"') && files.alquiler.includes('name="rental_end_date"') && files.alquiler.includes('name="rental_equipment"')],
   ["calendario de rango", files.alquiler.includes('id="rentalCalendar"') && files.js.includes("function setupRentalCalendar")],
   ["rental day calculation", files.js.includes("function rentalDays") && files.js.includes("function updateRentalPanel")],
+  ["alquiler exige devolución posterior", files.js.includes("to <= from") && files.js.includes("firstReturnDay.setDate")],
   ["rental lead details", files.js.includes("rental_equipment") && files.js.includes("pickup_location")],
   ["la ficha manda al alquiler", files.js.includes("alquiler.html")],
   ["servicios enlaza al alquiler", files.servicios.includes("alquiler.html") && !files.servicios.includes('id="alquiler"')],
@@ -77,8 +78,9 @@ const checks = [
   ["contextual whatsapp data", enTodas("data-whatsapp-label")],
   ["contextual whatsapp script", files.js.includes("function updateFloatingWhatsApp")],
   ["motion tokens", files.css.includes("--ease-out-expo") && files.css.includes(".motion-float")],
-  ["pie con las dos cuentas de Instagram", enTodas("data-ig-shop") && enTodas("data-ig-main")],
+  ["pie con redes sociales", enTodas("data-ig-shop") && enTodas("data-ig-main") && enTodas("data-facebook")],
   ["instagram de la tienda configurado", files.data.includes("instagramTienda")],
+  ["Facebook configurado", files.data.includes("facebook")],
 
   // --- Sección de Instagram en la portada ---
   ["sección de Instagram en la portada", files.home.includes('id="instagram"') && files.home.includes('id="igRail"')],
@@ -88,6 +90,8 @@ const checks = [
   ["estilos de Instagram (con riel móvil)", files.css.includes(".ig__rail") && files.css.includes("scroll-snap-type")],
   ["aviso de Instagram en toda la web", files.shell.includes('id = "instagramNotice"') && files.js.includes("function renderInstagramNotice") && files.css.includes(".instagram-notice")],
   ["novedades públicas desde Supabase", files.db.includes("getInstagramPosts") && files.db.includes("instagram_posts")],
+  ["portada consulta las novedades guardadas", files.js.includes('typeof DB === "undefined"') && !files.js.includes("!window.DB || !DB.ready")],
+  ["foto opcional para las novedades", files.db.includes("image_url") && files.js.includes("function instagramImageUrl")],
   ["enlace de Instagram validado", files.js.includes("function instagramPostInfo") && files.js.includes('host !== "instagram.com"')],
 ];
 

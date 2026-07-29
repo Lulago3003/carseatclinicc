@@ -462,6 +462,17 @@
     } catch (e) { return null; }
   }
 
+  // No se usa el enlace de Instagram como foto. Si la administradora sube una
+  // imagen al CRM, esta URL es la que se muestra en la tarjeta bonita de la
+  // portada. También se aceptan rutas locales de la lista de respaldo.
+  function instagramImageUrl(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    if (/^https:\/\/[^\s]+$/i.test(raw)) return raw;
+    if (/^(?:assets\/|\.\.?\/)/i.test(raw)) return raw;
+    return "";
+  }
+
   // Se conserva esta función porque es útil para detectar rápido una ficha
   // válida, pero ahora comparte la validación estricta del CRM.
   function instaId(url) {
@@ -472,7 +483,7 @@
   function instagramItems(items) {
     return (items || [])
       .map((item) => (typeof item === "string" ? { enlace: item } : item))
-      .map((item) => ({ ...item, _post: instagramPostInfo(item && item.enlace) }))
+      .map((item) => ({ ...item, imagen: instagramImageUrl(item && item.imagen), _post: instagramPostInfo(item && item.enlace) }))
       .filter((item) => item && item._post);
   }
 
@@ -575,12 +586,19 @@
     renderInstagramNotice([]);
     renderInstagramSection(fallback, usuario, perfil);
 
-    if (!window.DB || !DB.ready || typeof DB.getInstagramPosts !== "function") return;
-    const remote = instagramItems(await DB.getInstagramPosts());
-    const seen = new Set(remote.map((item) => item._post.enlace));
-    const combined = remote.concat(fallback.filter((item) => !seen.has(item._post.enlace)));
-    renderInstagramNotice(remote);
-    renderInstagramSection(combined, usuario, perfil);
+    // DB se declara con const global, por eso no siempre vive dentro de
+    // window.DB. La comprobación anterior hacía que la portada nunca leyera
+    // las novedades guardadas en Supabase.
+    if (typeof DB === "undefined" || !DB.ready || typeof DB.getInstagramPosts !== "function") return;
+    try {
+      const remote = instagramItems(await DB.getInstagramPosts());
+      const seen = new Set(remote.map((item) => item._post.enlace));
+      const combined = remote.concat(fallback.filter((item) => !seen.has(item._post.enlace)));
+      renderInstagramNotice(remote);
+      renderInstagramSection(combined, usuario, perfil);
+    } catch (error) {
+      console.warn("[Car Seat Clinic] No se pudieron mostrar las novedades de Instagram.", error);
+    }
   }
 
   /* ---------- Render: carrito ---------- */
@@ -954,9 +972,14 @@
     const insta = $("#cInfoInsta"); if (insta) insta.href = CONFIG.instagram;
     const waBtn = $("#cWhatsBtn");
     if (waBtn) waBtn.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, tengo una consulta")}`;
-    // Enlaces de Instagram del pie de página / menú (tienda y cuenta principal)
+    // Enlaces de redes sociales del pie de página
     $$("[data-ig-shop]").forEach((a) => { a.href = CONFIG.instagramTienda || CONFIG.instagram; });
     $$("[data-ig-main]").forEach((a) => { a.href = CONFIG.instagram; });
+    $$("[data-facebook]").forEach((a) => {
+      const facebook = CONFIG.facebook || "";
+      a.href = facebook || "#";
+      a.hidden = !facebook;
+    });
     const floatWhats = $("#floatWhatsBtn");
     if (floatWhats) floatWhats.href = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic, quisiera recibir asesoría")}`;
     const map = $("#mapFrame");
@@ -1105,8 +1128,10 @@
     if (!start || !end) return 0;
     const from = new Date(`${start}T12:00:00`);
     const to = new Date(`${end}T12:00:00`);
-    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || to < from) return 0;
-    return Math.ceil((to - from) / 86400000) + 1;
+    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || to <= from) return 0;
+    // Entrega hoy y devolución mañana es un día de alquiler. Así el formulario,
+    // el calendario y lo que recibe el CRM usan exactamente el mismo periodo.
+    return Math.round((to - from) / 86400000);
   }
 
   function rentalDetailsFromData(d) {
@@ -1134,9 +1159,14 @@
       if (field) field.required = isRental;
     });
     const start = $("#citaFecha")?.value || "";
-    const end = $("#rentalEndDate")?.value || "";
     const endDate = $("#rentalEndDate");
-    if (endDate && start) endDate.min = start;
+    if (endDate && start) {
+      const firstReturnDay = new Date(`${start}T12:00:00`);
+      firstReturnDay.setDate(firstReturnDay.getDate() + 1);
+      endDate.min = localDateInput(firstReturnDay);
+      if (endDate.value && endDate.value <= start) endDate.value = "";
+    }
+    const end = endDate?.value || "";
     const days = rentalDays(start, end);
     const kpi = $("#rentalKpi");
     if (kpi) {
@@ -1204,7 +1234,7 @@
     let endSel = parse(endInput.value);
     let view = startSel ? new Date(startSel.getFullYear(), startSel.getMonth(), 1) : new Date(minDate.getFullYear(), minDate.getMonth(), 1);
 
-    function nights() { return (startSel && endSel) ? Math.round((endSel - startSel) / 86400000) : 0; }
+    function rentalPeriod() { return (startSel && endSel) ? Math.round((endSel - startSel) / 86400000) : 0; }
     function commit() {
       startInput.value = startSel ? iso(startSel) : "";
       endInput.value = endSel ? iso(endSel) : "";
@@ -1216,9 +1246,9 @@
       const monthName = view.toLocaleDateString("es-PA", { month: "long", year: "numeric" });
       const startDow = (new Date(y, m, 1).getDay() + 6) % 7; // Lunes = 0
       const daysInMonth = new Date(y, m + 1, 0).getDate();
-      const n = nights();
+      const n = rentalPeriod();
       const info = (startSel && endSel)
-        ? `<strong>${n} noche${n === 1 ? "" : "s"}</strong><span>${fmt(startSel)} → ${fmt(endSel)}</span>`
+        ? `<strong>${n} día${n === 1 ? "" : "s"} de alquiler</strong><span>${fmt(startSel)} → ${fmt(endSel)}</span>`
         : (startSel
           ? `<strong>Ahora elige la devolución</strong><span>Entrega: ${fmt(startSel)}</span>`
           : `<strong>Elige tus fechas</strong><span>Toca el día de entrega y luego el de devolución</span>`);

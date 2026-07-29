@@ -57,10 +57,11 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] **Novedades de Instagram desde el CRM**: nueva pestaña **Instagram** en
       `admin.html`. La administradora pega un enlace de post o Reel, escribe un
       título/mensaje, puede ocultarlo en una fecha y marcar una sola publicación
-      como destacada. Esa novedad aparece como franja arriba de todas las páginas
-      y también entra a la sección de la portada. No se piden ni guardan claves
-      de Facebook/Instagram. Código: `supabase-instagram.sql`, `js/supabase.js`,
-      `js/admin.js`, `js/store.js` y `js/shell.js`.
+      como destacada. Puede además subir la foto que se verá en la tarjeta para
+      que cargue bonita y rápida. Esa novedad aparece como franja arriba de todas
+      las páginas y también entra a la sección de la portada. No se piden ni
+      guardan claves de Facebook/Instagram. Código: `supabase-instagram.sql`,
+      `js/supabase.js`, `js/admin.js`, `js/store.js` y `js/shell.js`.
 
 - [x] **Mejoras de diseño (julio 2026)**, medidas en teléfono de 375px:
       (1) **Pop-up del boletín**: antes salía a los 16 s y tapaba el 40% de la
@@ -88,9 +89,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       solo por salir primero, no por ser un destacado real.
 
 ### ⬜ Pendiente de esta tanda
-- [ ] **Activar novedades de Instagram (una vez)**: ejecutar
-      `supabase-instagram.sql` en Supabase → SQL Editor. Después se agregan los
-      enlaces desde el CRM, sin tocar código.
+- [x] **Novedades de Instagram activadas**: la tabla y los permisos ya están
+      configurados en Supabase. Desde el CRM se agregan los enlaces y las fotos,
+      sin tocar código.
 - [ ] **Historias (stories)**: no salen sin la API Graph de Meta (cuenta de
       empresa + app + token renovable). Decidir si vale la pena montarlo.
 
@@ -151,7 +152,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] **Alquiler para viajes** y **Recursos de seguridad** estan OCULTAS en la home (guardadas como comentario `GUARDADO ... FIN GUARDADO` en `index.html`, faciles de reactivar). El alquiler completo sigue en `servicios.html`. Se quito el enlace "Recursos" del menu.
 - [x] "Ruta segura" rediseñada limpia: 4 tarjetas alineadas (Paso 1-4: Diagnostico, Compatibilidad, Instalacion, Seguimiento) con icono + etiqueta + titulo + texto, sobre banda verde. Clases `.route-steps`/`.rstep` (se quitaron las `.route-card` recargadas con destellos/lineas).
 - [x] Reserva de cita (por WhatsApp), Newsletter (footer + pop-up).
-- [x] **Calendario visual de rango** para el alquiler (estilo reserva de hotel): el cliente toca el día de entrega y el de devolución, se marca el rango y muestra "X noches"; rellena `#citaFecha` y `#rentalEndDate` automáticamente. Código en `setupRentalCalendar()` (store.js), estilos `.rcal` en styles.css.
+- [x] **Calendario visual de rango** para el alquiler (estilo reserva de hotel): el cliente toca el día de entrega y el de devolución, se marca el rango y muestra los días de alquiler; rellena `#citaFecha` y `#rentalEndDate` automáticamente. Código en `setupRentalCalendar()` (store.js), estilos `.rcal` en styles.css.
 - [x] Seccion **Alquiler para viajes** inspirada en flujo tipo reserva: imagen real, pasos, CTA y formulario con equipo, fecha de entrega, devolucion, entrega, recogida, edad/peso e instalacion opcional.
 - [x] Contacto + mapa + **QR de Waze** ("cómo llegar").
 
@@ -170,6 +171,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] Pedidos con estados (nuevo → pagado → listo para instalar…) y contacto por WhatsApp.
 - [x] Conversaciones del chat (ver abajo).
 - [x] Nueva pestaña **Solicitudes**: calendario de solicitudes, filtros por tipo/estado, tarjetas de casos, cambio de estado, resumen copiable y botón de WhatsApp.
+- [x] Nueva pestaña separada **Alquiler**: muestra únicamente alquileres, con búsqueda, filtro por estado, contador de entregas/devoluciones del día, exportación CSV y las mismas acciones de seguimiento, notas y WhatsApp. Las solicitudes generales siguen reunidas en **Solicitudes**.
 - [x] **CRM potenciado (6 mejoras)**: (1) **Embudo de ventas** Nuevo→Reserva pendiente→Contactado→Cotizado→Ganado/Perdido con conteos y botón "Avanzar"; (2) **Notas + fecha de seguimiento** por consulta (guarda en `details`, marca "vencido"); (3) **Resumen IA** de cada conversación (botón que llama a la Edge Function); (4) **Estadísticas** (consultas total/hoy/semana, ganados, barras por día, temas top); (5) **Badges de "nuevos"** en pestañas Solicitudes/Pedidos/Conversaciones; (6) **Exportar a Excel/CSV**. Código en `js/admin.js` + `DB.updateLead` en `supabase.js` + estilos en `styles.css`.
 - [x] Captura de leads/casos en `crm_leads`: citas, reservas sugeridas, consultas de IA, revisión de silla, lavado, instalación y cotización. Funciona con Supabase si se corre `supabase-crm-atencion.sql` y se activa `CONFIG.crm.guardarSolicitudes=true`; mientras tanto usa `localStorage`.
 - [x] CRM reconoce solicitudes de **alquiler** como tipo propio: badge, dias, equipo, entrega, devolucion, recogida, edad/peso y resumen listo para WhatsApp.
@@ -178,8 +180,10 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] **Ofertas claras desde el CRM**: cada producto tiene el interruptor “Este producto está en oferta”, precio normal, precio de oferta y cálculo de ahorro/porcentaje en vivo. El panel muestra contador, filtro y lista de ofertas activas; las filas resaltan el descuento. La tienda, ficha y comparador muestran “Oferta”, precio anterior, precio actual y ahorro. Se valida que el precio normal sea mayor y no se necesita SQL nuevo.
 - [x] **Novedades de Instagram administrables**: el CRM ya permite destacar una
       publicación real encima de la web, editar su mensaje, ocultarla o eliminarla.
-      La integración automática de Meta se puede conectar después sin rehacer
-      esta experiencia ni exponer contraseñas en el sitio.
+      Puede añadirse una foto propia para una tarjeta más bonita y el guardado de
+      la destacada es atómico: una publicación anterior no se pierde si falla la
+      nueva. La integración automática de Meta se puede conectar después sin
+      rehacer esta experiencia ni exponer contraseñas en el sitio.
 
 **Asistente con IA (estructura)**
 - [x] Chat flotante en la web con asistente inteligente local: responde dudas comunes, pide datos si faltan y ofrece WhatsApp cuando hace falta asesor. (Guía: `CHATBOT.md`)

@@ -85,6 +85,10 @@ const IG_LINKS = `        <div class="footer__social">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
             <span>@carseatclinicc</span>
           </a>
+          <a href="#" data-facebook target="_blank" rel="noopener" aria-label="Facebook de Car Seat Clinic">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M13.6 21v-8h2.7l.4-3.1h-3.1V8c0-.9.3-1.5 1.6-1.5h1.7V3.7c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2v2.1H8v3.1h2.4v8h3.2Z"/></svg>
+            <span>Facebook</span>
+          </a>
         </div>`;
 
 const BRAND_MARK = `          <span class="brand__mark" aria-hidden="true">
@@ -178,7 +182,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-07-28a";
+const VERSION = "2026-07-29a";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {

@@ -328,12 +328,25 @@ const DB = (function () {
       enlace: row.url || row.enlace || "",
       titulo: row.title || row.titulo || "Nuevo en Instagram",
       texto: row.message || row.texto || "",
+      // Una foto propia es opcional. Sirve para que la tarjeta cargue rápido
+      // y se vea igual de bien aunque Instagram cambie su incrustado.
+      imagen: row.image_url || row.imagen || "",
       activo: row.active !== undefined ? Boolean(row.active) : row.activo !== false,
       destacado: row.featured !== undefined ? Boolean(row.featured) : Boolean(row.destacado),
       ocultarEl: row.expires_at || row.ocultarEl || null,
       created_at: row.created_at || null,
       updated_at: row.updated_at || row.created_at || null,
     };
+  }
+
+  // Aunque el visitante normal ya está protegido por RLS, una persona admin
+  // puede leer todos los registros. Esta segunda barrera garantiza que una
+  // publicación oculta o vencida nunca se pinte en la portada.
+  function isPublicInstagramPost(post) {
+    if (!post || !post.activo) return false;
+    if (!post.ocultarEl) return true;
+    const expiresAt = new Date(post.ocultarEl).getTime();
+    return Number.isFinite(expiresAt) && expiresAt > Date.now();
   }
 
   // Consulta pública: la política de Supabase ya deja pasar únicamente lo que
@@ -344,6 +357,11 @@ const DB = (function () {
     const { data, error } = await client
       .from("instagram_posts")
       .select("*")
+      // La consulta también se limita explícitamente a lo público. Es
+      // importante cuando quien visita la portada es una administradora,
+      // porque ese perfil puede leer el historial completo por RLS.
+      .eq("active", true)
+      .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
       .order("featured", { ascending: false })
       .order("updated_at", { ascending: false })
       .limit(6);
@@ -351,7 +369,7 @@ const DB = (function () {
       console.warn("[Car Seat Clinic] No se pudieron cargar las novedades de Instagram.", error.message || error);
       return [];
     }
-    return (data || []).map(normalizeInstagramPost);
+    return (data || []).map(normalizeInstagramPost).filter(isPublicInstagramPost);
   }
 
   // Consulta del CRM: incluye también los anuncios ocultos y vencidos.
@@ -369,30 +387,18 @@ const DB = (function () {
   async function saveInstagramPost(post) {
     if (!ready) throw new Error("Base de datos no conectada");
     const item = normalizeInstagramPost(post);
-    const now = new Date().toISOString();
-
-    // El índice de la tabla protege que solo haya un anuncio arriba. Primero
-    // se desmarca el anterior y luego se guarda este, todo desde el CRM admin.
-    if (item.activo && item.destacado) {
-      const { error: clearError } = await client
-        .from("instagram_posts")
-        .update({ featured: false, updated_at: now })
-        .eq("featured", true)
-        .eq("active", true);
-      if (clearError) throw clearError;
-    }
-
-    const row = {
-      ...(item.id ? { id: item.id } : {}),
-      url: item.enlace,
-      title: item.titulo || "Nuevo en Instagram",
-      message: item.texto || null,
-      active: item.activo,
-      featured: item.activo && item.destacado,
-      expires_at: item.ocultarEl || null,
-      updated_at: now,
-    };
-    const { data, error } = await client.from("instagram_posts").upsert(row).select().single();
+    // Guardar y cambiar la destacada sucede en UNA operación del servidor.
+    // Así, si algo falla, la novedad anterior no desaparece de la web.
+    const { data, error } = await client.rpc("save_instagram_post", {
+      p_id: item.id,
+      p_url: item.enlace,
+      p_title: item.titulo || "Nuevo en Instagram",
+      p_message: item.texto || null,
+      p_image_url: item.imagen || null,
+      p_active: item.activo,
+      p_featured: item.activo && item.destacado,
+      p_expires_at: item.ocultarEl || null,
+    }).single();
     if (error) throw error;
     return normalizeInstagramPost(data);
   }

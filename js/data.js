@@ -20,6 +20,8 @@ const CONFIG = {
   instagram: "https://www.instagram.com/carseatclinicc",
   // Cuenta de la tienda (productos a la venta)
   instagramTienda: "https://www.instagram.com/carseatclinic.shop",
+  // Página de Facebook del negocio
+  facebook: "https://www.facebook.com/mibbshower",
   ubicacion: "PH City Towers, Vía España · Ciudad de Panamá",
   horario: "Lun a Sáb · 9:00 a.m. – 6:00 p.m.",
   // Dirección que se muestra en el mapa. Cambia por la dirección real

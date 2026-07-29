@@ -148,11 +148,11 @@
       x.classList.toggle("is-active", active);
       x.setAttribute("aria-selected", String(active));
     });
-    ["dashboard", "productos", "pedidos", "agenda", "conversaciones", "instagram"].forEach((tab) => {
+    ["dashboard", "productos", "pedidos", "alquiler", "agenda", "conversaciones", "instagram"].forEach((tab) => {
       const panel = $(`#tab-${tab}`);
       if (panel) panel.hidden = tab !== name;
     });
-    if (name === "agenda") renderServiceLeads();
+    if (name === "agenda" || name === "alquiler") renderServiceLeads();
     if (name === "conversaciones") renderConversaciones();
     if (name === "instagram") renderInstagramPosts();
   }
@@ -260,6 +260,13 @@
     } catch (e) { return ""; }
   }
 
+  function normalizeInstagramImageUrl(value) {
+    try {
+      const parsed = new URL(String(value || "").trim());
+      return parsed.protocol === "https:" ? parsed.href : "";
+    } catch (e) { return ""; }
+  }
+
   function isoToDatetimeLocal(value) {
     if (!value) return "";
     const date = new Date(value);
@@ -324,21 +331,25 @@
       const url = normalizeInstagramUrl(post.enlace);
       const expires = post.ocultarEl ? ` · se oculta ${formatInstagramDate(post.ocultarEl)}` : "";
       const changed = post.updated_at ? `Actualizada ${formatInstagramDate(post.updated_at)}` : "";
+      const image = normalizeInstagramImageUrl(post.imagen);
       return `<article class="ig-admin-card ${post.destacado && isInstagramPostVisible(post) ? "ig-admin-card--featured" : ""}">
-        <div class="ig-admin-card__head">
-          <div>
+        ${image ? `<img class="ig-admin-card__media" src="${esc(image)}" alt="" loading="lazy" />` : ""}
+        <div class="ig-admin-card__body">
+          <div class="ig-admin-card__head">
+            <div>
             <strong>${esc(post.titulo || "Nueva publicación en Instagram")}</strong>
             <small>${esc(`${changed}${expires}`.replace(/^ · | · $/g, "") || "Sin fecha")}</small>
+            </div>
+            <span class="ig-admin-card__state ig-admin-card__state--${state.kind}">${esc(state.label)}</span>
           </div>
-          <span class="ig-admin-card__state ig-admin-card__state--${state.kind}">${esc(state.label)}</span>
-        </div>
-        ${post.texto ? `<p class="ig-admin-card__text">${esc(post.texto)}</p>` : ""}
-        <div class="ig-admin-card__actions">
-          ${url ? `<a class="btn btn--ghost" href="${url}" target="_blank" rel="noopener">Abrir Instagram</a>` : ""}
-          <button class="btn btn--ghost" type="button" data-ig-edit="${esc(post.id)}">Editar</button>
-          ${!post.destacado && post.activo ? `<button class="btn btn--ghost" type="button" data-ig-feature="${esc(post.id)}">Mostrar arriba</button>` : ""}
-          <button class="btn btn--ghost" type="button" data-ig-toggle="${esc(post.id)}">${post.activo ? "Ocultar" : "Activar"}</button>
-          <button class="btn btn--ghost" type="button" data-ig-delete="${esc(post.id)}">Eliminar</button>
+          ${post.texto ? `<p class="ig-admin-card__text">${esc(post.texto)}</p>` : ""}
+          <div class="ig-admin-card__actions">
+            ${url ? `<a class="btn btn--ghost" href="${url}" target="_blank" rel="noopener">Abrir Instagram</a>` : ""}
+            <button class="btn btn--ghost" type="button" data-ig-edit="${esc(post.id)}">Editar</button>
+            ${!post.destacado && isInstagramPostVisible(post) ? `<button class="btn btn--ghost" type="button" data-ig-feature="${esc(post.id)}">Mostrar arriba</button>` : ""}
+            <button class="btn btn--ghost" type="button" data-ig-toggle="${esc(post.id)}">${post.activo ? "Ocultar" : "Activar"}</button>
+            <button class="btn btn--ghost" type="button" data-ig-delete="${esc(post.id)}">Eliminar</button>
+          </div>
         </div>
       </article>`;
     }).join("");
@@ -354,6 +365,8 @@
     $("#ig-post-link").value = post ? post.enlace : "";
     $("#ig-post-title").value = post ? post.titulo : "Nueva publicación en Instagram";
     $("#ig-post-text").value = post ? post.texto : "";
+    $("#ig-post-image").value = post ? post.imagen || "" : "";
+    $("#ig-post-image-file").value = "";
     $("#ig-post-expire").value = post ? isoToDatetimeLocal(post.ocultarEl) : "";
     $("#ig-post-active").checked = post ? post.activo : true;
     $("#ig-post-featured").checked = post ? post.destacado : true;
@@ -370,8 +383,14 @@
     const url = normalizeInstagramUrl(rawUrl);
     const title = $("#ig-post-title").value.trim() || "Nueva publicación en Instagram";
     const message = $("#ig-post-text").value.trim() || "La familia verá este aviso y podrá abrir la publicación.";
+    const image = normalizeInstagramImageUrl($("#ig-post-image").value);
     const active = $("#ig-post-active").checked;
     const featured = active && $("#ig-post-featured").checked;
+    const imagePreview = $("#instagramImagePreview");
+    if (imagePreview) {
+      imagePreview.hidden = !image;
+      imagePreview.innerHTML = image ? `<img src="${esc(image)}" alt="Vista previa de la foto" />` : "";
+    }
     if (!rawUrl.trim()) {
       target.classList.remove("is-valid");
       target.textContent = "Pega aquí el enlace de un post o Reel para ver cómo quedará.";
@@ -389,10 +408,36 @@
 
   $("#newInstagramPost")?.addEventListener("click", () => openInstagramEditor(null));
   $("#cancelInstagramPost")?.addEventListener("click", () => openInstagramEditor(null));
-  ["ig-post-link", "ig-post-title", "ig-post-text", "ig-post-expire", "ig-post-active", "ig-post-featured"].forEach((id) => {
+  ["ig-post-link", "ig-post-title", "ig-post-text", "ig-post-image", "ig-post-expire", "ig-post-active", "ig-post-featured"].forEach((id) => {
     const input = $(`#${id}`);
     if (input) input.addEventListener("input", updateInstagramPreview);
     if (input) input.addEventListener("change", updateInstagramPreview);
+  });
+
+  $("#ig-post-image-file")?.addEventListener("change", async (event) => {
+    const file = event.target.files && event.target.files[0];
+    const status = $("#instagramPostStatus");
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      status.textContent = "Elige una foto en formato de imagen.";
+      event.target.value = "";
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      status.textContent = "La foto debe pesar menos de 8 MB.";
+      event.target.value = "";
+      return;
+    }
+    status.textContent = "Subiendo foto…";
+    try {
+      const imageUrl = await DB.uploadImage(file);
+      $("#ig-post-image").value = imageUrl;
+      updateInstagramPreview();
+      status.textContent = "Foto lista. Ahora guarda la novedad.";
+    } catch (error) {
+      status.textContent = "No se pudo subir la foto. Puedes pegar su enlace en el campo anterior.";
+    }
+    event.target.value = "";
   });
 
   $("#instagramPostForm")?.addEventListener("submit", async (event) => {
@@ -411,11 +456,18 @@
     }
     const active = $("#ig-post-active").checked;
     const featured = active && $("#ig-post-featured").checked;
+    const rawImage = $("#ig-post-image").value.trim();
+    const image = rawImage ? normalizeInstagramImageUrl(rawImage) : "";
+    if (rawImage && !image) {
+      status.textContent = "La foto debe tener un enlace que empiece por https:// o súbela con el botón.";
+      return;
+    }
     const post = {
       id: editingInstagramId,
       enlace: link,
       titulo: title,
       texto: $("#ig-post-text").value.trim(),
+      imagen: image,
       activo: active,
       destacado: featured,
       ocultarEl: datetimeLocalToIso($("#ig-post-expire").value),
@@ -449,6 +501,10 @@
     if (edit) { openInstagramEditor(post); return; }
     try {
       if (feature) {
+        if (!isInstagramPostVisible(post)) {
+          toast("Esta publicación ya venció. Edita la fecha para poder mostrarla arriba.");
+          return;
+        }
         await DB.saveInstagramPost({ ...post, activo: true, destacado: true });
         toast("Ahora esta publicación aparece arriba de la web");
       } else if (toggle) {
@@ -854,27 +910,52 @@
 
   /* ---------- Ventana de edición ---------- */
   /* ---------- Agenda IA / leads ---------- */
+  function leadMatchesSearch(lead, query) {
+    if (!query) return true;
+    const details = lead.details || {};
+    const haystack = [
+      lead.name, lead.phone, lead.service, lead.message, lead.source,
+      details.modelo_silla, details.modelo_auto, details.zona,
+      details.rental_equipment, details.delivery_location, details.pickup_location, details.rental_child,
+      JSON.stringify(details),
+    ].filter(Boolean).join(" ").toLowerCase();
+    return haystack.includes(query);
+  }
+
   function getFilteredLeads() {
     const q = ($("#leadSearch")?.value || "").toLowerCase().trim();
     const type = $("#leadTypeFilter")?.value || "all";
     const status = $("#leadStatusFilter")?.value || "all";
     return serviceLeads.filter((lead) => {
-      const details = lead.details || {};
-      const haystack = [
-        lead.name, lead.phone, lead.service, lead.message, lead.source,
-        details.modelo_silla, details.modelo_auto, details.zona,
-        details.rental_equipment, details.delivery_location, details.pickup_location, details.rental_child,
-        JSON.stringify(details),
-      ].filter(Boolean).join(" ").toLowerCase();
-      return (type === "all" || lead.type === type)
+      const typeMatches = type === "all"
+        || (type === "alquiler" ? isRentalLead(lead) : lead.type === type);
+      return typeMatches
         && (status === "all" || (lead.status || "nuevo") === status)
-        && (!q || haystack.includes(q));
+        && leadMatchesSearch(lead, q);
     }).sort(sortLeadsForAttention);
   }
 
   function isRentalLead(lead) {
     const details = lead.details || {};
     return lead.type === "alquiler" || /alquiler|renta/i.test(lead.service || "") || !!details.rental_equipment;
+  }
+
+  // Un alquiler ganado o reservado aún necesita entrega y devolución. Solo
+  // desaparece de la operación cuando terminó o se canceló/perdió.
+  function isOperationalRentalLead(lead) {
+    return isRentalLead(lead)
+      && !["perdido", "cancelado", "completado"].includes(lead.status || "nuevo");
+  }
+
+  // Esta vista no depende solo del tipo de la fila: también recupera alquileres
+  // guardados antes de tener el tipo actual, siempre que incluyan su equipo.
+  function getFilteredRentalLeads() {
+    const q = ($("#rentalSearch")?.value || "").toLowerCase().trim();
+    const status = $("#rentalStatusFilter")?.value || "all";
+    return serviceLeads.filter((lead) => isRentalLead(lead)
+      && (status === "all" || (lead.status || "nuevo") === status)
+      && leadMatchesSearch(lead, q))
+      .sort(sortLeadsForAttention);
   }
 
   function rentalSummary(lead) {
@@ -1017,10 +1098,19 @@
   async function renderServiceLeads() {
     try { serviceLeads = await DB.getServiceLeads(); }
     catch (e) { serviceLeads = []; }
+    renderLeadViews();
+  }
+
+  // Las dos pestañas trabajan sobre la misma cola. Renderizarlas juntas hace
+  // que un estado o una nota se vea de inmediato tanto en Solicitudes como en
+  // la vista exclusiva de Alquiler.
+  function renderLeadViews() {
     renderPipeline();
     renderLeadStats();
     renderScheduleBoard();
     renderLeadList();
+    renderRentalLeads();
+    renderRentalStats();
     renderDashboard();
   }
 
@@ -1091,6 +1181,7 @@
   }
   function updateBadges() {
     setBadge("badge-agenda", serviceLeads.filter((l) => ["nuevo", "esperando_reserva"].includes(l.status || "nuevo")).length);
+    setBadge("badge-alquiler", serviceLeads.filter((l) => isRentalLead(l) && ["nuevo", "esperando_reserva"].includes(l.status || "nuevo")).length);
     setBadge("badge-pedidos", orders.filter((o) => (o.status || "nuevo") === "nuevo").length);
   }
 
@@ -1104,10 +1195,10 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1500);
   }
-  function exportLeadsCSV() {
-    if (!serviceLeads.length) { toast("No hay consultas para exportar"); return; }
+  function exportLeadsCSV(list = getFilteredLeads(), filename = "consultas-crm.csv", emptyMessage = "No hay consultas para exportar") {
+    if (!list.length) { toast(emptyMessage); return; }
     const header = ["Creado", "Estado", "Prioridad", "Tipo", "Servicio", "Nombre", "Telefono", "Fecha", "Hora", "Mensaje", "Nota del cliente", "Nota interna", "Seguimiento"];
-    const rows = getFilteredLeads().map((l) => {
+    const rows = list.map((l) => {
       const d = l.details || {};
       return [
         new Date(l.created_at).toLocaleString("es-PA"),
@@ -1116,14 +1207,15 @@
         (l.message || "").replace(/\s+/g, " "), d.notas || "", d.nota_interna || "", d.seguimiento || "",
       ];
     });
-    downloadCSV("consultas-crm.csv", [header, ...rows]);
+    downloadCSV(filename, [header, ...rows]);
     toast("Archivo descargado");
   }
 
   // El calendario muestra reservas reales, no pedidos ni cotizaciones que
   // llegaron hoy. Así no se confunde una venta con una cita por atender.
   function isScheduledLead(lead) {
-    return Boolean(lead.date) && !isCartLead(lead) && ["cita", "alquiler", "cita-sugerida"].includes(lead.type);
+    return Boolean(lead.date) && !isCartLead(lead)
+      && (isRentalLead(lead) || ["cita", "cita-sugerida"].includes(lead.type));
   }
 
   function renderScheduleBoard() {
@@ -1134,7 +1226,9 @@
       date.setDate(date.getDate() + i);
       const iso = localDateKey(date);
       const leads = serviceLeads
-        .filter((lead) => lead.date === iso && leadIsOpen(lead) && isScheduledLead(lead))
+        .filter((lead) => lead.date === iso
+          && (isRentalLead(lead) ? isOperationalRentalLead(lead) : leadIsOpen(lead))
+          && isScheduledLead(lead))
         .sort((a, b) => String(a.slot || "").localeCompare(String(b.slot || "")));
       return { date, iso, leads };
     });
@@ -1152,18 +1246,9 @@
       </article>`).join("");
   }
 
-  function renderLeadList() {
-    const list = getFilteredLeads();
-    const count = $("#leadsCount");
-    if (count) count.textContent = `${list.length} de ${serviceLeads.length} solicitudes visibles con estos filtros.`;
-    const target = $("#leadList");
-    if (!target) return;
-    if (!list.length) {
-      target.innerHTML = `<p class="muted empty-state">No hay solicitudes con estos filtros.</p>`;
-      return;
-    }
+  function leadCardsHtml(list) {
     let openedFirstOpenLead = false;
-    target.innerHTML = list.map((lead) => {
+    return list.map((lead) => {
       const details = lead.details || {};
       const rental = isRentalLead(lead);
       const wa = leadWhatsappUrl(lead);
@@ -1219,6 +1304,53 @@
     }).join("");
   }
 
+  function renderLeadCollection({ list, total, targetId, countId, countLabel, emptyText }) {
+    const count = $(`#${countId}`);
+    if (count) count.textContent = `${list.length} de ${total} ${countLabel} visibles con estos filtros.`;
+    const target = $(`#${targetId}`);
+    if (!target) return;
+    target.innerHTML = list.length
+      ? leadCardsHtml(list)
+      : `<p class="muted empty-state">${emptyText}</p>`;
+  }
+
+  function renderLeadList() {
+    renderLeadCollection({
+      list: getFilteredLeads(),
+      total: serviceLeads.length,
+      targetId: "leadList",
+      countId: "leadsCount",
+      countLabel: "solicitudes",
+      emptyText: "No hay solicitudes con estos filtros.",
+    });
+  }
+
+  function renderRentalLeads() {
+    const rentals = serviceLeads.filter(isRentalLead);
+    renderLeadCollection({
+      list: getFilteredRentalLeads(),
+      total: rentals.length,
+      targetId: "rentalLeadList",
+      countId: "rentalCount",
+      countLabel: "alquileres",
+      emptyText: "No hay alquileres con estos filtros.",
+    });
+  }
+
+  function renderRentalStats() {
+    const target = $("#rentalStats");
+    if (!target) return;
+    const today = localDateKey();
+    const rentals = serviceLeads.filter(isRentalLead);
+    const operational = rentals.filter(isOperationalRentalLead);
+    const deliveries = operational.filter((lead) => lead.date === today);
+    const returns = operational.filter((lead) => (lead.details || {}).rental_end_date === today);
+    target.innerHTML = `
+      <div class="lstat"><b>${operational.length}</b><span>alquileres por atender</span></div>
+      <div class="lstat"><b>${deliveries.length}</b><span>entregas para hoy</span></div>
+      <div class="lstat"><b>${returns.length}</b><span>devoluciones para hoy</span></div>`;
+  }
+
   function leadSaveToast(result, successMessage) {
     if (result?.savedToServer) { toast(successMessage); return; }
     if (result?.savedLocally) {
@@ -1228,25 +1360,25 @@
     toast("No se pudo guardar el cambio. Inténtalo de nuevo.");
   }
 
-  $("#leadList")?.addEventListener("change", async (e) => {
+  async function handleLeadStatusChange(e) {
     if (!e.target.matches("[data-lead-status]")) return;
     const card = e.target.closest("[data-lead]");
-    const lead = serviceLeads.find((item) => item.id === card.dataset.lead);
+    const lead = serviceLeads.find((item) => item.id === card?.dataset.lead);
     if (!lead) return;
     const previous = lead.status;
     lead.status = e.target.value;
     try {
       const result = await DB.updateLead(lead.id, { status: lead.status }, lead);
-      renderPipeline(); renderLeadStats(); renderLeadList(); renderScheduleBoard(); renderDashboard();
+      renderLeadViews();
       leadSaveToast(result, "Solicitud actualizada");
     } catch (err) {
       lead.status = previous;
-      renderLeadList();
+      renderLeadViews();
       toast("No se pudo actualizar la solicitud.");
     }
-  });
+  }
 
-  $("#leadList")?.addEventListener("click", async (e) => {
+  async function handleLeadCardClick(e) {
     const copy = e.target.closest("[data-copy-lead]");
     if (copy) {
       const lead = serviceLeads.find((item) => item.id === copy.getAttribute("data-copy-lead"));
@@ -1270,7 +1402,7 @@
       save.disabled = true; save.textContent = "Guardando…";
       try {
         const result = await DB.updateLead(lead.id, { details }, lead);
-        renderLeadList(); renderDashboard();
+        renderLeadViews();
         leadSaveToast(result, "Nota guardada");
       } catch (err) {
         toast("No se pudo guardar la nota.");
@@ -1291,14 +1423,23 @@
       lead.status = next;
       try {
         const result = await DB.updateLead(lead.id, { status: next }, lead);
-        renderPipeline(); renderLeadStats(); renderLeadList(); renderScheduleBoard(); renderDashboard();
+        renderLeadViews();
         leadSaveToast(result, "Movido a " + leadStatusLabel(next));
       } catch (err) {
         lead.status = previous;
-        renderLeadList();
+        renderLeadViews();
         toast("No se pudo mover la solicitud.");
       }
     }
+  }
+
+  // Ambas listas comparten la misma tarjeta y las mismas acciones. Así una
+  // reserva se puede atender desde Alquiler sin perder las funciones del CRM.
+  ["#leadList", "#rentalLeadList"].forEach((selector) => {
+    const list = $(selector);
+    if (!list) return;
+    list.addEventListener("change", handleLeadStatusChange);
+    list.addEventListener("click", handleLeadCardClick);
   });
 
   // Embudo: clic en una etapa filtra por ese estado
@@ -1313,6 +1454,9 @@
   });
 
   $("#exportLeads")?.addEventListener("click", exportLeadsCSV);
+  $("#exportRentalLeads")?.addEventListener("click", () => {
+    exportLeadsCSV(getFilteredRentalLeads(), "alquileres-crm.csv", "No hay alquileres para exportar");
+  });
 
   ["leadSearch", "leadTypeFilter", "leadStatusFilter"].forEach((id) => {
     const el = $(`#${id}`);
@@ -1325,6 +1469,17 @@
     $("#leadStatusFilter").value = "all";
     renderPipeline();
     renderLeadList();
+  });
+
+  ["rentalSearch", "rentalStatusFilter"].forEach((id) => {
+    const el = $(`#${id}`);
+    if (el) el.addEventListener("input", renderRentalLeads);
+    if (el) el.addEventListener("change", renderRentalLeads);
+  });
+  $("#clearRentalFilters")?.addEventListener("click", () => {
+    $("#rentalSearch").value = "";
+    $("#rentalStatusFilter").value = "all";
+    renderRentalLeads();
   });
 
   function openEditor(p) {
