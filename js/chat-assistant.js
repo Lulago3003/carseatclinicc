@@ -2,9 +2,9 @@
    Asistente inteligente local
    ---------------------------------------------------------------------
    Responde dudas frecuentes SIN depender de ninguna IA de pago. La IA
-   externa (si algún día se activa una llave gratis) sigue teniendo
-   prioridad cuando devuelve respuesta; esto es lo que contesta mientras
-   tanto, y nunca deja de funcionar.
+   externa puede activarse de forma opcional, pero este motor local es la
+   fuente principal del chat público: responde rápido, no inventa precios y
+   sabe cuándo debe pasar el caso a una asesora por WhatsApp.
 
    Los números de peso/edad de aquí son los MISMOS que usan la guía por
    etapas de la portada y el test "Encuentra tu silla ideal" (ver RECS en
@@ -94,7 +94,7 @@
   }
 
   function withAdvisorMeta(reply, extra) {
-    return { confidence: 0.75, needsHuman: true, action: "case", capture: {}, ...reply, ...extra };
+    return { confidence: 0.75, needsHuman: true, handoff: "whatsapp", action: "case", capture: {}, ...reply, ...extra };
   }
 
   function seatFitReply(raw) {
@@ -284,24 +284,24 @@
   }
 
   function shippingReply() {
-    return {
-      intent: "shipping", confidence: 0.85, needsHuman: false, action: "guide", capture: { service: "Envio" },
+    return withAdvisorMeta({
+      intent: "shipping", confidence: 0.85, action: "whatsapp", capture: { service: "Envio" },
       answer: "Sí, hacemos envíos a todo el país. El costo y el tiempo dependen de la zona y del producto. Dime qué producto te interesa y a dónde lo necesitas, y lo confirmamos por WhatsApp.",
-    };
+    });
   }
 
   function paymentReply() {
-    return {
-      intent: "payment", confidence: 0.82, needsHuman: false, action: "whatsapp", capture: { service: "Consulta de pago" },
+    return withAdvisorMeta({
+      intent: "payment", confidence: 0.82, action: "whatsapp", capture: { service: "Consulta de pago" },
       answer: "El pago lo coordinamos al cerrar tu pedido por WhatsApp y te indicamos las opciones disponibles (por ejemplo transferencia, Yappy o efectivo, según acordemos). Pronto habilitaremos el pago con tarjeta directo en la web.",
-    };
+    });
   }
 
   function warrantyReply() {
-    return {
-      intent: "warranty", confidence: 0.82, needsHuman: false, action: "guide", capture: { service: "Consulta de producto" },
+    return withAdvisorMeta({
+      intent: "warranty", confidence: 0.82, action: "whatsapp", capture: { service: "Consulta de producto" },
       answer: "Trabajamos solo sillas nuevas, de marcas con normas internacionales de seguridad, y las revisamos antes de entregarlas. Nada usado ni reacondicionado. La garantía exacta depende del modelo; dime cuál te interesa y confirmamos marca, garantía y disponibilidad por WhatsApp.",
-    };
+    });
   }
 
   function installHowReply() {
@@ -318,7 +318,7 @@
       needsHuman: false,
       action: "guide",
       capture: {},
-      answer: "Hola, soy el asistente de Car Seat Clinic. Te puedo ayudar a elegir la silla ideal, instalarla, revisarla, limpiarla o alquilarla si vienes de viaje. Para recomendarte silla, dime edad, peso, estatura y modelo del auto.",
+      answer: "Hola, ¿necesitas cotizar, alquilar o instalar/revisar una silla? También puedo orientarte para elegir la adecuada.",
     };
   }
 

@@ -71,6 +71,10 @@ const CONFIG = {
     iaActiva: true,
     guardarConversaciones: true,
     funcion: "super-service", // nombre de la Edge Function en Supabase
+    // El asistente local es el que atiende la web: responde de forma breve y
+    // deriva cotizaciones/casos a WhatsApp. Déjalo en false para que una IA
+    // remota no vuelva a reemplazarlo por respuestas largas o imprecisas.
+    respuestasRemotasEnChat: false,
   },
 
   /* --- CRM inteligente / agenda ---

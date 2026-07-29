@@ -23,6 +23,7 @@ assert.equal(ageReply.action, "case");
 const priceReply = reply("Cuanto cuesta la silla Joie?");
 assert.equal(priceReply.intent, "price");
 assert.equal(priceReply.needsHuman, true);
+assert.equal(priceReply.handoff, "whatsapp");
 assert.match(priceReply.answer, /cotiz|WhatsApp/i);
 assert.doesNotMatch(priceReply.answer, /\$[0-9]/);
 
@@ -36,6 +37,7 @@ assert.ok(serviceReply.capture?.service);
 const rentalReply = reply("Necesito alquilar una silla para 8 dias en Panama");
 assert.equal(rentalReply.intent, "rental");
 assert.equal(rentalReply.needsHuman, true);
+assert.equal(rentalReply.handoff, "whatsapp");
 assert.equal(rentalReply.action, "book");
 assert.match(rentalReply.answer, /alquiler|reservar|calendario/i);
 assert.match(rentalReply.answer, /entrega|devoluci[oó]n|recogida/i);
@@ -81,7 +83,16 @@ assert.equal(bookingReply.action, "book");
 
 const greetingReply = reply("hola");
 assert.equal(greetingReply.needsHuman, false);
-assert.match(greetingReply.answer, /edad|peso|auto/i);
+assert.match(greetingReply.answer, /cotizar|alquilar|instalar|revisar/i);
 assert.equal(greetingReply.action, "guide");
+
+const shippingReply = reply("Hacen envíos a Colón?");
+assert.equal(shippingReply.intent, "shipping");
+assert.equal(shippingReply.handoff, "whatsapp");
+
+const hoursReply = reply("Cuál es el horario?");
+assert.equal(hoursReply.intent, "hours");
+assert.equal(hoursReply.needsHuman, false);
+assert.equal(hoursReply.handoff, undefined);
 
 console.log("Chat assistant check passed");

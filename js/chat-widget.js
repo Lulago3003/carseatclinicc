@@ -43,8 +43,20 @@
       d.className = `chat__bubble chat__bubble--${role === "user" ? "user" : "bot"} ${extraClass}`.trim();
       d.innerHTML = htmlStr; msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d;
     }
-    function waUrl(text) {
-      const msg = `Hola Car Seat Clinic, vengo del asistente web. Mi pregunta es: ${text}`;
+    function waUrl(reply, text) {
+      const child = reply?.capture?.child || {};
+      const childDetails = [
+        child.ageYears != null ? `${child.ageYears} años` : "",
+        child.ageMonths != null ? `${child.ageMonths} meses` : "",
+        child.weight != null ? `${child.weight} ${child.weightUnit || "kg"}` : "",
+        child.heightCm != null ? `${child.heightCm} cm` : "",
+      ].filter(Boolean).join(", ");
+      const msg = [
+        "Hola Car Seat Clinic, vengo del asistente de la web.",
+        reply?.capture?.service ? `Tema: ${reply.capture.service}.` : "",
+        text ? `Consulta: ${text}` : "",
+        childDetails ? `Datos compartidos: ${childDetails}.` : "",
+      ].filter(Boolean).join("\n");
       return `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
     }
     function smartReply(text) {
@@ -53,10 +65,31 @@
       }
       return { intent: "unknown", needsHuman: true, answer: "Gracias por tu pregunta. Para responder bien necesito un poco mas de informacion. Puedes continuar por WhatsApp y un asesor te ayuda." };
     }
-    function answerHtml(answer, showWhatsapp, originalText) {
+    function needsWhatsApp(reply) {
+      return Boolean(reply && (reply.handoff === "whatsapp" || reply.needsHuman));
+    }
+    function whatsappLabel(reply) {
+      const intent = reply?.intent || "";
+      const service = (reply?.capture?.service || "").toLowerCase();
+      if (intent === "price") return "Cotizar por WhatsApp";
+      if (intent === "crash") return "Hablar ahora por WhatsApp";
+      if (intent === "rental" || intent === "rental-equipment" || /alquiler/.test(service)) return "Consultar alquiler por WhatsApp";
+      if (intent === "install-how" || /instalaci/.test(service)) return "Hablar sobre la instalación";
+      if (intent === "seat-fit" || intent === "seat-review" || intent === "stage-change") return "Hablar sobre este caso";
+      return "Enviar mi pregunta por WhatsApp";
+    }
+    function compactAnswer(answer, limit = 285) {
+      const text = String(answer || "").replace(/\s+/g, " ").trim();
+      if (text.length <= limit) return text;
+      const slice = text.slice(0, limit + 1);
+      const lastStop = Math.max(slice.lastIndexOf(". "), slice.lastIndexOf("! "), slice.lastIndexOf("? "));
+      return (lastStop > Math.floor(limit * 0.45) ? slice.slice(0, lastStop + 1) : slice.slice(0, limit).trim()) + "…";
+    }
+    function answerHtml(answer, reply, originalText) {
       const safe = esc(answer || "").replace(/\n/g, "<br>");
-      if (!showWhatsapp) return safe;
-      return `${safe}<br><a class="chat__wa" href="${waUrl(originalText)}" target="_blank" rel="noopener">Continuar por WhatsApp</a>`;
+      if (!needsWhatsApp(reply)) return safe;
+      const label = whatsappLabel(reply);
+      return `${safe}<a class="chat__wa chat__wa--direct" href="${waUrl(reply, originalText)}" target="_blank" rel="noopener" aria-label="${esc(label)}">${esc(label)}</a><small class="chat__handoff-note">Se abrirá WhatsApp con tu consulta lista.</small>`;
     }
     function serviceOptionFor(reply) {
       const normalized = (reply?.capture?.service || "").toLowerCase();
@@ -113,40 +146,15 @@
         window.location.href = "index.html#citas";
       }
     }
-    function renderAdvisorActions(reply, originalText, savedLead) {
-      if (!reply || !reply.needsHuman) return;
+    function renderAdvisorActions(reply, originalText) {
+      if (!reply || reply.action !== "book") return;
       const wrap = document.createElement("div");
-      wrap.className = "chat__actions";
-      if (reply.action === "book") {
-        const book = document.createElement("button");
-        book.type = "button"; book.textContent = "Reservar horario";
-        book.addEventListener("click", async () => {
-          book.disabled = true; book.textContent = "Preparando…";
-          /* La pregunta ya se registró al responder. Aquí solo cambiamos SU
-             estado, para no crear una segunda solicitud igual en el CRM. */
-          if (savedLead?.id && hasDB) {
-            const details = { ...(savedLead.details || {}), reserva_solicitada: true };
-            savedLead.status = "esperando_reserva";
-            savedLead.details = details;
-            try {
-              const result = await DB.updateLead(savedLead.id, { status: "esperando_reserva", details }, savedLead);
-              if (!result?.savedToServer && !result?.savedLocally) toast("No se pudo guardar la reserva pendiente");
-              try { sessionStorage.setItem("csc_chat_pending_lead", savedLead.id); } catch (e) {}
-            } catch (e) { toast("No se pudo guardar la reserva pendiente"); }
-          }
-          prefillAppointment(reply, originalText);
-        });
-        wrap.appendChild(book);
-      }
-      if (savedLead?.id) {
-        const saved = document.createElement("small");
-        saved.className = "chat__saved";
-        saved.textContent = "Consulta guardada para seguimiento";
-        wrap.appendChild(saved);
-      }
-      const wa = document.createElement("a");
-      wa.href = waUrl(originalText); wa.target = "_blank"; wa.rel = "noopener"; wa.textContent = "WhatsApp";
-      wrap.appendChild(wa);
+      wrap.className = "chat__actions chat__actions--secondary";
+      const book = document.createElement("button");
+      book.type = "button";
+      book.textContent = serviceOptionFor(reply) === "Alquiler" ? "Reservar fechas en la web" : "Ver horarios en la web";
+      book.addEventListener("click", () => prefillAppointment(reply, originalText));
+      wrap.appendChild(book);
       msgs.appendChild(wrap); msgs.scrollTop = msgs.scrollHeight;
     }
     // Recomendación: tras una respuesta sobre sillas, sugiere ver el catálogo filtrado
@@ -194,6 +202,10 @@
         btn.addEventListener("click", () => { input.value = label; clearQuickActions(); $("#chatForm").requestSubmit(); });
         wrap.appendChild(btn);
       });
+      const direct = document.createElement("a");
+      direct.href = waUrl({ capture: { service: "Consulta general" } }, "Quiero hablar con una asesora.");
+      direct.target = "_blank"; direct.rel = "noopener"; direct.textContent = "Hablar por WhatsApp";
+      wrap.appendChild(direct);
       msgs.appendChild(wrap); msgs.scrollTop = msgs.scrollHeight;
     }
     function open() {
@@ -201,7 +213,7 @@
       if (!greeted) {
         greeted = true;
         const hello = smartReply("hola");
-        bubble("bot", answerHtml(hello.answer, false, "hola"), "chat__bubble--smart");
+        bubble("bot", answerHtml(hello.answer, hello, "hola"), "chat__bubble--smart");
         quickActions();
       }
       input.focus();
@@ -215,25 +227,30 @@
       clearQuickActions();
       bubble("user", esc(text)); history.push({ role: "user", content: text });
       if (hasDB) DB.guardarMensaje(sid, "user", text);
-      const typing = bubble("bot", '<span class="chat__typing">Escribiendo…</span>');
-      let answer = "";
       const local = smartReply(text);
-      try { const r = hasDB ? await DB.preguntarIA(history) : null; answer = (r && r.answer) ? r.answer : ""; } catch (err) { answer = ""; }
-      typing.remove();
-      if (answer) {
-        bubble("bot", answerHtml(answer, !!local.needsHuman, text), "chat__bubble--ai");
-        history.push({ role: "assistant", content: answer });
-        if (hasDB) DB.guardarMensaje(sid, "asistente", answer);
-        const savedLead = await saveAdvisorLead({ ...local, answer }, text);
-        renderAdvisorActions({ ...local, answer }, text, savedLead);
-      } else {
-        bubble("bot", answerHtml(local.answer, !!local.needsHuman, text), "chat__bubble--smart");
-        history.push({ role: "assistant", content: local.answer });
-        if (hasDB) DB.guardarMensaje(sid, "asistente", "[asistente local] " + local.answer);
-        const savedLead = await saveAdvisorLead(local, text);
-        renderAdvisorActions(local, text, savedLead);
+      const handoff = needsWhatsApp(local);
+      // La respuesta local es la fuente principal del chat público: es corta,
+      // segura y sabe cuándo debe llevar la consulta a una persona. La Edge
+      // Function sigue disponible para resúmenes del CRM; solo se usa aquí si
+      // se activa expresamente esta opción y nunca para una derivación humana.
+      let answer = local.answer;
+      let sourceClass = "chat__bubble--smart";
+      if (CONFIG.chat?.respuestasRemotasEnChat === true && !handoff) {
+        const typing = bubble("bot", '<span class="chat__typing">Escribiendo…</span>');
+        try {
+          const remote = hasDB ? await DB.preguntarIA(history) : null;
+          if (remote?.answer) { answer = remote.answer; sourceClass = "chat__bubble--ai"; }
+        } catch (err) {}
+        typing.remove();
       }
-      recoActions((answer || local.answer || "") + " " + text);
+      const visibleAnswer = compactAnswer(answer);
+      const reply = { ...local, answer: visibleAnswer };
+      bubble("bot", answerHtml(visibleAnswer, reply, text), sourceClass);
+      history.push({ role: "assistant", content: visibleAnswer });
+      if (hasDB) DB.guardarMensaje(sid, "asistente", sourceClass === "chat__bubble--ai" ? visibleAnswer : "[asistente local] " + visibleAnswer);
+      await saveAdvisorLead(reply, text);
+      renderAdvisorActions(reply, text);
+      if (!handoff) recoActions(visibleAnswer + " " + text);
     });
   }
 

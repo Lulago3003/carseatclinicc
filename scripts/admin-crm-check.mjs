@@ -48,7 +48,7 @@ const checks = [
   ["lead queue is compact", files.js.includes("openedFirstOpenLead")],
   ["internal notes separate from customer notes", files.js.includes("details.nota_interna")],
   ["reservation status is in pipeline", files.js.includes('"esperando_reserva"') && files.html.includes('value="esperando_reserva"')],
-  ["chat reservation updates its existing lead", files.chat.includes("DB.updateLead(savedLead.id") && !files.chat.includes('saveAdvisorLead(reply, originalText, "esperando_reserva")')],
+  ["chat reservation leaves the final booking as source of truth", files.chat.includes("function prefillAppointment") && !files.chat.includes("DB.updateLead(savedLead.id")],
   ["cart requests stay out of schedule", files.store.includes('date: ""') && files.js.includes("function isScheduledLead")],
   ["Panama local dates", files.js.includes("function localDateKey") && files.store.includes("const localDateInput")],
   ["server update outcome is exposed", files.db.includes("savedToServer") && files.db.includes("avisarCrmCaido(error)")],
