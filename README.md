@@ -63,7 +63,7 @@ Tienda online con **catálogo**, **carrito**, **login (correo y Google)**, **bas
    - Copia el **Client ID** y **Client Secret** y pégalos en Supabase. Guarda.
 3. En Supabase: **Authentication → URL Configuration** → en **Site URL** y **Redirect URLs**
    agrega la dirección de tu tienda publicada, ej:
-   `https://lulago3003.github.io/carseatclinicc/`
+   `https://carseatclinic.com.pa/`
 4. ¡Listo! El botón **Continuar con Google** ya funcionará.
 
 ---

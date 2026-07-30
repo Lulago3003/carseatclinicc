@@ -21,7 +21,7 @@ poppys.com (tienda) + safeintheseat.com (autoridad/educación).
 - **Frontend:** HTML + CSS + JavaScript **puro** (sin framework, sin build step).
 - **Backend:** **Supabase** (Postgres + Auth + Storage). Proyecto ref: `fahqjwnwoznaerrwgdmc`.
 - **Hosting:** GitHub Pages. Repo: `Lulago3003/carseatclinicc`. En vivo:
-  https://lulago3003.github.io/carseatclinicc/
+  https://carseatclinic.com.pa/
 - **Pagos:** estructura lista (ver `PAGOS.md`): botón "Pagar con tarjeta" oculto
 tras `CONFIG.pago.activo`, `DB.crearPago()` → Edge Function `supabase/functions/crear-pago`
 (claves secretas en Supabase, no en el sitio). Pasarela objetivo: BAC Credomatic

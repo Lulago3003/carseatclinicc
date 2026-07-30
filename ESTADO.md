@@ -5,7 +5,7 @@
 > Mantenlo actualizado al terminar cada tanda de trabajo.
 > Última actualización: ver historial de git.
 
-Web en vivo: https://lulago3003.github.io/carseatclinicc/ · Repo: `Lulago3003/carseatclinicc`
+Web en vivo: https://carseatclinic.com.pa/ · Repo: `Lulago3003/carseatclinicc`
 Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 
 > ⚠️ **PRIMERO QUE TODO:** corre en Supabase → SQL Editor los archivos
