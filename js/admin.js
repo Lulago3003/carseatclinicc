@@ -109,6 +109,7 @@
   let editingRentalAvailabilityId = null;
   let editorImages = [];
   let editorFeatures = [];
+  let editorSnapshot = null; // cómo estaba el editor al abrirlo (para avisar de cambios sin guardar)
 
   /* ---------- Arranque ---------- */
   DB.init();
@@ -568,15 +569,31 @@
     target.textContent = date.charAt(0).toUpperCase() + date.slice(1);
   }
 
+  // El filtro muestra cuántos productos hay en cada categoría, para ver de un
+  // vistazo cuáles están vacías y todavía falta surtir. Se rearma cada vez que
+  // cambia el inventario, conservando lo que estaba seleccionado.
   function setupCategoryFilter() {
     const filter = $("#categoryFilter");
-    if (!filter || filter.options.length) return;
-    filter.innerHTML = `<option value="all">Todas</option>` + catOptionsHTML();
+    if (!filter) return;
+    const seleccion = filter.value || "all";
+    const cuenta = (cat) => products.filter((p) => p.categoria === cat).length;
+    const opcionesConCuenta = CAT_GRUPOS.length
+      ? CAT_GRUPOS.map((g) => {
+          const total = products.filter((p) => g.cats.includes(p.categoria)).length;
+          return `<optgroup label="${esc(g.label)} (${total})">` +
+            g.cats.map((c) => `<option value="${c}">${catLabel(c)} (${cuenta(c)})</option>`).join("") +
+            `</optgroup>`;
+        }).join("")
+      : CATS.map(([v, l]) => `<option value="${v}">${l} (${cuenta(v)})</option>`).join("");
+    filter.innerHTML = `<option value="all">Todas (${products.length})</option>` + opcionesConCuenta;
+    filter.value = seleccion;
+    if (!filter.value) filter.value = "all";
   }
 
   /* ---------- Lista de productos ---------- */
   async function renderProducts() {
     try { products = await DB.getProductsAdmin(); } catch (e) { toast("Error al cargar productos"); return; }
+    setupCategoryFilter(); // recalcula los contadores por categoría
     renderStats();
     renderList();
   }
@@ -650,6 +667,7 @@
       </div>
       <div class="prow__act">
         <button class="btn btn--ghost btn--sm" data-edit="${p.id}" type="button">Editar</button>
+        <button class="btn btn--ghost btn--sm" data-dup="${p.id}" type="button" title="Crear otro producto partiendo de este">Duplicar</button>
         <button class="icon-btn" data-del="${p.id}" title="Eliminar" type="button">Borrar</button>
       </div>
     </div>`;
@@ -667,6 +685,12 @@
   $("#productList").addEventListener("click", async (e) => {
     const ed = e.target.closest("[data-edit]");
     if (ed) { openEditor(products.find((p) => p.id === ed.getAttribute("data-edit"))); return; }
+    const dup = e.target.closest("[data-dup]");
+    if (dup) {
+      const base = products.find((p) => p.id === dup.getAttribute("data-dup"));
+      if (base) { openEditor(base, { duplicar: true }); toast("Copia lista: cámbiale el nombre y guarda"); }
+      return;
+    }
     const quick = e.target.closest("[data-quick-save]");
     if (quick) {
       const row = quick.closest(".prow");
@@ -1707,14 +1731,18 @@
     renderRentalLeads();
   });
 
-  function openEditor(p) {
-    editingId = p ? p.id : null;
+  function openEditor(p, opciones) {
+    // "Duplicar" reusa todo el contenido de un producto pero NO su id: así se
+    // crea uno nuevo y el original queda intacto. Sirve para cargar varios
+    // productos parecidos sin escribirlo todo de cero.
+    const duplicar = Boolean(opciones && opciones.duplicar);
+    editingId = p && !duplicar ? p.id : null;
     editorImages = p && Array.isArray(p.imagenes) ? p.imagenes.slice() : [];
     editorFeatures = p && Array.isArray(p.caracteristicas) ? p.caracteristicas.slice() : [];
-    $("#editTitle").textContent = p ? "Editar producto" : "Nuevo producto";
+    $("#editTitle").textContent = duplicar ? "Duplicar producto" : p ? "Editar producto" : "Nuevo producto";
     $("#f-categoria").innerHTML = catOptionsHTML(p ? p.categoria : "recien-nacidos");
     const set = (id, v) => { $(id).value = v; };
-    set("#f-nombre", p ? p.nombre : "");
+    set("#f-nombre", p ? (duplicar ? `${p.nombre} (copia)` : p.nombre) : "");
     $("#f-categoria").value = p ? p.categoria : "recien-nacidos";
     set("#f-marca", p ? p.marca : "");
     set("#f-recomendado", p ? p.recomendado : "");
@@ -1729,8 +1757,30 @@
     $("#imgStatus").textContent = "";
     renderImgList(); renderFeatList(); updateOfferEditor();
     $("#editModal").classList.add("is-open");
+    editorSnapshot = snapshotEditor();
   }
-  function closeEditor() { $("#editModal").classList.remove("is-open"); }
+
+  // Huella de lo que hay escrito en el editor. Sirve para no cerrar por
+  // accidente una ficha a medio llenar: antes, tocar fuera de la ventana
+  // borraba en silencio las fotos subidas y la descripción escrita.
+  function snapshotEditor() {
+    return JSON.stringify([
+      $("#f-nombre").value, $("#f-categoria").value, $("#f-marca").value,
+      $("#f-recomendado").value, $("#f-precio").value, $("#f-antes").value,
+      $("#f-stock").value, $("#f-badge").value, $("#f-sort").value,
+      $("#f-activo").checked, $("#f-oferta").checked, $("#f-descripcion").value,
+      editorImages, editorFeatures,
+    ]);
+  }
+  function editorTieneCambios() {
+    return editorSnapshot !== null && snapshotEditor() !== editorSnapshot;
+  }
+  function closeEditor(forzar) {
+    if (!forzar && editorTieneCambios() &&
+        !confirm("Tienes cambios sin guardar en este producto.\n\n¿Cerrar de todos modos y perder lo escrito?")) return;
+    editorSnapshot = null;
+    $("#editModal").classList.remove("is-open");
+  }
 
   function updateOfferEditor() {
     const enabled = $("#f-oferta").checked;
@@ -1809,8 +1859,10 @@
     if (rm) { editorFeatures.splice(+rm.getAttribute("data-featrm"), 1); renderFeatList(); }
   });
 
-  $("#editClose").addEventListener("click", closeEditor);
-  $("#editCancel").addEventListener("click", closeEditor);
+  // Ojo: se envuelven en una función. Pasar `closeEditor` directo le entregaba
+  // el evento como argumento y eso lo hacía cerrar SIEMPRE sin preguntar.
+  $("#editClose").addEventListener("click", () => closeEditor());
+  $("#editCancel").addEventListener("click", () => closeEditor());
   $("#editModal").addEventListener("click", (e) => { if (e.target.id === "editModal") closeEditor(); });
 
   $("#editSave").addEventListener("click", async () => {
@@ -1844,7 +1896,7 @@
     };
     if (!p.nombre) { toast("Ponle un nombre al producto"); return; }
     const btn = $("#editSave"); btn.disabled = true; btn.textContent = "Guardando…";
-    try { await DB.saveProduct(p); toast("Producto guardado"); closeEditor(); await renderProducts(); renderDashboard(); }
+    try { await DB.saveProduct(p); toast("Producto guardado"); closeEditor(true); await renderProducts(); renderDashboard(); }
     catch (err) { toast(errorAlGuardar(err, "el producto")); }
     btn.disabled = false; btn.textContent = "Guardar producto";
   });

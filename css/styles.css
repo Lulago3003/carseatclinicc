@@ -1450,6 +1450,8 @@ body.admin [hidden] { display: none !important; }
   .prow { grid-template-columns: 52px minmax(0, 1fr); gap: 10px; }
   .prow__img { width: 52px; height: 52px; }
   .prow__quick { grid-template-columns: 1fr; width: 100%; }
+  /* Los tres botones (Editar · Duplicar · Borrar) se reparten el ancho en
+     partes iguales: medido en 375px caben en una línea y sin recortar texto. */
   .prow__act { width: 100%; }
   .prow__act .btn, .prow__act .icon-btn { flex: 1; }
   .edit-grid { grid-template-columns: 1fr; }
