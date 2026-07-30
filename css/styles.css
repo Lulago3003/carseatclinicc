@@ -119,6 +119,31 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .nav a { font-weight: 500; color: var(--muted); transition: color .15s; }
 .nav a:hover { color: var(--brand-dark); }
 
+/* --- "Tienda" con submenú de grupos (Sillas de auto, de comer, a dormir…) --- */
+.nav__group { position: relative; display: inline-flex; align-items: center; gap: 2px; }
+.nav__caret {
+  background: none; border: none; cursor: pointer; padding: 4px; color: var(--muted);
+  display: inline-flex; align-items: center; border-radius: 8px; line-height: 0;
+}
+.nav__caret:hover { color: var(--brand-dark); }
+.nav__caret svg { transition: transform .2s ease; }
+/* Puente invisible para que el submenú no se cierre al bajar el mouse. */
+.nav__group::after { content: ""; position: absolute; top: 100%; left: 0; right: 0; height: 10px; }
+.nav__sub {
+  position: absolute; top: 100%; left: 0; margin-top: 8px; min-width: 214px;
+  background: #fff; border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: var(--shadow); padding: 8px; z-index: 90;
+  display: none; flex-direction: column; gap: 2px;
+}
+.nav__sub a { padding: 10px 12px; border-radius: 10px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.nav__sub a:first-child { color: var(--muted); font-size: .92rem; }
+.nav__sub a:hover { background: var(--brand-soft); color: var(--brand-dark); }
+.nav__group:hover .nav__sub,
+.nav__group:focus-within .nav__sub,
+.nav__group.is-open .nav__sub { display: flex; }
+.nav__group:hover .nav__caret svg,
+.nav__group.is-open .nav__caret svg { transform: rotate(180deg); }
+
 .header__actions { display: flex; align-items: center; gap: 12px; margin-left: 18px; }
 .cart-btn {
   position: relative; background: var(--brand-soft); color: var(--brand-dark);
@@ -1872,6 +1897,19 @@ body.nav-open { overflow: hidden; }
   .nav a { padding: 14px 14px; font-size: 1rem; border-radius: 12px; }
   .nav a.is-current::after { display: none; }
   .nav-toggle { display: flex; }
+  /* En teléfono el submenú de "Tienda" se abre con el chevron (no con hover)
+     y se despliega como lista indentada debajo, no como tarjeta flotante. */
+  .nav__group { display: flex; flex-wrap: wrap; align-items: center; width: 100%; }
+  .nav__group > a { flex: 1; }
+  .nav__group::after { display: none; }
+  .nav__caret { padding: 14px; color: var(--ink); }
+  .nav__sub {
+    position: static; flex-basis: 100%; margin: 0; min-width: 0;
+    border: none; border-radius: 0; box-shadow: none; padding: 0 0 4px 10px;
+  }
+  .nav__group:hover .nav__sub, .nav__group:focus-within .nav__sub { display: none; }
+  .nav__group.is-open .nav__sub { display: flex; }
+  .nav__sub a { padding: 12px 14px; }
   .header__actions { margin-left: auto; }
   .account-btn span { display: none; }
   .account-btn { padding: 0; width: 44px; height: 44px; justify-content: center; border-radius: 50%; }
@@ -2350,4 +2388,86 @@ body.nav-open { overflow: hidden; }
   .lead-pipeline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pipe { min-width: 0; }
   .pipe-arrow { display: none; }
+}
+
+/* --- Alquiler con disponibilidad publicada ---
+   La familia elige una opción creada por la administradora, no una fecha
+   abierta. Así la web comunica claramente lo que está disponible de verdad. */
+.rental-availability-status {
+  margin: 2px 0 14px; padding: 10px 12px; border: 1px solid rgba(122,143,124,.24);
+  border-radius: 12px; background: rgba(255,255,255,.72); color: var(--brand-dark); font-size: .84rem;
+}
+.rental-availability-status:empty { display: none; }
+.rental-availability-status.is-error { border-color: #edc7bc; background: #fff5f2; color: #9b4237; }
+.rental-options { padding: 16px; }
+.rental-options__head, .rental-options__empty { display: flex; flex-direction: column; gap: 3px; }
+.rental-options__head { margin-bottom: 12px; }
+.rental-options__head strong, .rental-options__empty strong { color: var(--brand-dark); }
+.rental-options__head span, .rental-options__empty span { color: var(--muted); font-size: .83rem; }
+.rental-options__empty { min-height: 92px; justify-content: center; align-items: center; text-align: center; padding: 16px; border: 1px dashed var(--line); border-radius: 14px; }
+.rental-options__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.rental-option {
+  min-width: 0; border: 1px solid var(--line); border-radius: 15px; padding: 14px; background: #fff;
+  color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+  transition: transform .18s var(--ease-out-quint), border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.rental-option:hover { transform: translateY(-2px); border-color: var(--sage); box-shadow: var(--shadow-sm); }
+.rental-option:focus-visible { outline: 3px solid rgba(122,143,124,.35); outline-offset: 2px; }
+.rental-option.is-selected { border-color: var(--brand); background: var(--brand); color: #fff; box-shadow: 0 12px 24px rgba(47,62,52,.18); }
+.rental-option > span, .rental-option > strong, .rental-option > small { display: block; }
+.rental-option__eyebrow { margin-bottom: 5px; color: var(--sage); font-size: .69rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.rental-option.is-selected .rental-option__eyebrow { color: #dce7dc; }
+.rental-option strong { color: var(--brand-dark); font-size: .96rem; line-height: 1.35; }
+.rental-option.is-selected strong { color: #fff; }
+.rental-option > span:not(.rental-option__eyebrow), .rental-option small { margin-top: 4px; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+.rental-option.is-selected > span:not(.rental-option__eyebrow), .rental-option.is-selected small { color: rgba(255,255,255,.78); }
+.rental-slots-empty { grid-column: 1 / -1; margin: 0; padding: 13px 14px; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); font-size: .87rem; text-align: center; }
+
+/* Editor de disponibilidad dentro de CRM. No borra historial: se puede ocultar
+   o volver a mostrar una fecha sin perder la referencia de solicitudes viejas. */
+.rental-availability-admin {
+  margin: 22px 0; padding: 20px; border: 1px solid rgba(122,143,124,.3); border-radius: 20px;
+  background: linear-gradient(135deg, #fbfaf7 0%, #eef4ee 100%);
+}
+.rental-availability-admin__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 16px; }
+.rental-availability-admin__head h3 { margin-top: 3px; color: var(--brand-dark); font-size: 1.16rem; }
+.rental-availability-admin__head p { max-width: 45em; margin: 0; color: var(--muted); font-size: .86rem; line-height: 1.55; }
+.rental-availability-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; padding: 16px; border: 1px solid rgba(122,143,124,.2); border-radius: 16px; background: #fff; }
+.rental-availability-form > label, .rental-availability-form fieldset { min-width: 0; margin: 0; }
+.rental-availability-form__note, .rental-availability-slots, .rental-availability-form__actions { grid-column: 1 / -1; }
+.rental-availability-slots { padding: 12px; border: 1px solid var(--line); border-radius: 14px; }
+.rental-availability-slots legend { padding: 0 5px; color: var(--brand-dark); font-size: .83rem; font-weight: 800; }
+.rental-availability-slots__choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.rental-availability-slot { min-height: 36px; margin: 0; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-warm); color: var(--brand-dark); font-size: .8rem; }
+.rental-availability-slot input { width: auto; margin: 0 5px 0 0; accent-color: var(--brand); }
+.rental-availability-slots__extra { display: block; margin-top: 11px; }
+.rental-availability-form__active { align-self: end; min-height: 44px; margin: 0; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-warm); color: var(--brand-dark); font-size: .82rem; }
+.rental-availability-form__active input { width: auto; margin: 0 7px 0 0; accent-color: var(--brand); }
+.rental-availability-form__actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 2px; }
+.rental-availability-form__actions .muted { margin: 0; font-size: .82rem; }
+.rental-availability-form__actions .muted.is-error { color: #9b4237; }
+.rental-availability-list { margin-top: 16px; }
+.rental-availability-list__head { display: flex; justify-content: space-between; gap: 12px; margin: 0 2px 9px; color: var(--brand-dark); font-size: .85rem; }
+.rental-availability-list__head span { color: var(--muted); font-size: .78rem; }
+.rental-availability-list__error { margin: 0; padding: 12px; border: 1px solid #edc7bc; border-radius: 12px; background: #fff5f2; color: #9b4237; }
+.rental-availability-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.rental-availability-card + .rental-availability-card { margin-top: 8px; }
+.rental-availability-card.is-hidden { opacity: .66; background: #faf9f7; }
+.rental-availability-card__main { min-width: 0; display: grid; gap: 2px; }
+.rental-availability-card__main strong { color: var(--brand-dark); font-size: .94rem; }
+.rental-availability-card__main > span:not(.rental-availability-card__state), .rental-availability-card__main small, .rental-availability-card__main p { color: var(--muted); font-size: .8rem; }
+.rental-availability-card__main p { margin: 4px 0 0; }
+.rental-availability-card__state { width: max-content; padding: 3px 8px; border-radius: 999px; background: #e7f3e8; color: #256343; font-size: .68rem; font-weight: 800; }
+.rental-availability-card.is-hidden .rental-availability-card__state { background: #f0ece6; color: #716a60; }
+.rental-availability-card__actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: 7px; flex-shrink: 0; }
+
+@media (max-width: 820px) {
+  .rental-availability-admin__head { align-items: flex-start; flex-direction: column; }
+  .rental-availability-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .rental-options__list, .rental-availability-form { grid-template-columns: 1fr; }
+  .rental-availability-form__note, .rental-availability-slots, .rental-availability-form__actions { grid-column: auto; }
+  .rental-availability-card { align-items: flex-start; flex-direction: column; }
+  .rental-availability-card__actions { justify-content: flex-start; }
 }

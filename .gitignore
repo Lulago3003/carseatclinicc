@@ -15,3 +15,7 @@ node_modules/
 
 # Archivos pesados que no son parte de la web
 *.zip
+
+# Carpetas de trabajo local (PDFs de inventario, etc.) — no van en la web
+output/
+tmp/

@@ -203,7 +203,7 @@
       confidence: 0.9,
       action: "book",
       capture: { service: "Alquiler", priority: "alta" },
-      answer: "Sí, alquilamos silla de carro, booster, coche/stroller o corral por los días que necesites, como reservar en un hotel. Entregamos en el aeropuerto, tu hotel o tu casa, con instalación revisada antes de usar. Para confirmar disponibilidad dime qué equipo necesitas, fecha de entrega, fecha de devolución y edad/peso del niño. Puedes reservarlo directo en nuestra página de Alquiler o seguir por WhatsApp si tienes dudas antes.",
+      answer: "Sí, alquilamos silla de carro, booster, coche/stroller o corral para viajes. En la página de Alquiler verás solo las fechas y horarios que están publicados; eliges una opción y Glenda te confirma equipo, precio y logística por WhatsApp antes de reservarlo. También entregamos en el aeropuerto, tu hotel o tu casa.",
     });
   }
 
@@ -213,7 +213,7 @@
       confidence: 0.87,
       action: "book",
       capture: { service: "Alquiler", priority: "alta" },
-      answer: "Ese tipo de equipo (coche, corral o cuna) lo manejamos en alquiler por días, no está en la tienda para comprar. Se entrega limpio, revisado y dentro de su fecha de vigencia, en el aeropuerto, tu hotel o tu casa. Dime tus fechas de entrega y devolución y te confirmamos disponibilidad en la página de Alquiler, o seguimos por WhatsApp.",
+      answer: "Ese tipo de equipo (coche, corral o cuna) lo manejamos para alquiler de viajes, no está en la tienda para comprar. Se entrega limpio, revisado y dentro de su fecha de vigencia, en el aeropuerto, tu hotel o tu casa. En la página de Alquiler puedes ver las fechas publicadas o seguimos por WhatsApp.",
     });
   }
 

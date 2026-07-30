@@ -9,6 +9,7 @@ const files = {
   chat: readFileSync("js/chat-widget.js", "utf8"),
   store: readFileSync("js/store.js", "utf8"),
   instagramSql: readFileSync("supabase-instagram.sql", "utf8"),
+  rentalSql: readFileSync("supabase-disponibilidad-alquiler.sql", "utf8"),
 };
 
 const checks = [
@@ -24,10 +25,13 @@ const checks = [
   ["separate rental tab", files.html.includes('data-tab="alquiler"') && files.html.includes('id="tab-alquiler"') && files.html.includes('id="badge-alquiler"')],
   ["rental filters", files.html.includes('id="rentalSearch"') && files.html.includes('id="rentalStatusFilter"') && files.html.includes('id="clearRentalFilters"')],
   ["rental view renderer", files.js.includes("function getFilteredRentalLeads") && files.js.includes("function renderRentalLeads") && files.js.includes("function renderRentalStats")],
-  ["confirmed rentals stay operational", files.js.includes("function isOperationalRentalLead") && files.js.includes('"completado"')],
+  ["only confirmed rentals stay operational", files.js.includes("function isOperationalRentalLead") && files.js.includes('["reservado", "ganado"].includes')],
   ["rental filters include all statuses", files.html.includes('value="reservado"') && files.html.includes('value="completado"') && files.html.includes('value="cancelado"')],
   ["rental list keeps CRM actions", files.js.includes('["#leadList", "#rentalLeadList"]') && files.js.includes("handleLeadCardClick")],
   ["rental tab styles", files.css.includes(".admin-filters--rental") && files.css.includes(".rental-stats")],
+  ["rental availability CRM editor", files.html.includes('id="rentalAvailabilityForm"') && files.html.includes('id="rentalAvailabilityList"') && files.js.includes("function setupRentalAvailabilityEditor")],
+  ["rental availability database API", files.db.includes("getRentalAvailabilityAdmin") && files.db.includes("saveRentalAvailability") && files.db.includes("rental_availability")],
+  ["rental availability is protected", files.rentalSql.includes("enable row level security") && files.rentalSql.includes("Public can view active rental availability") && files.rentalSql.includes("Admins manage rental availability")],
   ["dashboard renderer", files.js.includes("function renderDashboard")],
   ["product filters", files.js.includes("function getFilteredProducts")],
   ["valid sale rule", files.js.includes("function saleInfo") && files.js.includes("before <= price")],

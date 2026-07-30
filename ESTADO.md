@@ -23,7 +23,8 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       `tienda.html?cat=booster` para llegar ya filtrado.
 - [x] **`alquiler.html` (nueva)**: el alquiler **ya no está en la página de
       comprar**. Tiene su propia página con equipo disponible, cómo funciona,
-      calendario de fechas, formulario de reserva y preguntas del alquiler.
+      disponibilidades publicadas, formulario de solicitud y preguntas del
+      alquiler. La familia no puede escribir una fecha libre.
       Desde la ficha de una silla, "Alquilar" lleva aquí con el modelo ya puesto
       (`alquiler.html?modelo=...&equipo=...`).
 - [x] **`index.html` es ahora la portada**: hero, confianza, 4 destacados que
@@ -46,7 +47,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] **Rediseño visual**: encabezado tipo pestañas que ya no se amontona (pasa a
       menú hamburguesa desde 1000px), pie de página de 4 columnas con las dos
       cuentas de Instagram, portadas propias para Tienda y Alquiler, tarjetas de
-      equipo, pasos "cómo funciona" y calendario de alquiler a tamaño normal.
+      equipo, pasos "cómo funciona" y disponibilidades de alquiler a tamaño normal.
 
 - [x] **Sección de Instagram en la portada**: "Lo último que publicamos" con las
       publicaciones de la cuenta **oficial @carseatclinicc**, debajo de la franja
@@ -87,6 +88,27 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       emojis que cambian de forma según el teléfono.
       (6) **Sin destacado arbitrario**: el primer producto ocupaba doble ancho
       solo por salir primero, no por ser un destacado real.
+
+- [x] **Grupos de productos + menú desplegable (30 jul 2026)**: la tienda se
+      separa por GRUPOS igual que la referencia (Premium Baby): **Sillas de
+      auto, Sillas de comer, A dormir, Accesorios**. El encabezado tiene "Tienda"
+      con submenú (en teléfono se abre con el chevron), los filtros de la tienda
+      separan por grupo y el panel usa un desplegable agrupado (`<optgroup>`)
+      para clasificar cada producto. Fuente única en `js/data.js` → `GRUPOS` y
+      `CATEGORIAS`: para agregar un grupo o mover una categoría se edita solo ahí.
+      Los grupos sin productos aún (p. ej. "Sillas de comer") muestran una
+      invitación cálida a escribir por WhatsApp en vez de una tienda vacía.
+      Código: `js/data.js`, `js/store.js`, `js/admin.js`, `js/shell.js`,
+      `scripts/sync-layout.mjs`, `css/styles.css`.
+- [x] **Botón "Comprar por WhatsApp" en cada ficha (30 jul 2026)**: como en la
+      referencia. Abre WhatsApp con el producto (y su precio) ya escrito, para
+      quien prefiere resolver dudas o comprar por ese canal. Sale también en
+      productos agotados ("te avisamos cuando vuelva"). Código: `js/store.js`.
+- [x] **Servicios alineados a la clienta (30 jul 2026)**: los 3 pilares que pidió
+      quedan al frente — **alquiler**, **limpieza de sillas y coches de paseo**
+      (antes solo decía silla) y **asesoría de uso e instalación**. Se conservan
+      chequeo y atención a domicilio. Código: `js/data.js` (`SERVICIOS`),
+      `index.html` (tarjetas), `servicios.html` (sección de limpieza).
 
 ### ⬜ Pendiente de esta tanda
 - [x] **Novedades de Instagram activadas**: la tabla y los permisos ya están
@@ -129,11 +151,11 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       la sigue usando para ver sus pedidos.
 - [x] **Carrito de cotización**: ahora se puede **agregar al carrito cualquier producto aunque diga "Consultar"** (sin precio). El carrito muestra "Consultar"/"A cotizar" y el botón pasa a **"Solicitar cotización por WhatsApp"** (manda la lista, sin pago/login). Cuando haya precios reales, vuelve al checkout normal.
 - [x] **Barra de búsqueda** en el catálogo (`#shopSearch`): filtra por nombre, marca, etapa o recomendado.
-- [x] **Comprar o Alquilar por producto**: en la ficha de cada silla (categorías de sillas/booster) hay botón "🛒 Agregar a mi cotización/carrito" y "📅 Alquilar esta silla por fechas" (abre el calendario de alquiler con el modelo pre-llenado → llega al CRM). Nota visible de "🔧 incluye opción de instalación".
+- [x] **Comprar o Alquilar por producto**: en la ficha de cada silla (categorías de sillas/booster) hay botón "🛒 Agregar a mi cotización/carrito" y "📅 Ver fechas de alquiler" (abre la página con el equipo preseleccionado y muestra solo las disponibilidades publicadas → llega al CRM). Nota visible de "🔧 incluye opción de instalación".
 - [x] **Íconos de contacto** con SVG (ubicación, horario, email y **logo de Instagram**) en lugar de emojis.
 - [x] Etiqueta **"📅 También en alquiler"** en las tarjetas de sillas/booster del catálogo.
 - [x] **Confirmación visible** al reservar cita/alquiler (banner verde "¡Recibimos tu solicitud!") además del WhatsApp.
-- [x] Revisado **responsive (teléfono)**: catálogo, ficha (comprar/alquilar), calendario de alquiler, buscador y CRM (embudo/estadísticas) sin desbordes en 390px.
+- [x] Revisado **responsive (teléfono)**: catálogo, ficha (comprar/alquilar), disponibilidad de alquiler, buscador y CRM (embudo/estadísticas) sin desbordes en 390px.
 - [x] **El asistente recomienda con modelos + enlace**: tras una respuesta sobre sillas, muestra los **nombres reales del catálogo** y un botón "Ver [tipo] →" que abre el catálogo filtrado por esa etapa (`window.CSC_showCatalog` / `window.CSC_PRODUCTS`).
 - [x] Precios en modo "Consultar / Cotizar por WhatsApp" + etiqueta de descuento "-X%" automática.
 - [x] **Comparador de sillas**: botón "⇄ Comparar" en las tarjetas de sillas/booster (hasta 3), barra flotante abajo y modal con tabla lado a lado (foto, precio, etapa, marca, disponibilidad, características) + botón de asesoría por WhatsApp con los modelos elegidos. Código: `toggleCompare/openCompare` en `store.js`, estilos `.cmpbar`/`.cmp__table`.
@@ -152,8 +174,8 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] **Alquiler para viajes** y **Recursos de seguridad** estan OCULTAS en la home (guardadas como comentario `GUARDADO ... FIN GUARDADO` en `index.html`, faciles de reactivar). El alquiler completo sigue en `servicios.html`. Se quito el enlace "Recursos" del menu.
 - [x] "Ruta segura" rediseñada limpia: 4 tarjetas alineadas (Paso 1-4: Diagnostico, Compatibilidad, Instalacion, Seguimiento) con icono + etiqueta + titulo + texto, sobre banda verde. Clases `.route-steps`/`.rstep` (se quitaron las `.route-card` recargadas con destellos/lineas).
 - [x] Reserva de cita (por WhatsApp), Newsletter (footer + pop-up).
-- [x] **Calendario visual de rango** para el alquiler (estilo reserva de hotel): el cliente toca el día de entrega y el de devolución, se marca el rango y muestra los días de alquiler; rellena `#citaFecha` y `#rentalEndDate` automáticamente. Código en `setupRentalCalendar()` (store.js), estilos `.rcal` en styles.css.
-- [x] Seccion **Alquiler para viajes** inspirada en flujo tipo reserva: imagen real, pasos, CTA y formulario con equipo, fecha de entrega, devolucion, entrega, recogida, edad/peso e instalacion opcional.
+- [x] **Disponibilidad controlada para alquiler**: Glenda crea desde CRM → Alquiler los bloques reales por equipo, fecha de entrega, devolución y horarios. La web deja escoger únicamente uno de esos bloques; no hay calendario libre. La solicitud queda como **Reserva pendiente** y no pasa a operación hasta que Glenda marque `Reservado` o `Ganado`. Código: `supabase-disponibilidad-alquiler.sql`, `js/supabase.js`, `js/admin.js`, `js/store.js` y estilos `.rental-options`.
+- [x] Sección **Alquiler para viajes**: imagen real, pasos, CTA y formulario con equipo, disponibilidad publicada, entrega, recogida, edad/peso e instalación opcional.
 - [x] Contacto + mapa + **QR de Waze** ("cómo llegar").
 
 **Cuenta / auth**
@@ -220,7 +242,9 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [ ] **Correr SQL pendientes en Supabase** (pegar y Run):
       `supabase-inventario.sql` (deja las fotos en rutas relativas) y
       `supabase-chat.sql` (tabla de conversaciones) y
-      `supabase-crm-atencion.sql` (agenda/casos del CRM inteligente).
+      `supabase-crm-atencion.sql` (agenda/casos del CRM inteligente) y
+      `supabase-disponibilidad-alquiler.sql` (fechas y horarios que Glenda
+      publica para el alquiler).
 - [ ] **Activar pago** (BAC/Tilopay): cuenta de comercio → `supabase secrets set …`
       → `supabase functions deploy crear-pago` → `CONFIG.pago.activo=true`. Ver `PAGOS.md`.
 - [ ] **Activar IA del chat**: API key de Anthropic → secret → `deploy asistente`. Ver `CHATBOT.md`.

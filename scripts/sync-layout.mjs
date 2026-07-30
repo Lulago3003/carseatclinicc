@@ -51,7 +51,21 @@ const HEADER = `  <header class="header" id="header">
       </a>
 
       <nav class="nav" id="nav" aria-label="Menú principal">
-${TABS.map(([href, label]) => `        <a href="${href}">${label}</a>`).join("\n")}
+${TABS.map(([href, label]) => {
+  // "Tienda" lleva un submenú con los GRUPOS de productos (Sillas de auto,
+  // Sillas de comer, A dormir, Accesorios). El submenú lo llena js/shell.js
+  // desde la lista GRUPOS de js/data.js, así no hay que tocarlo aquí.
+  if (href === "tienda.html") {
+    return `        <span class="nav__group" id="navShop">
+          <a href="tienda.html">Tienda</a>
+          <button class="nav__caret" type="button" aria-label="Ver categorías de la tienda" aria-expanded="false" aria-controls="shopSubmenu">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="nav__sub" id="shopSubmenu" role="menu" hidden></div>
+        </span>`;
+  }
+  return `        <a href="${href}">${label}</a>`;
+}).join("\n")}
         <a href="admin.html" id="adminLink" class="nav__admin" style="display:none">Administrar</a>
       </nav>
 
@@ -182,7 +196,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-07-29b";
+const VERSION = "2026-07-30b";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {

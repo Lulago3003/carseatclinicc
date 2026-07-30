@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="light" />
   <title>Alquiler de sillas y equipo de bebé | Car Seat Clinic Panamá</title>
-  <meta name="description" content="Alquila silla de carro, booster, coche o corral por días en Panamá. Reserva por fechas, con entrega, recogida y revisión de instalación incluida." />
+  <meta name="description" content="Alquila silla de carro, booster, coche o corral en Panamá según disponibilidades publicadas. Coordinamos entrega, recogida e instalación por WhatsApp." />
   <meta property="og:title" content="Alquiler para viajes | Car Seat Clinic" />
   <meta property="og:description" content="Silla de carro, coche o corral por los días que necesites. Entrega en aeropuerto, hotel o domicilio." />
   <meta property="og:image" content="https://lulago3003.github.io/carseatclinicc/assets/hero/servicios.jpg" />
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="preload" as="image" href="assets/hero/servicios.jpg" />
-  <link rel="stylesheet" href="css/styles.css?v=2026-07-29b" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-30b" />
 </head>
 <body>
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
@@ -38,7 +38,13 @@
 
       <nav class="nav" id="nav" aria-label="Menú principal">
         <a href="index.html">Inicio</a>
-        <a href="tienda.html">Tienda</a>
+        <span class="nav__group" id="navShop">
+          <a href="tienda.html">Tienda</a>
+          <button class="nav__caret" type="button" aria-label="Ver categorías de la tienda" aria-expanded="false" aria-controls="shopSubmenu">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="nav__sub" id="shopSubmenu" role="menu" hidden></div>
+        </span>
         <a href="alquiler.html">Alquiler</a>
         <a href="servicios.html">Servicios</a>
         <a href="faq.html">Preguntas</a>
@@ -75,11 +81,11 @@
       </nav>
       <div class="renthero__inner">
         <div class="renthero__text">
-          <span class="pill pill--light">Alquiler por días · Panamá</span>
+          <span class="pill pill--light">Alquiler para viajes · Panamá</span>
           <h1>Viaja ligero. El equipo seguro te espera aquí.</h1>
-          <p>Alquila silla de carro, booster, coche o corral por los días que necesites. Reservas por fechas igual que un hotel, y coordinamos entrega y recogida en el aeropuerto, tu hotel o tu casa.</p>
+          <p>Elige una disponibilidad publicada para silla de carro, booster, coche o corral. Coordinamos entrega y recogida en el aeropuerto, tu hotel o tu casa, y confirmamos todo por WhatsApp.</p>
           <div class="renthero__cta">
-            <a href="#reservar" class="btn btn--accent">Reservar mis fechas</a>
+            <a href="#reservar" class="btn btn--accent">Ver fechas disponibles</a>
             <a class="btn btn--ghostlight" data-wa="Hola Car Seat Clinic, quiero alquilar equipo para mi viaje. ¿Qué tienen disponible?">Preguntar por WhatsApp</a>
           </div>
           <ul class="renthero__trust">
@@ -145,14 +151,14 @@
     <div class="container">
       <div class="section__head">
         <span class="eyebrow">Cómo funciona</span>
-        <h2>Reservar toma menos de dos minutos</h2>
-        <p>Nos dices qué necesitas y para cuándo. Nosotros confirmamos disponibilidad, precio y logística por WhatsApp.</p>
+        <h2>Solicitar toma menos de dos minutos</h2>
+        <p>Ves solo las fechas que realmente podemos atender. Luego confirmamos equipo, precio y logística por WhatsApp.</p>
       </div>
       <ol class="howsteps">
         <li class="howstep">
           <span class="howstep__num">1</span>
-          <h3>Elige tu equipo y tus fechas</h3>
-          <p>Toca el día de entrega y el de devolución en el calendario. Te calculamos los días automáticamente.</p>
+          <h3>Elige una disponibilidad</h3>
+          <p>Selecciona tu equipo y una fecha publicada, con el periodo y los horarios de entrega que sí están disponibles.</p>
         </li>
         <li class="howstep">
           <span class="howstep__num">2</span>
@@ -173,13 +179,13 @@
     </div>
   </section>
 
-  <!-- ===================== RESERVA ===================== -->
-  <section class="section" id="reservar" data-whatsapp-label="Reservar alquiler" data-whatsapp-message="Hola Car Seat Clinic, quiero reservar un alquiler.">
+  <!-- ===================== DISPONIBILIDAD ===================== -->
+  <section class="section" id="reservar" data-whatsapp-label="Consultar disponibilidad de alquiler" data-whatsapp-message="Hola Car Seat Clinic, quiero consultar una disponibilidad de alquiler.">
     <div class="container">
       <div class="section__head">
-        <span class="eyebrow">Reserva</span>
-        <h2>Elige tus fechas</h2>
-        <p>Guardamos tu solicitud y te abrimos WhatsApp con todo el resumen listo para enviar.</p>
+        <span class="eyebrow">Disponibilidad</span>
+        <h2>Elige una fecha publicada</h2>
+        <p>Solo verás fechas y horarios que Glenda puede atender. Enviar esta solicitud no reserva el equipo hasta que te lo confirmemos por WhatsApp.</p>
       </div>
 
       <form class="cita__form cita__form--rental" id="citaForm">
@@ -194,11 +200,10 @@
           <div class="rental-panel__head">
             <div>
               <span class="eyebrow">Plan de alquiler</span>
-              <h3>Fechas, entrega y recogida</h3>
+              <h3>Disponibilidades reales</h3>
             </div>
-            <p>Toca el día de entrega y luego el de devolución. Si dudas con las fechas, ponemos una aproximada y lo ajustamos por WhatsApp.</p>
+            <p>Elige primero el equipo. Después podrás seleccionar solo uno de los periodos que están publicados para ese equipo.</p>
           </div>
-          <div class="rcal" id="rentalCalendar" aria-label="Elige las fechas del alquiler"></div>
           <div class="rental-panel__grid">
             <label>Equipo a alquilar
               <select name="rental_equipment" id="rentalEquipment">
@@ -210,7 +215,13 @@
                 <option>Varios equipos</option>
               </select>
             </label>
-            <label>Fecha de devolución <input type="date" name="rental_end_date" id="rentalEndDate" /></label>
+            <label>Entrega seleccionada <input type="date" name="fecha" id="citaFecha" readonly required /></label>
+            <label>Devolución incluida <input type="date" name="rental_end_date" id="rentalEndDate" readonly required /></label>
+          </div>
+          <div class="rental-availability-status" id="rentalAvailabilityStatus" aria-live="polite"></div>
+          <div class="rcal rental-options" id="rentalCalendar" aria-label="Disponibilidades de alquiler publicadas"></div>
+          <input type="hidden" name="rental_availability_id" id="rentalAvailabilityId" required />
+          <div class="rental-panel__grid">
             <label>Lugar de entrega <input name="delivery_location" id="deliveryLocation" placeholder="Aeropuerto, hotel o domicilio" /></label>
             <label>Lugar de recogida <input name="pickup_location" id="pickupLocation" placeholder="Puede ser distinto a la entrega" /></label>
             <label>Hora de recogida
@@ -227,11 +238,10 @@
               <input type="checkbox" name="rental_installation" value="Si" />
               Necesito instalación o revisión al entregar
             </label>
-            <div class="rental-kpi" id="rentalKpi">Elige fecha de inicio y devolución para calcular el periodo.</div>
+            <div class="rental-kpi" id="rentalKpi">Elige una disponibilidad publicada para ver el periodo.</div>
           </div>
         </div>
 
-        <label class="col-full">Fecha de entrega <input type="date" name="fecha" id="citaFecha" required /></label>
         <div class="appointment-slots col-full" id="appointmentSlots" aria-label="Horario de entrega"></div>
         <input type="hidden" name="hora" id="citaHora" required />
 
@@ -242,8 +252,8 @@
         <label class="col-full">Comentarios <input name="comentarios" placeholder="Cuántos niños viajan, vuelo de llegada, hotel…" /></label>
         <label class="col-full">Zona o domicilio <input name="zona" placeholder="Ej. Costa del Este" /></label>
 
-        <div class="cita-summary col-full" id="citaSummary">Elige tus fechas y un horario de entrega para armar tu solicitud.</div>
-        <button class="btn btn--primary btn--block col-full" type="submit">Reservar y continuar por WhatsApp</button>
+        <div class="cita-summary col-full" id="citaSummary">Elige una disponibilidad publicada y un horario de entrega para armar tu solicitud.</div>
+        <button class="btn btn--primary btn--block col-full" type="submit">Enviar solicitud y confirmar por WhatsApp</button>
       </form>
     </div>
   </section>
@@ -358,12 +368,12 @@
   <!-- Scripts -->
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=2026-07-29b"></script>
-  <script src="js/supabase.js?v=2026-07-29b"></script>
-  <script src="js/chat-assistant.js?v=2026-07-29b"></script>
-  <script src="js/shell.js?v=2026-07-29b"></script>
-  <script src="js/store.js?v=2026-07-29b"></script>
-  <script src="js/chat-widget.js?v=2026-07-29b"></script>
-  <script src="js/servicios.js?v=2026-07-29b"></script>
+  <script src="js/data.js?v=2026-07-30b"></script>
+  <script src="js/supabase.js?v=2026-07-30b"></script>
+  <script src="js/chat-assistant.js?v=2026-07-30b"></script>
+  <script src="js/shell.js?v=2026-07-30b"></script>
+  <script src="js/store.js?v=2026-07-30b"></script>
+  <script src="js/chat-widget.js?v=2026-07-30b"></script>
+  <script src="js/servicios.js?v=2026-07-30b"></script>
 </body>
 </html>

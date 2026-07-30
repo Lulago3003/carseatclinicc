@@ -232,6 +232,35 @@
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 
+  /* --- Submenú de "Tienda": se arma con los GRUPOS de js/data.js --- */
+  const shopSub = document.getElementById("shopSubmenu");
+  if (shopSub && typeof GRUPOS !== "undefined" && Array.isArray(GRUPOS) && GRUPOS.length) {
+    const links = [`<a href="tienda.html" role="menuitem">Ver toda la tienda</a>`].concat(
+      GRUPOS.map((g) => `<a href="tienda.html?cat=${encodeURIComponent(g.id)}" role="menuitem">${g.label}</a>`)
+    );
+    shopSub.innerHTML = links.join("");
+    shopSub.hidden = false;
+  }
+
+  /* --- Abrir/cerrar el submenú (en teléfono, con el chevron ▾) --- */
+  const shopGroup = document.getElementById("navShop");
+  const shopCaret = shopGroup ? shopGroup.querySelector(".nav__caret") : null;
+  if (shopCaret) {
+    shopCaret.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const abierto = shopGroup.classList.toggle("is-open");
+      shopCaret.setAttribute("aria-expanded", abierto ? "true" : "false");
+    });
+    // En computadora, cerrar el submenú al hacer clic afuera.
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#navShop")) {
+        shopGroup.classList.remove("is-open");
+        shopCaret.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
   /* --- Marca la pestaña actual en el menú --- */
   const archivo = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
   document.querySelectorAll("#nav a[href]").forEach((a) => {

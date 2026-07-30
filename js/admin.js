@@ -19,12 +19,28 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("is-open"), 2600);
   }
 
-  const CATS = [
-    ["recien-nacidos", "Recién nacidos"], ["convertibles", "Convertible"], ["giro-360", "Silla 360°"],
-    ["combinadas", "Combinada"], ["booster", "Booster"], ["accesorios", "Accesorio"],
-    ["limpieza", "Limpieza"], ["gift-cards", "Gift Card"],
-  ];
+  // Las categorías y sus grupos salen de data.js (CATEGORIAS / GRUPOS), que es
+  // la fuente única para la tienda y el panel. Si por algo no cargó, se usa la
+  // lista de respaldo de abajo.
+  const CATS = (typeof CATEGORIAS !== "undefined")
+    ? Object.entries(CATEGORIAS)
+    : [
+        ["recien-nacidos", "Recién nacidos"], ["convertibles", "Convertible"], ["giro-360", "Silla 360°"],
+        ["combinadas", "Combinada"], ["booster", "Booster"], ["accesorios", "Accesorio"],
+        ["limpieza", "Limpieza"], ["gift-cards", "Gift Card"],
+      ];
   const catLabel = (c) => (CATS.find((x) => x[0] === c) || [c, c])[1];
+  const CAT_GRUPOS = (typeof GRUPOS !== "undefined" && Array.isArray(GRUPOS)) ? GRUPOS : [];
+  // Arma las <option> del desplegable separadas por grupo (<optgroup>).
+  function catOptionsHTML(selected) {
+    if (!CAT_GRUPOS.length) {
+      return CATS.map(([v, l]) => `<option value="${v}" ${selected === v ? "selected" : ""}>${l}</option>`).join("");
+    }
+    return CAT_GRUPOS.map((g) =>
+      `<optgroup label="${esc(g.label)}">` +
+      g.cats.map((c) => `<option value="${c}" ${selected === c ? "selected" : ""}>${catLabel(c)}</option>`).join("") +
+      `</optgroup>`).join("");
+  }
 
   // Una oferta existe únicamente cuando el precio normal es mayor que el
   // precio de venta. Así una cifra vieja o incompleta nunca se muestra como
@@ -69,9 +85,11 @@
   let orders = [];
   let serviceLeads = [];
   let instagramPosts = [];
+  let rentalAvailability = [];
   let ordersCount = 0;
   let editingId = null;
   let editingInstagramId = null;
+  let editingRentalAvailabilityId = null;
   let editorImages = [];
   let editorFeatures = [];
 
@@ -119,9 +137,11 @@
     $("#gate").hidden = true; $("#panel").hidden = false; $("#logoutBtn").style.display = "inline-flex";
     setAdminDate();
     setupCategoryFilter();
+    setupRentalAvailabilityEditor();
     await renderProducts();
     await renderOrders();
     await renderServiceLeads();
+    await renderRentalAvailability();
     await renderInstagramPosts();
     renderDashboard();
     updateConvBadge();
@@ -153,6 +173,7 @@
       if (panel) panel.hidden = tab !== name;
     });
     if (name === "agenda" || name === "alquiler") renderServiceLeads();
+    if (name === "alquiler") renderRentalAvailability();
     if (name === "conversaciones") renderConversaciones();
     if (name === "instagram") renderInstagramPosts();
   }
@@ -533,7 +554,7 @@
   function setupCategoryFilter() {
     const filter = $("#categoryFilter");
     if (!filter || filter.options.length) return;
-    filter.innerHTML = `<option value="all">Todas</option>` + CATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+    filter.innerHTML = `<option value="all">Todas</option>` + catOptionsHTML();
   }
 
   /* ---------- Lista de productos ---------- */
@@ -908,6 +929,192 @@
     if (e.target.closest("[data-jump-tab]")) activateTab("instagram");
   });
 
+  /* ---------- Disponibilidades publicadas de alquiler ---------- */
+  function rentalEquipmentOptions() {
+    return [...new Set(["Todos los equipos", ...((CONFIG.alquiler && CONFIG.alquiler.equipos) || [])])];
+  }
+
+  function rentalSlotOptions() {
+    return [...new Set(((CONFIG.alquiler && CONFIG.alquiler.horariosSugeridos) || ["9:00 a.m.", "11:00 a.m.", "2:00 p.m.", "4:30 p.m."]).filter(Boolean))];
+  }
+
+  function rentalAvailabilityDate(value) {
+    if (!value) return "";
+    const date = new Date(`${value}T12:00:00`);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleDateString("es-PA", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  }
+
+  function rentalAvailabilityRange(item) {
+    const start = rentalAvailabilityDate(item.inicio);
+    const end = rentalAvailabilityDate(item.fin);
+    return start && end ? `${start} al ${end}` : start || end || "Fechas por definir";
+  }
+
+  function setRentalAvailabilityStatus(message = "", isError = false) {
+    const target = $("#rentalAvailabilityStatus");
+    if (!target) return;
+    target.textContent = message;
+    target.classList.toggle("is-error", Boolean(isError));
+  }
+
+  function rentalAvailabilityDatabaseMessage(error) {
+    const message = String(error && error.message || "");
+    if (/rental_availability|relation .* does not exist|schema cache/i.test(message)) {
+      return "Falta activar las disponibilidades. En Supabase, ejecuta el archivo supabase-disponibilidad-alquiler.sql una sola vez.";
+    }
+    return "No se pudieron cargar las disponibilidades. Revisa la conexión o inténtalo de nuevo.";
+  }
+
+  function fillRentalEquipmentOptions(selected = "Todos los equipos") {
+    const select = $("#rentalAvailabilityEquipment");
+    if (!select) return;
+    const options = rentalEquipmentOptions();
+    if (selected && !options.includes(selected)) options.push(selected);
+    select.innerHTML = options.map((option) => `<option value="${esc(option)}">${esc(option)}</option>`).join("");
+    select.value = selected || "Todos los equipos";
+  }
+
+  function renderRentalAvailabilitySlots(selected = []) {
+    const target = $("#rentalAvailabilitySlotChoices");
+    if (!target) return;
+    const selectedSlots = new Set((selected || []).map((slot) => String(slot).trim()).filter(Boolean));
+    target.innerHTML = rentalSlotOptions().map((slot) => `<label class="check rental-availability-slot">
+      <input type="checkbox" value="${esc(slot)}" ${selectedSlots.has(slot) ? "checked" : ""} />
+      ${esc(slot)}
+    </label>`).join("");
+  }
+
+  function resetRentalAvailabilityEditor(item = null) {
+    const form = $("#rentalAvailabilityForm");
+    if (!form) return;
+    editingRentalAvailabilityId = item && item.id || null;
+    $("#rentalAvailabilityId").value = editingRentalAvailabilityId || "";
+    fillRentalEquipmentOptions(item && item.equipo || "Todos los equipos");
+    $("#rentalAvailabilityStart").value = item && item.inicio || "";
+    $("#rentalAvailabilityEnd").value = item && item.fin || "";
+    $("#rentalAvailabilityNote").value = item && item.nota || "";
+    $("#rentalAvailabilityActive").checked = !item || item.activo !== false;
+    const slots = item && item.horarios || [];
+    renderRentalAvailabilitySlots(slots);
+    $("#rentalAvailabilityExtraSlots").value = slots.filter((slot) => !rentalSlotOptions().includes(slot)).join(", ");
+    $("#saveRentalAvailability").textContent = item ? "Guardar cambios" : "Publicar disponibilidad";
+    setRentalAvailabilityStatus("");
+  }
+
+  function readRentalAvailabilitySlots() {
+    const checked = $$("#rentalAvailabilitySlotChoices input:checked").map((input) => input.value.trim());
+    const extras = String($("#rentalAvailabilityExtraSlots")?.value || "")
+      .split(",").map((slot) => slot.trim()).filter(Boolean);
+    return [...new Set([...checked, ...extras])];
+  }
+
+  function availabilityCard(item) {
+    const slots = item.horarios && item.horarios.length ? item.horarios.map(esc).join(" · ") : "Sin horario";
+    const visibility = item.activo ? "Visible en la web" : "Oculta en la web";
+    return `<article class="rental-availability-card ${item.activo ? "" : "is-hidden"}">
+      <div class="rental-availability-card__main">
+        <span class="rental-availability-card__state">${visibility}</span>
+        <strong>${esc(item.equipo || "Todos los equipos")}</strong>
+        <span>${esc(rentalAvailabilityRange(item))}</span>
+        <small>Entrega: ${slots}</small>
+        ${item.nota ? `<p>${esc(item.nota)}</p>` : ""}
+      </div>
+      <div class="rental-availability-card__actions">
+        <button class="btn btn--ghost btn--sm" type="button" data-rental-availability-edit="${esc(item.id)}">Editar</button>
+        <button class="btn btn--ghost btn--sm" type="button" data-rental-availability-toggle="${esc(item.id)}">${item.activo ? "Ocultar" : "Mostrar"}</button>
+      </div>
+    </article>`;
+  }
+
+  async function renderRentalAvailability() {
+    const target = $("#rentalAvailabilityList");
+    if (!target) return;
+    target.innerHTML = `<p class="muted">Cargando disponibilidades…</p>`;
+    try {
+      rentalAvailability = await DB.getRentalAvailabilityAdmin();
+    } catch (error) {
+      rentalAvailability = [];
+      target.innerHTML = `<p class="muted rental-availability-list__error">${esc(rentalAvailabilityDatabaseMessage(error))}</p>`;
+      return;
+    }
+    if (!rentalAvailability.length) {
+      target.innerHTML = `<p class="muted">Aún no hay fechas publicadas. Agrega una arriba para que la familia pueda solicitarla desde la web.</p>`;
+      return;
+    }
+    target.innerHTML = `<div class="rental-availability-list__head"><strong>Fechas creadas</strong><span>${rentalAvailability.length} en total</span></div>${rentalAvailability.map(availabilityCard).join("")}`;
+  }
+
+  function setupRentalAvailabilityEditor() {
+    const form = $("#rentalAvailabilityForm");
+    if (!form || form.dataset.ready === "true") return;
+    form.dataset.ready = "true";
+    resetRentalAvailabilityEditor();
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const inicio = $("#rentalAvailabilityStart").value;
+      const fin = $("#rentalAvailabilityEnd").value;
+      const horarios = readRentalAvailabilitySlots();
+      if (!inicio || !fin || fin <= inicio) {
+        setRentalAvailabilityStatus("La devolución debe ser después de la fecha de entrega.", true);
+        return;
+      }
+      if (!horarios.length) {
+        setRentalAvailabilityStatus("Selecciona al menos un horario de entrega.", true);
+        return;
+      }
+      const button = $("#saveRentalAvailability");
+      button.disabled = true;
+      setRentalAvailabilityStatus("Guardando…");
+      try {
+        await DB.saveRentalAvailability({
+          id: editingRentalAvailabilityId || undefined,
+          equipo: $("#rentalAvailabilityEquipment").value || "Todos los equipos",
+          inicio,
+          fin,
+          horarios,
+          nota: $("#rentalAvailabilityNote").value.trim(),
+          activo: $("#rentalAvailabilityActive").checked,
+        });
+        toast("Disponibilidad guardada");
+        resetRentalAvailabilityEditor();
+        await renderRentalAvailability();
+      } catch (error) {
+        setRentalAvailabilityStatus(rentalAvailabilityDatabaseMessage(error), true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    $("#clearRentalAvailability")?.addEventListener("click", () => resetRentalAvailabilityEditor());
+    $("#rentalAvailabilityList")?.addEventListener("click", async (event) => {
+      const edit = event.target.closest("[data-rental-availability-edit]");
+      if (edit) {
+        const item = rentalAvailability.find((entry) => entry.id === edit.getAttribute("data-rental-availability-edit"));
+        if (item) {
+          resetRentalAvailabilityEditor(item);
+          $("#rentalAvailabilityForm")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return;
+      }
+      const toggle = event.target.closest("[data-rental-availability-toggle]");
+      if (!toggle) return;
+      const item = rentalAvailability.find((entry) => entry.id === toggle.getAttribute("data-rental-availability-toggle"));
+      if (!item) return;
+      toggle.disabled = true;
+      try {
+        await DB.saveRentalAvailability({ ...item, activo: !item.activo });
+        toast(item.activo ? "Disponibilidad oculta" : "Disponibilidad publicada");
+        await renderRentalAvailability();
+      } catch (error) {
+        toast(rentalAvailabilityDatabaseMessage(error));
+      } finally {
+        toggle.disabled = false;
+      }
+    });
+  }
+
   /* ---------- Ventana de edición ---------- */
   /* ---------- Agenda IA / leads ---------- */
   function leadMatchesSearch(lead, query) {
@@ -940,11 +1147,10 @@
     return lead.type === "alquiler" || /alquiler|renta/i.test(lead.service || "") || !!details.rental_equipment;
   }
 
-  // Un alquiler ganado o reservado aún necesita entrega y devolución. Solo
-  // desaparece de la operación cuando terminó o se canceló/perdió.
+  // Una solicitud no bloquea el operativo. Solo aparece como entrega/devolución
+  // cuando Glenda ya la confirmó como Reservado o Ganado.
   function isOperationalRentalLead(lead) {
-    return isRentalLead(lead)
-      && !["perdido", "cancelado", "completado"].includes(lead.status || "nuevo");
+    return isRentalLead(lead) && ["reservado", "ganado"].includes(lead.status || "");
   }
 
   // Esta vista no depende solo del tipo de la fila: también recupera alquileres
@@ -963,6 +1169,7 @@
     const details = lead.details || {};
     return [
       details.rental_equipment ? `Equipo: ${details.rental_equipment}` : "",
+      details.rental_availability_period ? `Disponibilidad: ${details.rental_availability_period}` : "",
       details.rental_end_date ? `Devolucion: ${details.rental_end_date}` : "",
       details.rental_days ? `Dias: ${details.rental_days}` : "",
       details.delivery_location ? `Entrega: ${details.delivery_location}` : "",
@@ -1022,6 +1229,7 @@
       ],
       [
         ["Entrega en", d.delivery_location || d.zona],
+        ["Disponibilidad", d.rental_availability_period],
         ["Devolución", d.rental_end_date],
         ["Recogida en", d.pickup_location],
         ["Hora de recogida", d.pickup_time],
@@ -1487,7 +1695,7 @@
     editorImages = p && Array.isArray(p.imagenes) ? p.imagenes.slice() : [];
     editorFeatures = p && Array.isArray(p.caracteristicas) ? p.caracteristicas.slice() : [];
     $("#editTitle").textContent = p ? "Editar producto" : "Nuevo producto";
-    $("#f-categoria").innerHTML = CATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+    $("#f-categoria").innerHTML = catOptionsHTML(p ? p.categoria : "recien-nacidos");
     const set = (id, v) => { $(id).value = v; };
     set("#f-nombre", p ? p.nombre : "");
     $("#f-categoria").value = p ? p.categoria : "recien-nacidos";

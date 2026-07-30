@@ -85,6 +85,21 @@ const CONFIG = {
     guardarSolicitudes: true,
   },
 
+  /* --- Alquiler con fechas publicadas ---
+     La administradora agrega desde el CRM únicamente los periodos y horarios
+     que realmente puede atender. La web no ofrece un calendario libre: la
+     familia solo puede solicitar una de esas disponibilidades. */
+  alquiler: {
+    equipos: [
+      "Silla de carro",
+      "Booster",
+      "Coche / stroller",
+      "Corral / pack n play",
+      "Varios equipos",
+    ],
+    horariosSugeridos: ["9:00 a.m.", "11:00 a.m.", "2:00 p.m.", "4:30 p.m."],
+  },
+
   /* --- Administradores ---
      Quien inicie sesión con uno de estos correos entra al panel (puede editar
      productos, stock y pedidos). Puedes agregar más separados por coma.
@@ -96,6 +111,34 @@ const CONFIG = {
      Authentication → Users. */
   adminEmails: ["luislassogonzalez@gmail.com", "sripanama1@gmail.com"],
 };
+
+/* =====================================================================
+   GRUPOS DE PRODUCTOS (menú de la tienda y del panel)
+   ---------------------------------------------------------------------
+   La tienda separa los productos en estos GRUPOS (como pidió la clienta).
+   Cada grupo agrupa una o varias "categorías" (el campo `categoria` de
+   cada producto). Para AGREGAR un grupo o mover una categoría, edita
+   solo esta lista: el menú de arriba, los filtros de la tienda y el
+   desplegable del panel se arman a partir de aquí.
+   ===================================================================== */
+const CATEGORIAS = {
+  "recien-nacidos": "Recién nacidos",
+  "convertibles":   "Convertible",
+  "giro-360":       "Silla 360°",
+  "combinadas":     "Combinada",
+  "booster":        "Booster",
+  "sillas-comer":   "Silla de comer",
+  "dormir":         "A dormir",
+  "accesorios":     "Accesorio",
+  "limpieza":       "Limpieza",
+  "gift-cards":     "Gift Card",
+};
+const GRUPOS = [
+  { id: "sillas-auto",  label: "Sillas de auto",  cats: ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster"] },
+  { id: "sillas-comer", label: "Sillas de comer", cats: ["sillas-comer"] },
+  { id: "dormir",       label: "A dormir",        cats: ["dormir"] },
+  { id: "accesorios",   label: "Accesorios",      cats: ["accesorios", "limpieza", "gift-cards"] },
+];
 
 /* =====================================================================
    IMÁGENES POR CATEGORÍA (de respaldo)
@@ -154,16 +197,16 @@ const INSTAGRAM = {
    SERVICIOS  (estos sí se editan aquí — cambian poco)
    ===================================================================== */
 const SERVICIOS = [
-  { icono: "wrench", nombre: "Instalación profesional",
-    descripcion: "Instalamos y aseguramos la silla según el peso y la edad de tu pequeño, y te enseñamos a hacerlo tú misma con total confianza." },
+  { icono: "key", nombre: "Alquiler de equipo",
+    descripcion: "¿De visita en Panamá o necesitas algo temporal? Renta sillas y coches certificados por el tiempo que lo necesites, con fechas publicadas." },
+  { icono: "sparkles", nombre: "Limpieza de sillas y coches de paseo",
+    descripcion: "Lavado profundo y desinfección de sillas de auto y coches de paseo, cuidando cada material para devolverles higiene y frescura." },
+  { icono: "wrench", nombre: "Asesoría de uso e instalación",
+    descripcion: "Te enseñamos a instalar y usar bien la silla según el peso y la edad de tu pequeño. Te la dejamos puesta y con total confianza." },
   { icono: "clipboard", nombre: "Chequeo de seguridad",
     descripcion: "Revisamos que la silla esté bien anclada, sin holguras y dentro de su vida útil, con recomendaciones claras para viajar tranquila." },
   { icono: "compass", nombre: "Asesoría para elegir tu silla",
     descripcion: "Te ayudamos a escoger la silla ideal según la edad, el peso del niño y el modelo de tu auto. Sin compromiso." },
-  { icono: "sparkles", nombre: "Limpieza y desinfección",
-    descripcion: "Lavado profundo y desinfección de la silla para devolverle higiene y frescura, cuidando cada uno de sus materiales." },
-  { icono: "key", nombre: "Alquiler de sillas",
-    descripcion: "¿De visita en Panamá o necesitas una silla temporal? Renta una silla certificada por el tiempo que la necesites." },
   { icono: "home", nombre: "Atención a domicilio",
     descripcion: "Llevamos la instalación y el chequeo hasta tu casa para tu mayor comodidad. Coordina tu cita fácilmente." },
 ];

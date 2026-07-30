@@ -8,7 +8,7 @@
   <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=2026-07-29b" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-30b" />
 </head>
 <body class="admin">
 
@@ -289,7 +289,53 @@
             </div>
             <button class="btn btn--ghost btn--sm" id="exportRentalLeads" type="button">⬇ Exportar alquileres</button>
           </div>
-          <p class="muted">Aquí ves únicamente las reservas de equipo: fechas, entrega, recogida y datos para atender a cada familia.</p>
+          <p class="muted">Aquí ves únicamente las solicitudes de equipo, y publicas las fechas que sí puedes atender antes de que una familia las vea.</p>
+
+          <section class="rental-availability-admin" aria-labelledby="rentalAvailabilityTitle">
+            <div class="rental-availability-admin__head">
+              <div>
+                <span class="eyebrow">Lo que ve la familia</span>
+                <h3 id="rentalAvailabilityTitle">Disponibilidades publicadas</h3>
+              </div>
+              <p>Agrega solo periodos reales. La web no permite escribir fechas libres: la familia selecciona una de estas opciones y tú confirmas el alquiler por WhatsApp.</p>
+            </div>
+
+            <form class="rental-availability-form" id="rentalAvailabilityForm">
+              <input type="hidden" id="rentalAvailabilityId" />
+              <label>Equipo
+                <select id="rentalAvailabilityEquipment" required>
+                  <option value="Todos los equipos">Todos los equipos</option>
+                </select>
+              </label>
+              <label>Disponible desde
+                <input type="date" id="rentalAvailabilityStart" required />
+              </label>
+              <label>Hasta devolución
+                <input type="date" id="rentalAvailabilityEnd" required />
+              </label>
+              <fieldset class="rental-availability-slots">
+                <legend>Horarios de entrega disponibles</legend>
+                <div id="rentalAvailabilitySlotChoices" class="rental-availability-slots__choices"></div>
+                <label class="rental-availability-slots__extra">Otro horario (opcional)
+                  <input type="text" id="rentalAvailabilityExtraSlots" placeholder="Ej. 12:30 p.m., 6:00 p.m." />
+                </label>
+              </fieldset>
+              <label class="rental-availability-form__note">Nota para la familia (opcional)
+                <input type="text" id="rentalAvailabilityNote" placeholder="Ej. Entrega en Tocumen o en hotel" />
+              </label>
+              <label class="check rental-availability-form__active">
+                <input type="checkbox" id="rentalAvailabilityActive" checked />
+                Mostrar esta disponibilidad en la web
+              </label>
+              <div class="rental-availability-form__actions">
+                <button class="btn btn--primary" id="saveRentalAvailability" type="submit">Publicar disponibilidad</button>
+                <button class="btn btn--ghost" id="clearRentalAvailability" type="button">Limpiar</button>
+                <p class="muted" id="rentalAvailabilityStatus" aria-live="polite"></p>
+              </div>
+            </form>
+            <div class="rental-availability-list" id="rentalAvailabilityList" aria-live="polite"></div>
+          </section>
+
           <div class="lstat-cards rental-stats" id="rentalStats"></div>
           <div class="admin-filters admin-filters--rental" aria-label="Filtros de alquiler">
             <label>Buscar
@@ -458,8 +504,8 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=2026-07-29b"></script>
-  <script src="js/supabase.js?v=2026-07-29b"></script>
-  <script src="js/admin.js?v=2026-07-29b"></script>
+  <script src="js/data.js?v=2026-07-30b"></script>
+  <script src="js/supabase.js?v=2026-07-30b"></script>
+  <script src="js/admin.js?v=2026-07-30b"></script>
 </body>
 </html>

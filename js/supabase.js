@@ -409,6 +409,82 @@ const DB = (function () {
     if (error) throw error;
   }
 
+  /* ---------- Disponibilidad de alquiler ---------- */
+  function normalizeRentalAvailability(row = {}) {
+    const slots = Array.isArray(row.slots) ? row.slots : toArr(row.slots);
+    return {
+      id: row.id || null,
+      equipo: row.equipment || row.equipo || "Todos los equipos",
+      inicio: row.start_date || row.inicio || "",
+      fin: row.end_date || row.fin || "",
+      horarios: slots.map((slot) => String(slot || "").trim()).filter(Boolean),
+      nota: row.note || row.nota || "",
+      activo: row.active !== undefined ? Boolean(row.active) : row.activo !== false,
+      created_at: row.created_at || null,
+      updated_at: row.updated_at || row.created_at || null,
+    };
+  }
+
+  function rentalAvailabilityRow(item = {}) {
+    const normalized = normalizeRentalAvailability(item);
+    return {
+      equipment: normalized.equipo || "Todos los equipos",
+      start_date: normalized.inicio || null,
+      end_date: normalized.fin || null,
+      slots: normalized.horarios,
+      note: normalized.nota || null,
+      active: normalized.activo !== false,
+    };
+  }
+
+  // Consulta pública: solo bloques activos y todavía útiles. La política RLS
+  // también limita el resultado, para que la web nunca exponga datos privados.
+  async function getRentalAvailability(equipment) {
+    if (!ready) return [];
+    const today = new Date();
+    const localToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const { data, error } = await client
+      .from("rental_availability")
+      .select("*")
+      .eq("active", true)
+      .gte("end_date", localToday)
+      .order("start_date", { ascending: true });
+    if (error) {
+      console.warn("[Car Seat Clinic] No se pudo cargar la disponibilidad de alquiler.", error.message || error);
+      return [];
+    }
+    const requested = String(equipment || "").trim().toLowerCase();
+    return (data || []).map(normalizeRentalAvailability).filter((item) =>
+      item.activo && (!requested || item.equipo.toLowerCase() === "todos los equipos" || item.equipo.toLowerCase() === requested)
+    );
+  }
+
+  // El CRM ve también los bloques ocultos o vencidos para poder reactivarlos
+  // o corregirlos sin tener que volver a escribirlos.
+  async function getRentalAvailabilityAdmin() {
+    if (!ready) return [];
+    const { data, error } = await client
+      .from("rental_availability")
+      .select("*")
+      .order("start_date", { ascending: true })
+      .order("updated_at", { ascending: false });
+    if (error) throw error;
+    return (data || []).map(normalizeRentalAvailability);
+  }
+
+  async function saveRentalAvailability(item) {
+    if (!ready) throw new Error("Base de datos no conectada");
+    const row = rentalAvailabilityRow(item);
+    let response;
+    if (item && item.id) {
+      response = await client.from("rental_availability").update(row).eq("id", item.id).select().single();
+    } else {
+      response = await client.from("rental_availability").insert(row).select().single();
+    }
+    if (response.error) throw response.error;
+    return normalizeRentalAvailability(response.data);
+  }
+
   /* ---------- Autenticación ---------- */
   async function signUp(email, password, meta) {
     if (!ready) throw new Error("DEMO");
@@ -460,6 +536,7 @@ const DB = (function () {
     guardarMensaje, preguntarIA, getConversaciones,
     guardarLead, getServiceLeads, updateLeadStatus, updateLead,
     getInstagramPosts, getInstagramPostsAdmin, saveInstagramPost, deleteInstagramPost,
+    getRentalAvailability, getRentalAvailabilityAdmin, saveRentalAvailability,
     signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };
 })();

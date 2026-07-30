@@ -25,13 +25,21 @@
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  const CAT_LABEL = {
-    "recien-nacidos": "Recién nacidos", "convertibles": "Convertible", "giro-360": "Silla 360°",
-    "combinadas": "Combinada", "booster": "Booster", "accesorios": "Accesorio",
-    "limpieza": "Limpieza", "gift-cards": "Gift Card",
-    // compatibilidad con datos antiguos
-    "sillas": "Silla de carro", "bases": "Base",
-  };
+  // Los nombres de categoría salen de data.js (CATEGORIAS). Aquí solo se
+  // agregan alias de datos antiguos para no romper productos viejos.
+  const CAT_LABEL = Object.assign(
+    { "sillas": "Silla de carro", "bases": "Base" },
+    (typeof CATEGORIAS !== "undefined" ? CATEGORIAS : {})
+  );
+  // Grupos de la tienda (menú y filtros). También vienen de data.js.
+  const GRUPOS_TIENDA = (typeof GRUPOS !== "undefined" && Array.isArray(GRUPOS)) ? GRUPOS : [];
+  // Devuelve las categorías que abarca un filtro: "todos" = todas,
+  // un id de grupo = sus categorías, o una sola categoría suelta.
+  function catsForFilter(f) {
+    if (!f || f === "todos") return null;
+    const g = GRUPOS_TIENDA.find((x) => x.id === f);
+    return g ? g.cats : [f];
+  }
   const SEAT_CATS = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster", "sillas"];
 
   function bgFor(cat) {
@@ -108,7 +116,9 @@
     ["150-300", "$150 – $300", (p) => Number(p.precio) > 150 && Number(p.precio) <= 300],
     ["gt300", "Más de $300", (p) => Number(p.precio) > 300],
   ];
-  const CAT_ORDER = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster", "accesorios", "limpieza", "gift-cards"];
+  const CAT_ORDER = GRUPOS_TIENDA.length
+    ? GRUPOS_TIENDA.flatMap((g) => g.cats)
+    : ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster", "accesorios", "limpieza", "gift-cards"];
   let detailPid = null, detailStock = 0;
   let currentUser = null;
   let currentProfile = null;
@@ -209,7 +219,19 @@
   function renderProducts(list, selector = "#productGrid") {
     const grid = $(selector);
     if (!grid) return;
-    if (!list || !list.length) { grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay productos con esos filtros.</p>`; return; }
+    if (!list || !list.length) {
+      // Si el grupo elegido aún no tiene productos (p. ej. "Sillas de comer"
+      // antes de cargarlas), invitamos a escribir por WhatsApp en vez de dejar
+      // la tienda vacía y fría.
+      const grupo = GRUPOS_TIENDA.find((g) => g.id === fCat || g.cats.includes(fCat));
+      const nombreGrupo = grupo ? grupo.label.toLowerCase() : "";
+      const waEmpty = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent("Hola Car Seat Clinic 👋 Quisiera información sobre " + (nombreGrupo || "sus productos") + ".")}`;
+      grid.innerHTML = `<div class="shop-empty" style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px 16px">
+        <p style="margin:0 0 6px">${grupo ? `Aún estamos surtiendo <b>${esc(grupo.label)}</b>.` : "No hay productos con esos filtros."}</p>
+        ${grupo ? `<p style="margin:0 0 14px">Escríbenos y te contamos qué tenemos disponible.</p><a class="btn btn--whatsapp" href="${waEmpty}" target="_blank" rel="noopener">${icon("chat")}Preguntar por WhatsApp</a>` : ""}
+      </div>`;
+      return;
+    }
     grid.innerHTML = list.map((p) => {
       const agotado = p.stock <= 0;
       const sinPrecio = !isPriced(p);
@@ -395,9 +417,22 @@
 
   function buildFilters() {
     if (!$("#fTypes")) return;
-    const present = CAT_ORDER.filter((c) => products.some((p) => p.categoria === c));
+    // El filtro separa por GRUPOS (Sillas de auto, Sillas de comer, A dormir,
+    // Accesorios). Solo se muestran los grupos que tienen productos.
+    const gruposPresentes = GRUPOS_TIENDA.filter((g) => products.some((p) => g.cats.includes(p.categoria)));
+    let opciones;
+    if (gruposPresentes.length) {
+      // Si un enlace profundo trajo una categoría suelta (?cat=recien-nacidos),
+      // se resalta el grupo que la contiene.
+      const grupoActivo = GRUPOS_TIENDA.find((g) => g.id === fCat || g.cats.includes(fCat));
+      opciones = gruposPresentes.map((g) => `<li><button class="flink ${grupoActivo && grupoActivo.id === g.id ? "is-active" : ""}" data-cat="${g.id}">${g.label}</button></li>`);
+    } else {
+      // Respaldo: si aún no hay grupos definidos, se listan las categorías.
+      const present = CAT_ORDER.filter((c) => products.some((p) => p.categoria === c));
+      opciones = present.map((c) => `<li><button class="flink ${fCat === c ? "is-active" : ""}" data-cat="${c}">${CAT_LABEL[c] || c}</button></li>`);
+    }
     $("#fTypes").innerHTML = [`<li><button class="flink ${fCat === "todos" ? "is-active" : ""}" data-cat="todos">Todos</button></li>`]
-      .concat(present.map((c) => `<li><button class="flink ${fCat === c ? "is-active" : ""}" data-cat="${c}">${CAT_LABEL[c] || c}</button></li>`)).join("");
+      .concat(opciones).join("");
     const brands = [...new Set(products.map((p) => p.marca).filter(Boolean))].sort();
     $("#fBrands").innerHTML = brands.length
       ? brands.map((b) => `<li><label class="fcheck"><input type="checkbox" data-brand="${esc(b)}" ${fBrands.has(b) ? "checked" : ""}/> ${esc(b)}</label></li>`).join("")
@@ -409,7 +444,8 @@
     let list = products.slice();
     const q = ($("#shopSearch")?.value || "").toLowerCase().trim();
     if (q) list = list.filter((p) => `${p.nombre} ${p.marca || ""} ${CAT_LABEL[p.categoria] || ""} ${p.recomendado || ""}`.toLowerCase().includes(q));
-    if (fCat !== "todos") list = list.filter((p) => p.categoria === fCat);
+    const cats = catsForFilter(fCat);
+    if (cats) list = list.filter((p) => cats.includes(p.categoria));
     if (fBrands.size) list = list.filter((p) => fBrands.has(p.marca));
     const pr = PRICE_RANGES.find((r) => r[0] === fPrice); if (pr) list = list.filter(pr[2]);
     if (fSort === "precio-asc") list.sort((a, b) => (isPriced(a) ? a.precio : Number.MAX_SAFE_INTEGER) - (isPriced(b) ? b.precio : Number.MAX_SAFE_INTEGER));
@@ -647,6 +683,10 @@
     const sinPrecio = !isPriced(p);
     const sale = saleInfo(p);
     const rentable = ["recien-nacidos", "convertibles", "giro-360", "combinadas", "booster"].includes(p.categoria);
+    // Botón "Comprar por WhatsApp": abre el chat con el producto ya escrito,
+    // para quien prefiere resolver dudas o cerrar la compra por WhatsApp.
+    const waProdMsg = `Hola Car Seat Clinic 👋 Me interesa: ${p.nombre}${isPriced(p) ? " (" + money(p.precio) + ")" : ""}. ¿Me ayudan?`;
+    const waProd = `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(waProdMsg)}`;
     $("#detailBody").innerHTML = `
       <div>${main}${thumbs}</div>
       <div class="detail__info">
@@ -663,8 +703,13 @@
               <div class="detail__qty"><button data-detqty="-1" aria-label="Menos">−</button><span id="detQty">1</span><button data-detqty="1" aria-label="Más">+</button></div>
               <button class="btn btn--primary detail__addbtn" id="detailAdd">${icon("cart")}${sinPrecio ? "Agregar a mi cotización" : "Agregar al carrito"}</button>
             </div>
-            ${rentable ? `<button class="btn btn--ghost btn--block detail__rentbtn" id="detailRent">${icon("calendar")}Alquilar esta silla por fechas</button>` : ""}
-            <p class="detail__hint">${sinPrecio ? "Incluye opción de instalación profesional. Te confirmamos precio y disponibilidad por WhatsApp." : "Puedes agregar instalación profesional al finalizar la compra."}</p>`}
+            ${rentable ? `<button class="btn btn--ghost btn--block detail__rentbtn" id="detailRent">${icon("calendar")}Ver fechas de alquiler</button>` : ""}`}
+        <a class="btn btn--whatsapp btn--block detail__wabtn" href="${waProd}" target="_blank" rel="noopener">${icon("chat")}Comprar por WhatsApp</a>
+        <p class="detail__hint">${agotado
+          ? "Escríbenos por WhatsApp y te avisamos cuando vuelva a estar disponible."
+          : sinPrecio
+            ? "Incluye opción de instalación profesional. Te confirmamos precio y disponibilidad por WhatsApp."
+            : "¿Tienes dudas? Escríbenos por WhatsApp y te ayudamos a comprar."}</p>
       </div>`;
     $("#detailModal").classList.add("is-open");
   }
@@ -1070,7 +1115,7 @@
     document.getElementById("productos")?.scrollIntoView({ behavior: "smooth" });
   }
 
-  // Inicia el flujo de alquiler para una silla concreta (abre el calendario)
+  // Inicia el flujo de alquiler para una silla concreta (muestra sus fechas publicadas)
   function startRentalForProduct(p) {
     // El alquiler vive en su propia página: si no está aquí, vamos allá.
     if (!$("#citaServicio")) {
@@ -1087,7 +1132,7 @@
       if (modelo) modelo.value = p.nombre;
     }
     document.getElementById("citas")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    toast("Elige las fechas en el calendario de alquiler");
+    toast("Elige una disponibilidad publicada para ese equipo");
   }
 
   /* ---------- Reserva tu cita ---------- */
@@ -1134,8 +1179,90 @@
     return Math.round((to - from) / 86400000);
   }
 
+  let rentalCal = null;
+  let rentalAvailability = [];
+  let selectedRentalAvailability = null;
+  let rentalAvailabilityRequest = 0;
+
+  function rentalAvailabilityDate(value) {
+    if (!value) return "";
+    const date = new Date(`${value}T12:00:00`);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleDateString("es-PA", { weekday: "short", day: "numeric", month: "short" });
+  }
+
+  function rentalAvailabilityPeriod(item) {
+    if (!item) return "";
+    const start = rentalAvailabilityDate(item.inicio);
+    const end = rentalAvailabilityDate(item.fin);
+    return start && end ? `${start} al ${end}` : start || end;
+  }
+
+  function clearRentalAvailabilitySelection() {
+    selectedRentalAvailability = null;
+    ["rentalAvailabilityId", "citaFecha", "rentalEndDate", "citaHora"].forEach((id) => {
+      const field = $(`#${id}`);
+      if (field) field.value = "";
+    });
+    $$("#appointmentSlots .slot-btn").forEach((item) => item.classList.remove("is-selected"));
+  }
+
+  function selectedRentalAvailabilityMatches(d) {
+    return Boolean(
+      selectedRentalAvailability
+      && d.rental_availability_id === selectedRentalAvailability.id
+      && d.fecha === selectedRentalAvailability.inicio
+      && d.rental_end_date === selectedRentalAvailability.fin
+      && (selectedRentalAvailability.horarios || []).includes(d.hora)
+    );
+  }
+
+  function rentalAvailabilityMessage(message = "", isError = false) {
+    const target = $("#rentalAvailabilityStatus");
+    if (!target) return;
+    target.textContent = message;
+    target.classList.toggle("is-error", Boolean(isError));
+  }
+
+  async function loadRentalAvailability() {
+    const equipment = $("#rentalEquipment")?.value || "";
+    const request = ++rentalAvailabilityRequest;
+    if (!equipment) {
+      rentalAvailability = [];
+      clearRentalAvailabilitySelection();
+      rentalAvailabilityMessage("Selecciona primero el equipo para ver solo las fechas disponibles.");
+      rentalCal?.render();
+      renderAppointmentSlots();
+      updateCitaSummary();
+      return;
+    }
+    rentalAvailabilityMessage("Buscando fechas disponibles…");
+    try {
+      const today = localDateInput();
+      const rows = await DB.getRentalAvailability(equipment);
+      if (request !== rentalAvailabilityRequest) return;
+      rentalAvailability = (rows || []).filter((item) => item.activo !== false && item.inicio >= today);
+      clearRentalAvailabilitySelection();
+      if (rentalAvailability.length) {
+        rentalAvailabilityMessage(`${rentalAvailability.length} disponibilidad${rentalAvailability.length === 1 ? "" : "es"} publicada${rentalAvailability.length === 1 ? "" : "s"}. Elige la que te funcione.`);
+      } else {
+        rentalAvailabilityMessage("Por ahora no hay fechas publicadas para este equipo. Escríbenos por WhatsApp si tu viaje tiene otras fechas.", true);
+      }
+    } catch (error) {
+      if (request !== rentalAvailabilityRequest) return;
+      rentalAvailability = [];
+      clearRentalAvailabilitySelection();
+      rentalAvailabilityMessage("No pudimos cargar las fechas ahora. Escríbenos por WhatsApp y te ayudamos.", true);
+    }
+    rentalCal?.render();
+    renderAppointmentSlots();
+    updateRentalPanel();
+  }
+
   function rentalDetailsFromData(d) {
     return {
+      rental_availability_id: d.rental_availability_id || "",
+      rental_availability_period: rentalAvailabilityPeriod(selectedRentalAvailability),
       rental_equipment: d.rental_equipment || "",
       rental_end_date: d.rental_end_date || "",
       rental_days: rentalDays(d.fecha, d.rental_end_date),
@@ -1153,26 +1280,20 @@
     const service = $("#citaServicio")?.value || "";
     const isRental = isRentalService(service);
     panel.hidden = !isRental;
-    const required = ["rentalEquipment", "rentalEndDate", "deliveryLocation", "pickupLocation", "rentalChild"];
+    const required = ["rentalEquipment", "rentalAvailabilityId", "rentalEndDate", "deliveryLocation", "pickupLocation", "rentalChild"];
     required.forEach((id) => {
       const field = $(`#${id}`);
       if (field) field.required = isRental;
     });
     const start = $("#citaFecha")?.value || "";
     const endDate = $("#rentalEndDate");
-    if (endDate && start) {
-      const firstReturnDay = new Date(`${start}T12:00:00`);
-      firstReturnDay.setDate(firstReturnDay.getDate() + 1);
-      endDate.min = localDateInput(firstReturnDay);
-      if (endDate.value && endDate.value <= start) endDate.value = "";
-    }
     const end = endDate?.value || "";
     const days = rentalDays(start, end);
     const kpi = $("#rentalKpi");
     if (kpi) {
-      kpi.textContent = days
-        ? `${days} dia${days === 1 ? "" : "s"} de alquiler para confirmar disponibilidad`
-        : "Elige fecha de inicio y devolucion para calcular el periodo.";
+      kpi.textContent = days && selectedRentalAvailability
+        ? `${days} dia${days === 1 ? "" : "s"} publicados. Falta confirmar el alquiler por WhatsApp.`
+        : "Elige una disponibilidad publicada para ver el periodo.";
     }
     if (rentalCal) rentalCal.syncFromInputs();
     updateCitaSummary();
@@ -1185,7 +1306,9 @@
     const date = $("#citaFecha")?.value || "";
     const slot = selectedAppointmentSlot();
     if (!date || !slot || !$("#citaServicio")?.value) {
-      box.textContent = "Selecciona un servicio, fecha y horario para armar tu solicitud.";
+      box.textContent = isRentalService(service)
+        ? "Elige una disponibilidad publicada y un horario de entrega para armar tu solicitud."
+        : "Selecciona un servicio, fecha y horario para armar tu solicitud.";
       return;
     }
     const dateText = new Date(`${date}T12:00:00`).toLocaleDateString("es-PA", { weekday: "long", day: "numeric", month: "long" });
@@ -1193,7 +1316,7 @@
       const equipment = $("#rentalEquipment")?.value || "equipo";
       const days = rentalDays(date, $("#rentalEndDate")?.value || "");
       const period = days ? `por ${days} dia${days === 1 ? "" : "s"}` : "con fechas por confirmar";
-      box.textContent = `Alquiler de ${equipment} ${period}. Entrega el ${dateText} a las ${slot}. El CRM guardara entrega, recogida y datos del nino.`;
+      box.textContent = `Solicitud de alquiler de ${equipment} ${period}. Entrega el ${dateText} a las ${slot}. Te confirmamos por WhatsApp antes de reservar el equipo.`;
       return;
     }
     box.textContent = `${service} - ${dateText} a las ${slot}. El CRM guardara esta solicitud y WhatsApp llevara el resumen.`;
@@ -1202,11 +1325,21 @@
   function renderAppointmentSlots() {
     const slots = $("#appointmentSlots");
     if (!slots) return;
-    slots.innerHTML = APPOINTMENT_SLOTS.map(([value, label, display]) => `
-      <button class="slot-btn" type="button" data-slot="${value}">
-        <strong>${display}</strong>
-        <span>${label}</span>
+    const isRental = isRentalService($("#citaServicio")?.value || "");
+    if (isRental && !selectedRentalAvailability) {
+      slots.innerHTML = `<p class="rental-slots-empty">Primero selecciona una disponibilidad publicada para ver sus horarios de entrega.</p>`;
+      return;
+    }
+    const choices = isRental
+      ? (selectedRentalAvailability.horarios || []).map((slot) => [slot, "Entrega disponible", slot])
+      : APPOINTMENT_SLOTS;
+    slots.innerHTML = choices.map(([value, label, display]) => `
+      <button class="slot-btn" type="button" data-slot="${esc(value)}">
+        <strong>${esc(display)}</strong>
+        <span>${esc(label)}</span>
       </button>`).join("");
+    if (slots.dataset.bound === "true") return;
+    slots.dataset.bound = "true";
     slots.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-slot]");
       if (!btn) return;
@@ -1216,103 +1349,71 @@
     });
   }
 
-  // Calendario visual de rango para el alquiler (entrega -> devolucion)
-  let rentalCal = null;
+  // La web no tiene un calendario libre: muestra solamente bloques que Glenda
+  // publicó desde el CRM. Esto evita solicitudes de fechas imposibles.
   function setupRentalCalendar() {
     const host = $("#rentalCalendar");
     const startInput = $("#citaFecha");
     const endInput = $("#rentalEndDate");
     if (!host || !startInput || !endInput) return;
-
-    const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    const parse = (s) => { if (!s) return null; const [y, m, dd] = s.split("-").map(Number); return new Date(y, m - 1, dd); };
-    const fmt = (d) => d.toLocaleDateString("es-PA", { day: "numeric", month: "short" });
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const minDate = new Date(today); minDate.setDate(minDate.getDate() + 1); // desde manana
-
-    let startSel = parse(startInput.value);
-    let endSel = parse(endInput.value);
-    let view = startSel ? new Date(startSel.getFullYear(), startSel.getMonth(), 1) : new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-
-    function rentalPeriod() { return (startSel && endSel) ? Math.round((endSel - startSel) / 86400000) : 0; }
-    function commit() {
-      startInput.value = startSel ? iso(startSel) : "";
-      endInput.value = endSel ? iso(endSel) : "";
-      startInput.dispatchEvent(new Event("change", { bubbles: true }));
-      endInput.dispatchEvent(new Event("change", { bubbles: true }));
-    }
     function render() {
-      const y = view.getFullYear(), m = view.getMonth();
-      const monthName = view.toLocaleDateString("es-PA", { month: "long", year: "numeric" });
-      const startDow = (new Date(y, m, 1).getDay() + 6) % 7; // Lunes = 0
-      const daysInMonth = new Date(y, m + 1, 0).getDate();
-      const n = rentalPeriod();
-      const info = (startSel && endSel)
-        ? `<strong>${n} día${n === 1 ? "" : "s"} de alquiler</strong><span>${fmt(startSel)} → ${fmt(endSel)}</span>`
-        : (startSel
-          ? `<strong>Ahora elige la devolución</strong><span>Entrega: ${fmt(startSel)}</span>`
-          : `<strong>Elige tus fechas</strong><span>Toca el día de entrega y luego el de devolución</span>`);
-      let cells = "";
-      for (let i = 0; i < startDow; i++) cells += `<span class="rcal__day is-empty"></span>`;
-      for (let d = 1; d <= daysInMonth; d++) {
-        const date = new Date(y, m, d);
-        const disabled = date < minDate;
-        let cls = "rcal__day";
-        if (disabled) cls += " is-disabled";
-        if (startSel && date.getTime() === startSel.getTime()) cls += " is-start";
-        if (endSel && date.getTime() === endSel.getTime()) cls += " is-end";
-        if (startSel && endSel && date > startSel && date < endSel) cls += " in-range";
-        cells += `<button type="button" class="${cls}" data-day="${d}" ${disabled ? "disabled" : ""}>${d}</button>`;
-      }
-      host.innerHTML = `
-        <div class="rcal__info">${info}</div>
-        <div class="rcal__head">
-          <button type="button" class="rcal__nav" data-nav="-1" aria-label="Mes anterior">‹</button>
-          <strong>${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</strong>
-          <button type="button" class="rcal__nav" data-nav="1" aria-label="Mes siguiente">›</button>
-        </div>
-        <div class="rcal__dow"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
-        <div class="rcal__grid">${cells}</div>`;
-    }
-    function syncFromInputs() {
-      startSel = parse(startInput.value);
-      endSel = parse(endInput.value);
-      render();
-    }
-
-    host.addEventListener("click", (e) => {
-      const nav = e.target.closest("[data-nav]");
-      if (nav) {
-        view.setMonth(view.getMonth() + Number(nav.getAttribute("data-nav")));
-        render();
+      const equipment = $("#rentalEquipment")?.value || "";
+      if (!equipment) {
+        host.innerHTML = `<div class="rental-options__empty"><strong>Primero elige el equipo</strong><span>Te mostraremos únicamente las fechas reales para ese equipo.</span></div>`;
         return;
       }
-      const cell = e.target.closest("[data-day]");
-      if (!cell || cell.disabled) return;
-      const date = new Date(view.getFullYear(), view.getMonth(), Number(cell.getAttribute("data-day")));
-      if (!startSel || (startSel && endSel)) { startSel = date; endSel = null; }
-      else if (date <= startSel) { startSel = date; endSel = null; }
-      else { endSel = date; }
-      commit();
+      if (!rentalAvailability.length) {
+        host.innerHTML = `<div class="rental-options__empty"><strong>No hay fechas publicadas por ahora</strong><span>Escríbenos por WhatsApp si necesitas otra fecha para tu viaje.</span></div>`;
+        return;
+      }
+      host.innerHTML = `<div class="rental-options__head"><strong>Elige una disponibilidad</strong><span>La fecha y la devolución quedan definidas por esta opción.</span></div>
+        <div class="rental-options__list">${rentalAvailability.map((item) => {
+          const selected = selectedRentalAvailability && selectedRentalAvailability.id === item.id;
+          const days = rentalDays(item.inicio, item.fin);
+          return `<button class="rental-option ${selected ? "is-selected" : ""}" type="button" data-rental-availability="${esc(item.id)}" aria-pressed="${selected ? "true" : "false"}">
+            <span class="rental-option__eyebrow">${selected ? "Seleccionada" : "Disponible"}</span>
+            <strong>${esc(rentalAvailabilityPeriod(item))}</strong>
+            <span>${days ? `${days} día${days === 1 ? "" : "s"} de alquiler` : "Periodo publicado"}</span>
+            ${item.nota ? `<small>${esc(item.nota)}</small>` : ""}
+          </button>`;
+        }).join("")}</div>`;
+    }
+
+    host.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-rental-availability]");
+      if (!button) return;
+      const item = rentalAvailability.find((entry) => entry.id === button.getAttribute("data-rental-availability"));
+      if (!item) return;
+      selectedRentalAvailability = item;
+      $("#rentalAvailabilityId").value = item.id;
+      startInput.value = item.inicio;
+      endInput.value = item.fin;
+      $("#citaHora").value = "";
       render();
+      renderAppointmentSlots();
+      updateRentalPanel();
     });
 
-    rentalCal = { syncFromInputs };
+    rentalCal = { render, syncFromInputs: render };
     render();
   }
 
   function setupAppointmentPlanner() {
     const date = $("#citaFecha");
-    if (date) {
+    if (date && !$("#rentalPanel")) {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       date.min = localDateInput(tomorrow);
-      date.addEventListener("change", updateRentalPanel);
     }
+    date?.addEventListener("change", updateRentalPanel);
     $("#citaServicio")?.addEventListener("change", updateRentalPanel);
-    ["rentalEndDate", "rentalEquipment", "deliveryLocation", "pickupLocation", "pickupTime", "rentalChild"].forEach((id) => {
+    ["rentalEndDate", "deliveryLocation", "pickupLocation", "pickupTime", "rentalChild"].forEach((id) => {
       $(`#${id}`)?.addEventListener("input", updateRentalPanel);
       $(`#${id}`)?.addEventListener("change", updateRentalPanel);
+    });
+    $("#rentalEquipment")?.addEventListener("change", () => {
+      loadRentalAvailability();
+      updateRentalPanel();
     });
     $$("[data-rental-cta]").forEach((cta) => cta.addEventListener("click", () => {
       setTimeout(() => {
@@ -1324,16 +1425,21 @@
     renderAppointmentSlots();
     setupRentalCalendar();
     updateRentalPanel();
+    if ($("#rentalPanel")) loadRentalAvailability();
   }
 
   async function handleCita(e) {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target).entries());
+    const isRental = isRentalService(d.servicio);
+    if (isRental && !selectedRentalAvailabilityMatches(d)) {
+      toast("Elige una disponibilidad publicada y uno de sus horarios");
+      return;
+    }
     if (!selectedAppointmentSlot()) {
       toast("Selecciona un horario disponible");
       return;
     }
-    const isRental = isRentalService(d.servicio);
     const rentalDetails = rentalDetailsFromData(d);
     if (isRental && (!rentalDetails.rental_equipment || !rentalDetails.rental_end_date || !rentalDetails.delivery_location || !rentalDetails.pickup_location || !rentalDetails.rental_child || !rentalDetails.rental_days)) {
       toast("Completa equipo, fechas, entrega, recogida y datos del nino");
@@ -1342,7 +1448,7 @@
     await DB.guardarLead({
       type: isRental ? "alquiler" : "cita",
       source: "calendario-web",
-      status: "nuevo",
+      status: isRental ? "esperando_reserva" : "nuevo",
       priority: isRental ? "alta" : servicePriority(d.servicio),
       service: d.servicio,
       name: d.nombre,
@@ -1368,11 +1474,12 @@
         if (result?.savedToServer || result?.savedLocally) sessionStorage.removeItem("csc_chat_pending_lead");
       }
     } catch (err) {}
-    let msg = `*Nueva solicitud de cita - Car Seat Clinic*%0A%0A`;
+    let msg = `*${isRental ? "Nueva solicitud de alquiler" : "Nueva solicitud de cita"} - Car Seat Clinic*%0A%0A`;
     msg += `Servicio: ${d.servicio}%0AFecha: ${d.fecha}%0AHora: ${d.hora}%0ANombre: ${d.nombre}%0ATelefono: ${d.telefono}`;
     if (d.zona) msg += `%0AZona: ${d.zona}`;
     if (isRental) {
       msg += `%0AEquipo: ${rentalDetails.rental_equipment}`;
+      msg += `%0ADisponibilidad elegida: ${rentalDetails.rental_availability_period}`;
       msg += `%0ADevolucion: ${rentalDetails.rental_end_date}`;
       msg += `%0ADias: ${rentalDetails.rental_days}`;
       msg += `%0AEntrega: ${rentalDetails.delivery_location}`;
@@ -1385,15 +1492,20 @@
     if (d.modelo_auto) msg += `%0AModelo de auto: ${d.modelo_auto}`;
     if (d.comentarios) msg += `%0AComentarios: ${d.comentarios}`;
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${msg}`, "_blank");
-    toast("Solicitud guardada. Te confirmamos por WhatsApp");
+    toast(isRental ? "Solicitud recibida. Te confirmamos por WhatsApp" : "Solicitud guardada. Te confirmamos por WhatsApp");
     e.target.reset();
-    $("#citaHora").value = "";
-    $$("#appointmentSlots .slot-btn").forEach((item) => item.classList.remove("is-selected"));
+    if (isRental) {
+      clearRentalAvailabilitySelection();
+      loadRentalAvailability();
+    } else {
+      $("#citaHora").value = "";
+      $$("#appointmentSlots .slot-btn").forEach((item) => item.classList.remove("is-selected"));
+    }
     updateRentalPanel();
     const box = $("#citaSummary");
     if (box) {
       box.classList.add("cita-summary--ok");
-      box.innerHTML = `${icon("check")}<span><strong>¡Recibimos tu solicitud, ${esc((d.nombre || "").split(" ")[0] || "gracias")}!</strong> La guardamos y te confirmamos por WhatsApp lo antes posible. Si no se abrió WhatsApp, usa el botón verde de abajo.</span>`;
+      box.innerHTML = `${icon("check")}<span><strong>¡Recibimos tu solicitud, ${esc((d.nombre || "").split(" ")[0] || "gracias")}!</strong> ${isRental ? "Aún no es una reserva confirmada: Glenda revisará el equipo y te escribirá por WhatsApp." : "La guardamos y te confirmamos por WhatsApp lo antes posible."} Si no se abrió WhatsApp, usa el botón verde de abajo.</span>`;
     }
   }
 
@@ -1413,6 +1525,9 @@
   function maybeShowPopup() {
     const popup = $("#newsletterPopup");
     if (!popup) return;
+    // En Alquiler dejamos el formulario libre de interrupciones: la familia
+    // está eligiendo una fecha publicada y necesita ver todas las opciones.
+    if (location.pathname.endsWith("alquiler.html")) return;
     try { if (sessionStorage.getItem("csc_np") === "1") return; } catch (e) {}
 
     let mostrado = false;

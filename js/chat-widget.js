@@ -116,13 +116,13 @@
     }
     function prefillAppointment(reply, originalText) {
       const isRental = serviceOptionFor(reply) === "Alquiler";
-      // El alquiler vive en su propia pagina (alquiler.html), con su propio
-      // calendario. Nunca lo mezclamos con el formulario de citas del Inicio.
+      // El alquiler vive en su propia pagina (alquiler.html), con fechas que
+      // publica la administradora. Nunca lo mezclamos con las citas del Inicio.
       if (isRental) {
         if (location.pathname.endsWith("alquiler.html")) {
           close();
           document.getElementById("reservar")?.scrollIntoView({ behavior: "smooth", block: "start" });
-          toast("Elige tus fechas en el calendario de abajo");
+          toast("Elige una disponibilidad publicada y su horario de entrega");
         } else {
           window.location.href = "alquiler.html#reservar";
         }
@@ -152,7 +152,7 @@
       wrap.className = "chat__actions chat__actions--secondary";
       const book = document.createElement("button");
       book.type = "button";
-      book.textContent = serviceOptionFor(reply) === "Alquiler" ? "Reservar fechas en la web" : "Ver horarios en la web";
+      book.textContent = serviceOptionFor(reply) === "Alquiler" ? "Ver fechas disponibles" : "Ver horarios en la web";
       book.addEventListener("click", () => prefillAppointment(reply, originalText));
       wrap.appendChild(book);
       msgs.appendChild(wrap); msgs.scrollTop = msgs.scrollHeight;

@@ -45,7 +45,8 @@ index.html              → INICIO: hero, franja de confianza, destacados (4 pro
 tienda.html             → TIENDA: catálogo completo con filtros, buscador, orden,
                           ficha de producto, comparador y carrito. Acepta ?cat=...
 alquiler.html           → ALQUILER (página propia): equipo disponible, cómo funciona,
-                          calendario de rango, formulario de reserva y preguntas.
+                          disponibilidades publicadas desde CRM, formulario de
+                          solicitud y preguntas. La familia no escribe fechas libres.
                           Acepta ?modelo=...&equipo=... desde la ficha de producto.
 servicios.html          → SERVICIOS: Limpieza (comparador antes/después), Venta,
                           Instalación, Revisión + banner que lleva a alquiler.html
@@ -75,6 +76,7 @@ supabase-setup-completo.sql   → esquema + datos: correr UNA vez en Supabase
 supabase-admin.sql            → ⚠️ quién puede administrar (CORRER: cierra el panel)
 supabase-limpiar-pruebas.sql  → borra solicitudes de prueba del CRM
 supabase-fotos-prueba.sql     → fotos de prueba (opcional)
+supabase-disponibilidad-alquiler.sql → ⚠️ cupos de alquiler: correr UNA vez
 ```
 
 ## 📸 Sección de Instagram (portada)

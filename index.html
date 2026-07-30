@@ -32,7 +32,7 @@
   <!-- Precarga la primera foto del hero para que la portada cargue más rápido -->
   <link rel="preload" as="image" href="assets/hero/sillas.jpg" />
 
-  <link rel="stylesheet" href="css/styles.css?v=2026-07-29b" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-30b" />
 </head>
 <body>
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
@@ -50,7 +50,13 @@
 
       <nav class="nav" id="nav" aria-label="Menú principal">
         <a href="index.html">Inicio</a>
-        <a href="tienda.html">Tienda</a>
+        <span class="nav__group" id="navShop">
+          <a href="tienda.html">Tienda</a>
+          <button class="nav__caret" type="button" aria-label="Ver categorías de la tienda" aria-expanded="false" aria-controls="shopSubmenu">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="nav__sub" id="shopSubmenu" role="menu" hidden></div>
+        </span>
         <a href="alquiler.html">Alquiler</a>
         <a href="servicios.html">Servicios</a>
         <a href="faq.html">Preguntas</a>
@@ -85,10 +91,10 @@
       <div class="hero__text">
         <span class="pill">Asesoría experta en seguridad infantil</span>
         <h1>La silla correcta, instalada con confianza.</h1>
-        <p>Te guiamos para elegir, cotizar e instalar la silla adecuada para tu hijo y tu auto. También la alquilamos por días si vienes de viaje. Todo con atención cercana por WhatsApp y sin tecnicismos.</p>
+        <p>Te guiamos para elegir, cotizar e instalar la silla adecuada para tu hijo y tu auto. También tenemos alquiler para viajes con fechas publicadas. Todo con atención cercana por WhatsApp y sin tecnicismos.</p>
         <div class="hero__cta">
           <a href="tienda.html" class="btn btn--primary">Ver la tienda</a>
-          <a href="alquiler.html" class="btn btn--ghost">Alquilar por días</a>
+          <a href="alquiler.html" class="btn btn--ghost">Ver fechas de alquiler</a>
         </div>
         <ul class="hero__trust">
           <li><strong>+500</strong> familias protegidas</li>
@@ -105,7 +111,7 @@
             <span class="hero__cap"><strong>Encuentra tu silla ideal</strong><span>Hacer el test →</span></span>
           </a>
           <a class="hero__slide" href="alquiler.html" style="background-image:url('assets/hero/servicios.jpg')">
-            <span class="hero__cap"><strong>Alquiler para viajes</strong><span>Reservar por fechas →</span></span>
+            <span class="hero__cap"><strong>Alquiler para viajes</strong><span>Ver fechas disponibles →</span></span>
           </a>
         </div>
         <div class="hero__assist motion-float">
@@ -339,7 +345,7 @@
           <span class="svc-card__body">
             <span class="svc-card__tag">Alquiler</span>
             <strong class="svc-card__title">Alquiler para viajes</strong>
-            <span class="svc-card__desc">Reserva silla, coche o corral por fechas. Entrega y recogida donde estés.</span>
+            <span class="svc-card__desc">Consulta fechas publicadas para silla, coche o corral. Entrega y recogida donde estés.</span>
             <span class="svc-card__link">Ver alquiler <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </span>
         </a>
@@ -347,8 +353,8 @@
           <img class="svc-card__media" src="assets/hero/encuentra.jpg" alt="" loading="lazy" />
           <span class="svc-card__body">
             <span class="svc-card__tag">Instalación</span>
-            <strong class="svc-card__title">Instalación y enseñanza</strong>
-            <span class="svc-card__desc">Te la instalamos en tu auto y te enseñamos a ponerla y ajustarla bien.</span>
+            <strong class="svc-card__title">Asesoría de uso e instalación</strong>
+            <span class="svc-card__desc">Te la instalamos en tu auto y te enseñamos a ponerla, ajustarla y usarla bien.</span>
             <span class="svc-card__link">Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </span>
         </a>
@@ -356,8 +362,8 @@
           <img class="svc-card__media" src="assets/limpieza/silla-limpia.png" alt="" loading="lazy" />
           <span class="svc-card__body">
             <span class="svc-card__tag">Limpieza</span>
-            <strong class="svc-card__title">Limpieza profunda</strong>
-            <span class="svc-card__desc">Lavamos y desinfectamos cada pieza. Mira el antes y después.</span>
+            <strong class="svc-card__title">Limpieza de sillas y coches</strong>
+            <span class="svc-card__desc">Sillas de auto y coches de paseo: lavamos y desinfectamos cada pieza. Mira el antes y después.</span>
             <span class="svc-card__link">Ver más <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
           </span>
         </a>
@@ -416,7 +422,7 @@
       <div class="section__head">
         <span class="eyebrow">Agenda</span>
         <h2>Reserva tu cita</h2>
-        <p>Agenda una asesoría, instalación, revisión, limpieza o charla. Te confirmamos por WhatsApp. ¿Buscas alquiler? <a href="alquiler.html">Resérvalo aquí</a>.</p>
+        <p>Agenda una asesoría, instalación, revisión, limpieza o charla. Te confirmamos por WhatsApp. ¿Buscas alquiler? <a href="alquiler.html">Consulta las fechas disponibles</a>.</p>
       </div>
       <form class="cita__form" id="citaForm">
         <div class="cita__stage col-full">
@@ -560,12 +566,12 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-  <script src="js/data.js?v=2026-07-29b"></script>
-  <script src="js/supabase.js?v=2026-07-29b"></script>
-  <script src="js/chat-assistant.js?v=2026-07-29b"></script>
-  <script src="js/shell.js?v=2026-07-29b"></script>
-  <script src="js/store.js?v=2026-07-29b"></script>
-  <script src="js/chat-widget.js?v=2026-07-29b"></script>
-  <script src="js/servicios.js?v=2026-07-29b"></script>
+  <script src="js/data.js?v=2026-07-30b"></script>
+  <script src="js/supabase.js?v=2026-07-30b"></script>
+  <script src="js/chat-assistant.js?v=2026-07-30b"></script>
+  <script src="js/shell.js?v=2026-07-30b"></script>
+  <script src="js/store.js?v=2026-07-30b"></script>
+  <script src="js/chat-widget.js?v=2026-07-30b"></script>
+  <script src="js/servicios.js?v=2026-07-30b"></script>
 </body>
 </html>

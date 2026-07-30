@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=2026-07-29b" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-30b" />
 </head>
 <body>
   <!-- ===================== ENCABEZADO ===================== -->
@@ -34,7 +34,13 @@
 
       <nav class="nav" id="nav" aria-label="Menú principal">
         <a href="index.html">Inicio</a>
-        <a href="tienda.html">Tienda</a>
+        <span class="nav__group" id="navShop">
+          <a href="tienda.html">Tienda</a>
+          <button class="nav__caret" type="button" aria-label="Ver categorías de la tienda" aria-expanded="false" aria-controls="shopSubmenu">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="nav__sub" id="shopSubmenu" role="menu" hidden></div>
+        </span>
         <a href="alquiler.html">Alquiler</a>
         <a href="servicios.html">Servicios</a>
         <a href="faq.html">Preguntas</a>
@@ -89,7 +95,7 @@
       <div class="cleanshow__content">
         <span class="eyebrow">Limpieza profunda</span>
         <h2>De vuelta a como el primer día.</h2>
-        <p>Desarmamos la silla pieza por pieza, lavamos las telas, desinfectamos el arnés y la base, y la devolvemos lista para usar con tu bebé. Mira el resultado: arrastra el control para comparar.</p>
+        <p>Limpiamos sillas de auto y también coches de paseo: desarmamos pieza por pieza, lavamos las telas, desinfectamos el arnés y la base, y lo devolvemos listo para usar con tu bebé. Mira el resultado: arrastra el control para comparar.</p>
         <ul class="cleanshow__points">
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
@@ -105,7 +111,7 @@
           </li>
         </ul>
         <div class="svc-cta-row">
-          <a class="btn btn--primary" data-wa="Hola Car Seat Clinic 👋 Quiero información sobre la limpieza profunda de mi silla de carro.">Contáctanos para tu limpieza</a>
+          <a class="btn btn--primary" data-wa="Hola Car Seat Clinic 👋 Quiero información sobre la limpieza profunda de mi silla de carro o coche de paseo.">Contáctanos para tu limpieza</a>
           <a class="btn btn--ghost" href="index.html#citas">Agéndala en línea</a>
         </div>
       </div>
@@ -208,8 +214,8 @@
         <span class="rentbanner__body">
           <span class="rentbanner__tag">Alquiler para viajes</span>
           <strong class="rentbanner__title">¿Vienes de viaje y solo lo necesitas unos días?</strong>
-          <span class="rentbanner__desc">Alquila silla, booster, coche o corral por fechas. Entrega en el aeropuerto, tu hotel o tu casa, con instalación revisada.</span>
-          <span class="rentbanner__link">Ver el alquiler <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <span class="rentbanner__desc">Consulta las fechas publicadas para silla, booster, coche o corral. Coordinamos entrega en el aeropuerto, tu hotel o tu casa.</span>
+          <span class="rentbanner__link">Ver fechas disponibles <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </span>
       </a>
     </div>
@@ -328,12 +334,12 @@
   <!-- Scripts -->
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=2026-07-29b"></script>
-  <script src="js/supabase.js?v=2026-07-29b"></script>
-  <script src="js/chat-assistant.js?v=2026-07-29b"></script>
-  <script src="js/shell.js?v=2026-07-29b"></script>
-  <script src="js/store.js?v=2026-07-29b"></script>
-  <script src="js/chat-widget.js?v=2026-07-29b"></script>
-  <script src="js/servicios.js?v=2026-07-29b"></script>
+  <script src="js/data.js?v=2026-07-30b"></script>
+  <script src="js/supabase.js?v=2026-07-30b"></script>
+  <script src="js/chat-assistant.js?v=2026-07-30b"></script>
+  <script src="js/shell.js?v=2026-07-30b"></script>
+  <script src="js/store.js?v=2026-07-30b"></script>
+  <script src="js/chat-widget.js?v=2026-07-30b"></script>
+  <script src="js/servicios.js?v=2026-07-30b"></script>
 </body>
 </html>
