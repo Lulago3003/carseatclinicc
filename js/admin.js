@@ -42,6 +42,23 @@
       `</optgroup>`).join("");
   }
 
+  // Traduce un error de la base de datos a algo accionable. Sin esto, un fallo
+  // de permisos se veía como "new row violates row-level security policy", que
+  // no le dice nada a quien administra la tienda ni cómo resolverlo.
+  function errorAlGuardar(error, queCosa) {
+    const texto = String((error && (error.message || error.details || error.hint)) || error || "").toLowerCase();
+    if (/row-level security|permission denied|not authorized|jwt|42501/.test(texto)) {
+      return `No se guardó ${queCosa}: tu cuenta no tiene permiso para administrar. Cierra sesión y entra con un correo autorizado; si el problema sigue, ejecuta supabase-admin.sql en Supabase → SQL Editor.`;
+    }
+    if (/failed to fetch|networkerror|network request failed|timeout/.test(texto)) {
+      return `No se guardó ${queCosa}: parece que se cayó la conexión. Revisa tu internet y vuelve a intentarlo.`;
+    }
+    if (/relation .* does not exist|schema cache|column .* does not exist/.test(texto)) {
+      return `No se guardó ${queCosa}: falta activar una tabla en Supabase. Revisa los archivos .sql pendientes del proyecto.`;
+    }
+    return `No se guardó ${queCosa}. Vuelve a intentarlo; si sigue igual, avísale a quien te da soporte.`;
+  }
+
   // Una oferta existe únicamente cuando el precio normal es mayor que el
   // precio de venta. Así una cifra vieja o incompleta nunca se muestra como
   // descuento en la tienda.
@@ -669,7 +686,7 @@
         await renderProducts();
         renderDashboard();
       } catch (err) {
-        toast("No se pudo guardar");
+        toast(errorAlGuardar(err, "el precio y el stock"));
       }
       quick.disabled = false; quick.textContent = "Guardar";
       return;
@@ -678,7 +695,7 @@
     if (del) {
       if (!confirm("¿Eliminar este producto? No se puede deshacer.")) return;
       try { await DB.deleteProduct(del.getAttribute("data-del")); toast("Eliminado"); await renderProducts(); renderDashboard(); }
-      catch (err) { toast("No se pudo eliminar"); }
+      catch (err) { toast(errorAlGuardar(err, "el borrado del producto")); }
     }
   });
 
@@ -1828,7 +1845,7 @@
     if (!p.nombre) { toast("Ponle un nombre al producto"); return; }
     const btn = $("#editSave"); btn.disabled = true; btn.textContent = "Guardando…";
     try { await DB.saveProduct(p); toast("Producto guardado"); closeEditor(); await renderProducts(); renderDashboard(); }
-    catch (err) { toast("Error: " + (err.message || "no se pudo guardar")); }
+    catch (err) { toast(errorAlGuardar(err, "el producto")); }
     btn.disabled = false; btn.textContent = "Guardar producto";
   });
 
@@ -1944,7 +1961,7 @@
       renderDashboard();
       toast("Estado actualizado");
     }
-    catch (err) { toast("No se pudo actualizar"); }
+    catch (err) { toast(errorAlGuardar(err, "el estado del pedido")); }
   });
 
   $("#ordersList").addEventListener("click", async (e) => {
