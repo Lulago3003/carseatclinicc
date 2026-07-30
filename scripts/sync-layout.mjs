@@ -122,6 +122,10 @@ const BRANDSTRIP = `    <div class="brandstrip">
           <img src="assets/marcas/premium-baby.webp" alt="Premium Baby" loading="lazy" />
           <img src="assets/marcas/evenflo.png" alt="Evenflo" loading="lazy" />
         </div>
+        <div class="brandstrip__pay">
+          <img src="assets/marcas/bac-tasa-cero.jpg" alt="Tasa Cero BAC" loading="lazy" />
+          <span>Paga a <b>Tasa Cero</b> (0% interés) con BAC. Escríbenos por WhatsApp para coordinar tu compra.</span>
+        </div>
       </div>
     </div>`;
 
@@ -209,7 +213,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-07-30d";
+const VERSION = "2026-07-30e";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {

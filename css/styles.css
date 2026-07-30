@@ -879,6 +879,10 @@ select:focus { outline: none; border-color: var(--brand); }
 .brandstrip__logos { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px 40px; }
 .brandstrip__logos img { height: 42px; width: auto; max-width: 150px; object-fit: contain; filter: grayscale(1); opacity: .68; transition: filter .2s ease, opacity .2s ease; }
 .brandstrip__logos img:hover { filter: grayscale(0); opacity: 1; }
+.brandstrip__pay { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 18px auto 0; padding-top: 16px; border-top: 1px solid var(--line); max-width: 620px; }
+.brandstrip__pay img { height: 34px; width: auto; object-fit: contain; }
+.brandstrip__pay span { font-size: .9rem; color: var(--muted); max-width: 430px; text-align: left; }
+@media (max-width: 560px) { .brandstrip__pay { flex-direction: column; text-align: center; } .brandstrip__pay span { font-size: .84rem; text-align: center; } }
 @media (max-width: 560px) {
   .brandstrip__logos { gap: 18px 26px; }
   .brandstrip__logos img { height: 32px; max-width: 110px; }
