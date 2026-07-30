@@ -113,7 +113,20 @@ const BRAND_MARK = `          <span class="brand__mark" aria-hidden="true">
             </svg>
           </span>`;
 
+const BRANDSTRIP = `    <div class="brandstrip">
+      <div class="container">
+        <p class="brandstrip__title">Marcas que distribuimos</p>
+        <div class="brandstrip__logos">
+          <img src="assets/marcas/joie.png" alt="Joie" loading="lazy" />
+          <img src="assets/marcas/graco.png" alt="Graco" loading="lazy" />
+          <img src="assets/marcas/premium-baby.webp" alt="Premium Baby" loading="lazy" />
+          <img src="assets/marcas/evenflo.png" alt="Evenflo" loading="lazy" />
+        </div>
+      </div>
+    </div>`;
+
 const FOOTER = `  <footer class="footer">
+${BRANDSTRIP}
     <div class="container">
       <div class="newsletter">
         <div class="newsletter__text">
@@ -196,7 +209,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-07-30c";
+const VERSION = "2026-07-30d";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {

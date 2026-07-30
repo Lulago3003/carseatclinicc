@@ -873,6 +873,17 @@ select:focus { outline: none; border-color: var(--brand); }
 .float-whatsapp.is-changing span { opacity: 0; transform: translateY(4px); }
 
 /* ---------- Footer ---------- */
+/* Franja de marcas que distribuimos (banda clara arriba del pie) */
+.brandstrip { background: #fff; border-top: 1px solid var(--line); padding: 26px 0; }
+.brandstrip__title { text-align: center; color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; font-weight: 600; margin: 0 0 16px; }
+.brandstrip__logos { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px 40px; }
+.brandstrip__logos img { height: 42px; width: auto; max-width: 150px; object-fit: contain; filter: grayscale(1); opacity: .68; transition: filter .2s ease, opacity .2s ease; }
+.brandstrip__logos img:hover { filter: grayscale(0); opacity: 1; }
+@media (max-width: 560px) {
+  .brandstrip__logos { gap: 18px 26px; }
+  .brandstrip__logos img { height: 32px; max-width: 110px; }
+}
+
 .footer { background: var(--ink); color: #cbdbdb; padding: 40px 0; }
 .footer__inner { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 .footer__copy { font-size: .85rem; color: #9fb6b6; }
