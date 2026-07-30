@@ -210,6 +210,21 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [x] **Cierre y mejora del CRM (27 jul 2026)**: las solicitudes se ordenan de verdad por seguimiento vencido, reserva pendiente, cita de hoy, prioridad y fecha; la cola aparece antes que estadísticas en teléfono y las tarjetas/conversaciones quedan compactas. Se separaron las notas internas de las instrucciones de la clienta, los pedidos ya no aparecen como citas, las fechas usan el día local de Panamá y el buscador cubre productos, dirección, notas y demás detalles.
 - [x] **Seguimiento seguro**: el chat ya no duplica solicitudes al reservar, la reserva del chat se cierra al completar el formulario real, y el CRM avisa cuando un cambio solo quedó guardado en el navegador porque Supabase no lo confirmó. Pruebas: `scripts/admin-crm-check.mjs` + `scripts/crm-data-check.mjs`.
 - [x] **Ofertas claras desde el CRM**: cada producto tiene el interruptor “Este producto está en oferta”, precio normal, precio de oferta y cálculo de ahorro/porcentaje en vivo. El panel muestra contador, filtro y lista de ofertas activas; las filas resaltan el descuento. La tienda, ficha y comparador muestran “Oferta”, precio anterior, precio actual y ahorro. Se valida que el precio normal sea mayor y no se necesita SQL nuevo.
+- [x] **CRM más seguro y rápido de usar (30 jul 2026)**: (1) el editor de
+      productos **avisa antes de cerrar si hay cambios sin guardar** — antes,
+      tocar fuera de la ventana borraba en silencio las fotos y el texto ya
+      escritos (además, Cerrar/Cancelar pasaban el evento a `closeEditor` y por
+      eso cerraban siempre sin preguntar); (2) botón **"Duplicar"** por producto,
+      que abre una copia con todo el contenido pero **sin reusar el id**, para
+      cargar varios productos parecidos sin reescribir todo; (3) el **filtro por
+      categoría muestra el conteo** por categoría y por grupo, y se recalcula al
+      cambiar el inventario (antes se armaba antes de cargar los productos, así
+      que siempre mostraba cero); (4) los fallos al guardar producto, precio,
+      stock, borrado o estado de pedido ahora se traducen a una **instrucción
+      accionable** (permisos, conexión o tabla sin activar) en vez de un error
+      técnico. Verificado: la escritura anónima está bloqueada por RLS y los
+      datos de clientes no son legibles desde la web pública.
+      Código: `js/admin.js`.
 - [x] **Novedades de Instagram administrables**: el CRM ya permite destacar una
       publicación real encima de la web, editar su mensaje, ocultarla o eliminarla.
       Puede añadirse una foto propia para una tarjeta más bonita y el guardado de
