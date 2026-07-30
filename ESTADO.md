@@ -109,6 +109,16 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       (antes solo decía silla) y **asesoría de uso e instalación**. Se conservan
       chequeo y atención a domicilio. Código: `js/data.js` (`SERVICIOS`),
       `index.html` (tarjetas), `servicios.html` (sección de limpieza).
+- [x] **Pulido de la navegación por grupos (30 jul 2026)**: (1) **sub-filtros**
+      dentro de un grupo (ej. "Sillas de auto" → Recién nacidos/Convertible/
+      360°/Booster), solo con los tipos que tienen productos; (2) la ficha
+      muestra la **migaja** Inicio / Grupo / categoría; (3) el **pie** ("Comprar")
+      lista los grupos; (4) el **asistente** reconoce "silla de comer/trona" y
+      "cuna/moisés/dormir"; (5) **ilustraciones de respaldo** propias para silla
+      de comer y cuna cuando el producto no tiene foto. Los GRUPOS y SERVICIOS
+      se mantienen en código a propósito (estables); se agregan/renombran a
+      pedido. Código: `js/store.js`, `js/chat-widget.js`, `css/styles.css`,
+      `scripts/sync-layout.mjs`.
 
 ### ⬜ Pendiente de esta tanda
 - [x] **Novedades de Instagram activadas**: la tabla y los permisos ya están
