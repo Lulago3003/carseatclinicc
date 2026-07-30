@@ -463,6 +463,22 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   width: 280px; height: 280px; border-radius: 50%; object-fit: cover;
   box-shadow: var(--shadow); border: 8px solid #fff;
 }
+.about__photo {
+  width: 100%; max-width: 380px; aspect-ratio: 3 / 4; object-fit: cover;
+  border-radius: 20px; box-shadow: var(--shadow); border: 6px solid #fff;
+}
+.about__badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--brand-soft); color: var(--brand-dark);
+  font-size: .82rem; font-weight: 600; padding: 8px 14px; border-radius: 999px;
+  margin-bottom: 18px !important;
+}
+.about__badge svg { width: 17px; height: 17px; flex-shrink: 0; }
+.about__quote {
+  font-family: "Playfair Display", serif; font-style: italic;
+  font-size: 1.15rem; color: var(--brand-dark) !important;
+  border-left: 3px solid var(--sage); padding-left: 16px; margin-top: 18px;
+}
 .about__text h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); margin-bottom: 14px; }
 .about__text p { color: var(--muted); margin-bottom: 14px; }
 .stats { display: flex; gap: 30px; margin-top: 26px; flex-wrap: wrap; }
@@ -1639,7 +1655,8 @@ body.admin [hidden] { display: none !important; }
   .safe-route__inner { grid-template-columns: 1fr; }
   .route-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .about, .contact { grid-template-columns: 1fr; }
-  .about__art { display: none; }
+  .about__art:has(.about__logo) { display: none; }
+  .about__photo { max-width: 320px; margin: 0 auto; }
 }
 /* --- Catálogo en 2 columnas (teléfono) ---
    Cada tarjeta queda en ~160px de ancho, así que se deja solo lo que decide

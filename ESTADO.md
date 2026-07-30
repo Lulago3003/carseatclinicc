@@ -261,7 +261,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [ ] **Precios reales**: ponerlos en el panel (hoy dice "Consultar").
 - [ ] **Corregir fotos mal asignadas**: el .docx ancla imágenes fuera de orden, algunas no son el modelo exacto → ajustar por producto en el CRM.
 - [x] **Testimonios reales**: 3 reseñas reales de Google (Ivohne Jensen, Ana María Paredes, Gianfranco Lo Medico) en `js/data.js` → `TESTIMONIOS`.
-- [ ] **Historia + foto de la fundadora/equipo** y **certificación CPST visible**.
+- [x] **Historia + foto de la fundadora (Emeline Velarde)** y **certificación CPST** visibles en la sección "Quiénes somos" de la portada (30 jul 2026).
 - [ ] **Enlace directo de reseña de Google**: en Google Maps → tu negocio → "Escribir una reseña" → copiar el enlace y pegarlo en `CONFIG.googleReviewUrl` (js/data.js). Mientras esté vacío, el botón abre la ficha de Maps.
 - [x] **Dirección exacta** del local cargada: PH City Towers, Vía España (a un costado de Taller Rayo Import), Ciudad de Panamá. En `CONFIG.ubicacion` y `CONFIG.mapsQuery` (mapa + Waze).
 
