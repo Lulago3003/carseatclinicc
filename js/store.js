@@ -46,6 +46,8 @@
     if (SEAT_CATS.includes(cat)) return "linear-gradient(135deg,#e7ede7,#d6e0d6)";
     if (cat === "gift-cards") return "linear-gradient(135deg,#f4eaea,#ecd9d9)";
     if (cat === "limpieza") return "linear-gradient(135deg,#eef2ee,#dfe8e0)";
+    if (cat === "sillas-comer") return "linear-gradient(135deg,#f3efe4,#e8dcc6)";
+    if (cat === "dormir") return "linear-gradient(135deg,#eaf0f0,#d8e6e6)";
     return "linear-gradient(135deg,#f5f1eb,#ece3d5)"; // accesorios / bases
   }
 
@@ -70,11 +72,27 @@
       <rect x="45" y="30" width="14" height="14" rx="2" fill="#7a8f7c"/>
       <path d="M45 32 L31 28 M45 36 L31 36 M45 40 L31 44" stroke="#7a8f7c" stroke-width="3" stroke-linecap="round"/>
       <rect x="43" y="54" width="20" height="13" rx="2" fill="#f5f1eb"/></svg>`;
+  // Silla de comer: respaldo, bandeja y patas altas.
+  const SVG_HIGHCHAIR = `<svg viewBox="0 0 100 100" width="56%" height="56%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="39" y="28" width="24" height="22" rx="5" fill="#2f3e34"/>
+      <rect x="35" y="50" width="32" height="8" rx="3" fill="#7a8f7c"/>
+      <path d="M41 58 L34 82 M61 58 L68 82" stroke="#2f3e34" stroke-width="4.2" stroke-linecap="round"/>
+      <path d="M40 70 L62 70" stroke="#2f3e34" stroke-width="3.4" stroke-linecap="round"/>
+      <rect x="45" y="34" width="12" height="10" rx="2" fill="#f5f1eb"/></svg>`;
+  // A dormir: cuna con barrotes y colchón.
+  const SVG_CRIB = `<svg viewBox="0 0 100 100" width="60%" height="60%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="22" y="34" width="56" height="4" rx="2" fill="#7a8f7c"/>
+      <path d="M27 38 V64 M38 38 V64 M50 38 V64 M62 38 V64 M73 38 V64" stroke="#7a8f7c" stroke-width="3" stroke-linecap="round"/>
+      <rect x="22" y="62" width="56" height="10" rx="3" fill="#2f3e34"/>
+      <path d="M30 62 H70" stroke="#f5f1eb" stroke-width="4" stroke-linecap="round"/>
+      <path d="M28 72 V80 M72 72 V80" stroke="#2f3e34" stroke-width="4.2" stroke-linecap="round"/></svg>`;
 
   function svgFor(cat) {
     if (SEAT_CATS.includes(cat)) return SVG_SEAT;
     if (cat === "gift-cards") return SVG_GIFT;
     if (cat === "limpieza") return SVG_CLEAN;
+    if (cat === "sillas-comer") return SVG_HIGHCHAIR;
+    if (cat === "dormir") return SVG_CRIB;
     return SVG_STAR;
   }
 
