@@ -438,19 +438,31 @@
     // El filtro separa por GRUPOS (Sillas de auto, Sillas de comer, A dormir,
     // Accesorios). Solo se muestran los grupos que tienen productos.
     const gruposPresentes = GRUPOS_TIENDA.filter((g) => products.some((p) => g.cats.includes(p.categoria)));
-    let opciones;
+    let html = `<li><button class="flink ${fCat === "todos" ? "is-active" : ""}" data-cat="todos">Todos</button></li>`;
     if (gruposPresentes.length) {
       // Si un enlace profundo trajo una categoría suelta (?cat=recien-nacidos),
       // se resalta el grupo que la contiene.
       const grupoActivo = GRUPOS_TIENDA.find((g) => g.id === fCat || g.cats.includes(fCat));
-      opciones = gruposPresentes.map((g) => `<li><button class="flink ${grupoActivo && grupoActivo.id === g.id ? "is-active" : ""}" data-cat="${g.id}">${g.label}</button></li>`);
+      for (const g of gruposPresentes) {
+        const esActivo = grupoActivo && grupoActivo.id === g.id;
+        html += `<li><button class="flink ${esActivo ? "is-active" : ""}" data-cat="${g.id}">${g.label}</button></li>`;
+        // Dentro del grupo elegido, si tiene varios tipos con productos, se
+        // ofrecen sub-filtros para afinar (ej. Sillas de auto → Booster).
+        if (esActivo) {
+          const tiposPresentes = g.cats.filter((c) => products.some((p) => p.categoria === c));
+          if (tiposPresentes.length > 1) {
+            const subs = [`<li><button class="flink flink--sub ${fCat === g.id ? "is-active" : ""}" data-cat="${g.id}">Todas</button></li>`]
+              .concat(tiposPresentes.map((c) => `<li><button class="flink flink--sub ${fCat === c ? "is-active" : ""}" data-cat="${c}">${CAT_LABEL[c] || c}</button></li>`));
+            html += `<li class="fsub"><ul class="fsublist">${subs.join("")}</ul></li>`;
+          }
+        }
+      }
     } else {
       // Respaldo: si aún no hay grupos definidos, se listan las categorías.
       const present = CAT_ORDER.filter((c) => products.some((p) => p.categoria === c));
-      opciones = present.map((c) => `<li><button class="flink ${fCat === c ? "is-active" : ""}" data-cat="${c}">${CAT_LABEL[c] || c}</button></li>`);
+      html += present.map((c) => `<li><button class="flink ${fCat === c ? "is-active" : ""}" data-cat="${c}">${CAT_LABEL[c] || c}</button></li>`).join("");
     }
-    $("#fTypes").innerHTML = [`<li><button class="flink ${fCat === "todos" ? "is-active" : ""}" data-cat="todos">Todos</button></li>`]
-      .concat(opciones).join("");
+    $("#fTypes").innerHTML = html;
     const brands = [...new Set(products.map((p) => p.marca).filter(Boolean))].sort();
     $("#fBrands").innerHTML = brands.length
       ? brands.map((b) => `<li><label class="fcheck"><input type="checkbox" data-brand="${esc(b)}" ${fBrands.has(b) ? "checked" : ""}/> ${esc(b)}</label></li>`).join("")
@@ -708,7 +720,12 @@
     $("#detailBody").innerHTML = `
       <div>${main}${thumbs}</div>
       <div class="detail__info">
-        <div class="detail__crumb">Inicio / ${CAT_LABEL[p.categoria] || "Productos"}</div>
+        <div class="detail__crumb">${(() => {
+          const g = GRUPOS_TIENDA.find((x) => x.cats.includes(p.categoria));
+          const cat = CAT_LABEL[p.categoria] || "Productos";
+          // Si el grupo tiene un solo tipo (ej. Sillas de comer), no se repite.
+          return g && g.label !== cat ? `Inicio / ${g.label} / ${cat}` : `Inicio / ${cat}`;
+        })()}</div>
         ${p.marca ? `<span class="detail__brand">${p.marca}</span>` : ""}
         <h3>${p.nombre}</h3>
         ${p.recomendado ? `<p class="card__fit">${esc(p.recomendado)}</p>` : ""}

@@ -270,6 +270,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .flink { background: none; border: none; padding: 5px 0; text-align: left; color: var(--muted); cursor: pointer; font-size: .92rem; font-family: inherit; transition: color .15s, transform .15s; }
 .flink:hover { color: var(--brand-dark); transform: translateX(2px); }
 .flink.is-active { color: var(--brand-dark); font-weight: 700; }
+/* Sub-filtros de un grupo (ej. Sillas de auto → Recién nacidos, Booster…) */
+.fsub { list-style: none; }
+.fsublist { list-style: none; margin: 2px 0 6px; padding: 4px 0 4px 12px; border-left: 2px solid var(--line); display: flex; flex-direction: column; gap: 1px; }
+.flink--sub { font-size: .86rem; padding: 3px 0; }
+.flink--sub.is-active { color: var(--brand); }
 .fcheck { display: flex; align-items: center; gap: 9px; font-size: .9rem; color: var(--ink); cursor: pointer; font-weight: 400; margin: 0; }
 .fcheck input { width: auto; margin: 0; }
 .shop__bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 14px; flex-wrap: wrap; }

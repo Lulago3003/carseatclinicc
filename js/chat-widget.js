@@ -165,6 +165,8 @@
       if (/booster|elevador/.test(t)) return ["booster", "boosters"];
       if (/combinad/.test(t)) return ["combinadas", "sillas combinadas"];
       if (/convertibl/.test(t)) return ["convertibles", "sillas convertibles"];
+      if (/silla de comer|para comer|trona|periquera|high ?chair/.test(t)) return ["sillas-comer", "sillas de comer"];
+      if (/cuna|mois[eé]s|para dormir|colecho|corral|pack ?n ?play/.test(t)) return ["dormir", "equipo para dormir"];
       if (/silla|asiento|car ?seat|beb[eé]/.test(t)) return ["todos", "nuestras sillas"];
       return null;
     }

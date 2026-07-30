@@ -139,9 +139,9 @@ ${IG_LINKS}
       <div class="footer__col">
         <h4>Comprar</h4>
         <a href="tienda.html">Ver toda la tienda</a>
-        <a href="tienda.html?cat=recien-nacidos">Recién nacidos</a>
-        <a href="tienda.html?cat=convertibles">Convertibles</a>
-        <a href="tienda.html?cat=booster">Boosters</a>
+        <a href="tienda.html?cat=sillas-auto">Sillas de auto</a>
+        <a href="tienda.html?cat=sillas-comer">Sillas de comer</a>
+        <a href="tienda.html?cat=dormir">A dormir</a>
         <a href="tienda.html?cat=accesorios">Accesorios</a>
       </div>
       <div class="footer__col">
@@ -196,7 +196,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-07-30b";
+const VERSION = "2026-07-30c";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {
