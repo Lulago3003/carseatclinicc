@@ -151,10 +151,10 @@ const GRUPOS = [
    Si dejas una vacía (""), esa etapa simplemente no muestra foto.
    ===================================================================== */
 const GUIA_ETAPAS = {
-  "recien-nacidos": "assets/productos/inv01-1.jpg",
-  "convertibles":   "assets/productos/inv04-1.jpg",
-  "combinadas":     "assets/productos/inv11-1.jpg",
-  "booster":        "assets/productos/inv12-1.jpg",
+  "recien-nacidos": "assets/guia/recien-nacido.jpg",
+  "convertibles":   "assets/guia/convertible.jpg",
+  "combinadas":     "assets/guia/combinada.jpg",
+  "booster":        "assets/guia/booster.jpg",
 };
 
 /* =====================================================================
