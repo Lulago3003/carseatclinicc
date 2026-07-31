@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <title>Blog | Car Seat Clinic Center</title>
+  <meta name="description" content="Consejos de seguridad infantil, guías de instalación y novedades de Car Seat Clinic Center en Panamá." />
+  <meta property="og:title" content="Blog | Car Seat Clinic Center" />
+  <meta property="og:description" content="Consejos de seguridad infantil y guías para que tu familia viaje tranquila." />
+  <meta property="og:image" content="https://carseatclinic.com.pa/assets/og/compartir.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_PA" />
+  <meta name="theme-color" content="#2f3e34" />
+  <link rel="canonical" href="https://carseatclinic.com.pa/blog.html" />
+
+  <link rel="icon" href="logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-30n" />
+</head>
+<body>
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="index.html" class="brand" aria-label="Car Seat Clinic, ir al inicio">
+        <img src="logo.jpg" alt="" class="brand__logo" />
+        <span class="brand__text">
+          <strong>Car Seat Clinic</strong>
+          <small>Seguridad infantil · Panamá</small>
+        </span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Menú principal">
+        <a href="index.html">Inicio</a>
+        <span class="nav__group" id="navShop">
+          <a href="tienda.html">Tienda</a>
+          <button class="nav__caret" type="button" aria-label="Ver categorías de la tienda" aria-expanded="false" aria-controls="shopSubmenu">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="nav__sub" id="shopSubmenu" role="menu" hidden></div>
+        </span>
+        <a href="alquiler.html">Alquiler</a>
+        <a href="servicios.html">Servicios</a>
+        <a href="blog.html">Blog</a>
+        <a href="faq.html">Preguntas</a>
+        <a href="index.html#contacto">Contacto</a>
+        <a href="admin.html" id="adminLink" class="nav__admin" style="display:none">Administrar</a>
+      </nav>
+
+      <div class="header__actions">
+        <button class="account-btn" id="accountBtn" type="button">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span id="accountLabel">Ingresar</span>
+        </button>
+        <button class="cart-btn" id="openCart" type="button" aria-label="Abrir carrito">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span class="cart-btn__count" id="cartCount">0</span>
+        </button>
+        <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== LISTA DE ARTÍCULOS ===================== -->
+  <section class="section blogpage" id="blog" data-whatsapp-label="Consulta del blog">
+    <div class="container">
+      <nav class="crumb" aria-label="Ruta de navegación">
+        <a href="index.html#inicio">Inicio</a> <span>›</span> <span id="blogCrumb">Blog</span>
+      </nav>
+
+      <div class="section__head section__head--left" id="blogHead">
+        <span class="eyebrow">Consejos y guías</span>
+        <h1>Blog de seguridad infantil</h1>
+        <p>Todo lo que aprendemos acompañando familias en Panamá: cómo instalar bien la silla, cuándo cambiar de etapa y qué revisar antes de cada viaje.</p>
+      </div>
+
+      <!-- Lista (se llena desde el CRM) -->
+      <div class="bloglist" id="blogList"></div>
+
+      <!-- Artículo completo (se muestra con blog.html?post=...) -->
+      <article class="blogpost" id="blogPost" hidden></article>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/data.js?v=2026-07-30n"></script>
+  <script src="js/supabase.js?v=2026-07-30n"></script>
+  <script src="js/chat-assistant.js?v=2026-07-30n"></script>
+  <script src="js/shell.js?v=2026-07-30n"></script>
+  <script src="js/store.js?v=2026-07-30n"></script>
+  <script src="js/chat-widget.js?v=2026-07-30n"></script>
+  <script src="js/servicios.js?v=2026-07-30n"></script>
+  <script src="js/blog.js?v=2026-07-30n"></script>
+</body>
+</html>

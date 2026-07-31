@@ -8,7 +8,7 @@
   <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=2026-07-30l" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-07-30n" />
 </head>
 <body class="admin">
 
@@ -66,6 +66,7 @@
           <button class="tab" id="tab-button-agenda" data-tab="agenda" type="button" role="tab" aria-controls="tab-agenda" aria-selected="false">Solicitudes <span class="tab__badge" id="badge-agenda" hidden></span></button>
           <button class="tab" id="tab-button-conversaciones" data-tab="conversaciones" type="button" role="tab" aria-controls="tab-conversaciones" aria-selected="false">Conversaciones <span class="tab__badge" id="badge-conversaciones" hidden></span></button>
           <button class="tab" id="tab-button-instagram" data-tab="instagram" type="button" role="tab" aria-controls="tab-instagram" aria-selected="false">Instagram</button>
+          <button class="tab" id="tab-button-blog" data-tab="blog" type="button" role="tab" aria-controls="tab-blog" aria-selected="false">Blog</button>
         </div>
       </aside>
 
@@ -371,6 +372,70 @@
         </div>
 
         <!-- Instagram -->
+        <!-- ===================== BLOG ===================== -->
+        <div id="tab-blog" class="tab-panel" role="tabpanel" aria-labelledby="tab-button-blog" hidden>
+          <div class="admin__bar">
+            <div>
+              <span class="eyebrow">Contenido</span>
+              <h2>Blog</h2>
+            </div>
+            <button class="btn btn--primary" id="newBlogPost" type="button">Nuevo artículo</button>
+          </div>
+          <p class="muted">Escribe consejos y guías para las familias. Se publican en <strong>blog.html</strong> y puedes dejarlos ocultos mientras los terminas.</p>
+
+          <div class="instagram-admin-grid">
+            <section class="admin-panel">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Artículo</span>
+                  <h3 id="blogEditorTitle">Nuevo artículo</h3>
+                </div>
+              </div>
+              <form id="blogPostForm" class="instagram-form">
+                <label>Título
+                  <input id="bl-title" type="text" required maxlength="120" placeholder="Ej. Los 5 errores más comunes al instalar la silla" />
+                </label>
+                <label>Resumen corto (sale en la tarjeta)
+                  <textarea id="bl-excerpt" rows="2" maxlength="200" placeholder="Una o dos líneas que inviten a leer."></textarea>
+                </label>
+                <label>Artículo
+                  <textarea id="bl-body" rows="12" required placeholder="Escribe aquí el artículo. Deja una línea en blanco entre párrafo y párrafo."></textarea>
+                </label>
+                <label>Foto de portada (opcional)
+                  <input id="bl-cover" type="url" inputmode="url" placeholder="https://... o assets/blog/mi-foto.jpg" />
+                </label>
+                <div class="instagram-form__row">
+                  <button class="btn btn--ghost btn--sm" id="blogCoverPick" type="button">Subir foto</button>
+                  <input id="blogCoverFile" type="file" accept="image/*" hidden />
+                  <span class="muted" id="blogCoverStatus"></span>
+                </div>
+                <label>Autor (opcional)
+                  <input id="bl-author" type="text" maxlength="60" placeholder="Ej. Emeline Velarde" />
+                </label>
+                <label>Fecha de publicación
+                  <input id="bl-date" type="datetime-local" />
+                </label>
+                <label class="fcheck"><input id="bl-published" type="checkbox" checked /> Publicado (visible en la web)</label>
+                <p class="muted" id="blogFormStatus"></p>
+                <div class="instagram-form__actions">
+                  <button class="btn btn--primary" id="saveBlogPost" type="submit">Guardar artículo</button>
+                  <button class="btn btn--ghost" id="cancelBlogPost" type="button">Cancelar</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="admin-panel">
+              <div class="admin-panel__head">
+                <div>
+                  <span class="eyebrow">Publicados</span>
+                  <h3>Tus artículos</h3>
+                </div>
+              </div>
+              <div id="blogPostsList"></div>
+            </section>
+          </div>
+        </div>
+
         <div id="tab-instagram" class="tab-panel" role="tabpanel" aria-labelledby="tab-button-instagram" hidden>
           <div class="admin__bar">
             <div>
@@ -504,8 +569,8 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=2026-07-30l"></script>
-  <script src="js/supabase.js?v=2026-07-30l"></script>
-  <script src="js/admin.js?v=2026-07-30l"></script>
+  <script src="js/data.js?v=2026-07-30n"></script>
+  <script src="js/supabase.js?v=2026-07-30n"></script>
+  <script src="js/admin.js?v=2026-07-30n"></script>
 </body>
 </html>

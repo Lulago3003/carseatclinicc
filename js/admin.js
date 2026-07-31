@@ -161,6 +161,7 @@
     await renderServiceLeads();
     await renderRentalAvailability();
     await renderInstagramPosts();
+    await renderBlogPosts();
     renderDashboard();
     updateConvBadge();
   }
@@ -1085,6 +1086,157 @@
     }
     target.innerHTML = `<div class="rental-availability-list__head"><strong>Fechas creadas</strong><span>${rentalAvailability.length} en total</span></div>${rentalAvailability.map(availabilityCard).join("")}`;
   }
+
+  /* ---------- Blog ----------
+     Los artículos se escriben aquí y se leen en blog.html. Se pueden dejar
+     ocultos ("Publicado" sin marcar) mientras se terminan. */
+  let blogPosts = [];
+  let editingBlogId = null;
+
+  function blogDatabaseMessage(error) {
+    const t = String((error && (error.message || error.details || error.hint)) || error || "").toLowerCase();
+    if (/blog_posts|relation .* does not exist|schema cache/.test(t)) {
+      return "Falta activar el blog. En Supabase, ejecuta el archivo supabase-blog.sql una sola vez.";
+    }
+    if (/duplicate key|unique/.test(t)) {
+      return "Ya existe un artículo con ese título. Cámbiale el título aunque sea un poco.";
+    }
+    if (/row-level security|permission denied|42501/.test(t)) {
+      return "Tu cuenta no tiene permiso para publicar. Entra con un correo autorizado.";
+    }
+    return "No se pudo guardar el artículo. Revisa la conexión e inténtalo de nuevo.";
+  }
+
+  // La fecha del formulario (datetime-local) va en hora local; se convierte a
+  // la forma que guarda la base para que no se corra de día.
+  function localToISO(valor) {
+    if (!valor) return new Date().toISOString();
+    const d = new Date(valor);
+    return isNaN(d) ? new Date().toISOString() : d.toISOString();
+  }
+  function isoToLocalInput(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d)) return "";
+    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 16);
+  }
+
+  function openBlogEditor(post) {
+    editingBlogId = post ? post.id : null;
+    $("#blogEditorTitle").textContent = post ? "Editar artículo" : "Nuevo artículo";
+    $("#bl-title").value = post ? post.titulo : "";
+    $("#bl-excerpt").value = post ? post.resumen : "";
+    $("#bl-body").value = post ? post.cuerpo : "";
+    $("#bl-cover").value = post ? post.portada : "";
+    $("#bl-author").value = post ? post.autor : "";
+    $("#bl-date").value = isoToLocalInput(post ? post.fecha : new Date().toISOString());
+    $("#bl-published").checked = post ? post.publicado : true;
+    $("#blogFormStatus").textContent = "";
+    $("#blogCoverStatus").textContent = "";
+    $("#saveBlogPost").textContent = post ? "Guardar cambios" : "Guardar artículo";
+  }
+
+  async function renderBlogPosts() {
+    const cont = $("#blogPostsList");
+    if (!cont) return;
+    try { blogPosts = await DB.getBlogPostsAdmin(); }
+    catch (error) {
+      cont.innerHTML = `<p class="muted empty-state">${esc(blogDatabaseMessage(error))}</p>`;
+      return;
+    }
+    if (!blogPosts.length) {
+      cont.innerHTML = `<p class="muted empty-state">Todavía no hay artículos. Escribe el primero en el formulario de al lado.</p>`;
+      return;
+    }
+    cont.innerHTML = blogPosts.map((p) => {
+      const fecha = p.fecha ? new Date(p.fecha).toLocaleDateString("es-PA", { day: "numeric", month: "short", year: "numeric" }) : "";
+      return `<div class="mini-row">
+        <div>
+          <strong>${esc(p.titulo)}</strong>
+          <span>${esc(fecha)} · ${p.publicado ? "Publicado" : "Oculto"}</span>
+        </div>
+        <div class="prow__act">
+          <a class="btn btn--ghost btn--sm" href="blog.html?post=${encodeURIComponent(p.slug)}" target="_blank" rel="noopener">Ver</a>
+          <button class="btn btn--ghost btn--sm" type="button" data-blog-edit="${esc(p.id)}">Editar</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-blog-toggle="${esc(p.id)}">${p.publicado ? "Ocultar" : "Publicar"}</button>
+          <button class="icon-btn" type="button" data-blog-del="${esc(p.id)}">Borrar</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  $("#newBlogPost")?.addEventListener("click", () => openBlogEditor(null));
+  $("#cancelBlogPost")?.addEventListener("click", () => openBlogEditor(null));
+
+  $("#blogCoverPick")?.addEventListener("click", () => $("#blogCoverFile")?.click());
+  $("#blogCoverFile")?.addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    $("#blogCoverStatus").textContent = "Subiendo foto…";
+    try {
+      const url = await DB.uploadImage(file);
+      $("#bl-cover").value = url;
+      $("#blogCoverStatus").textContent = "Foto lista ✓";
+    } catch (error) {
+      $("#blogCoverStatus").textContent = "No se pudo subir la foto.";
+    }
+    e.target.value = "";
+  });
+
+  $("#blogPostForm")?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const titulo = $("#bl-title").value.trim();
+    const cuerpo = $("#bl-body").value.trim();
+    if (!titulo || !cuerpo) { $("#blogFormStatus").textContent = "El título y el artículo son obligatorios."; return; }
+    const actual = editingBlogId ? blogPosts.find((p) => p.id === editingBlogId) : null;
+    const btn = $("#saveBlogPost");
+    btn.disabled = true;
+    $("#blogFormStatus").textContent = "Guardando…";
+    try {
+      await DB.saveBlogPost({
+        id: editingBlogId || undefined,
+        // Al editar se conserva la dirección original: si cambiara, se
+        // romperían los enlaces ya compartidos de ese artículo.
+        slug: actual ? actual.slug : DB.slugify(titulo),
+        titulo,
+        resumen: $("#bl-excerpt").value.trim(),
+        cuerpo,
+        portada: $("#bl-cover").value.trim(),
+        autor: $("#bl-author").value.trim(),
+        publicado: $("#bl-published").checked,
+        fecha: localToISO($("#bl-date").value),
+      });
+      toast("Artículo guardado");
+      openBlogEditor(null);
+      await renderBlogPosts();
+    } catch (error) {
+      $("#blogFormStatus").textContent = blogDatabaseMessage(error);
+      toast("No se pudo guardar el artículo");
+    }
+    btn.disabled = false;
+  });
+
+  $("#blogPostsList")?.addEventListener("click", async (e) => {
+    const edit = e.target.closest("[data-blog-edit]");
+    if (edit) {
+      const post = blogPosts.find((p) => p.id === edit.getAttribute("data-blog-edit"));
+      if (post) { openBlogEditor(post); $("#blogPostForm")?.scrollIntoView({ behavior: "smooth", block: "center" }); }
+      return;
+    }
+    const toggle = e.target.closest("[data-blog-toggle]");
+    const del = e.target.closest("[data-blog-del]");
+    if (!toggle && !del) return;
+    const id = (toggle || del).getAttribute(toggle ? "data-blog-toggle" : "data-blog-del");
+    const post = blogPosts.find((p) => p.id === id);
+    if (!post) return;
+    if (del && !confirm(`¿Eliminar "${post.titulo}"? No se puede deshacer.`)) return;
+    try {
+      if (toggle) { await DB.saveBlogPost({ ...post, publicado: !post.publicado }); toast(post.publicado ? "Artículo oculto" : "Artículo publicado"); }
+      else { await DB.deleteBlogPost(id); toast("Artículo eliminado"); }
+      await renderBlogPosts();
+    } catch (error) { toast(blogDatabaseMessage(error)); }
+  });
 
   function setupRentalAvailabilityEditor() {
     const form = $("#rentalAvailabilityForm");

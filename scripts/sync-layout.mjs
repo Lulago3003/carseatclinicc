@@ -26,6 +26,7 @@ const PAGES = [
   { file: "alquiler.html" },
   { file: "servicios.html" },
   { file: "faq.html" },
+  { file: "blog.html" },
   { file: "terminos.html", slim: true },
   { file: "privacidad.html", slim: true },
 ];
@@ -36,6 +37,7 @@ const TABS = [
   ["tienda.html", "Tienda"],
   ["alquiler.html", "Alquiler"],
   ["servicios.html", "Servicios"],
+  ["blog.html", "Blog"],
   ["faq.html", "Preguntas"],
   ["index.html#contacto", "Contacto"],
 ];
@@ -213,7 +215,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-07-30l";
+const VERSION = "2026-07-30n";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {
@@ -229,7 +231,7 @@ const SCRIPTS = (page) => {
   <script src="js/shell.js${v}"></script>
   <script src="js/store.js${v}"></script>
   <script src="js/chat-widget.js${v}"></script>
-  <script src="js/servicios.js${v}"></script>`;
+  <script src="js/servicios.js${v}"></script>${page === "blog.html" ? `\n  <script src="js/blog.js${v}"></script>` : ""}`;
 };
 
 /* --- Bloques viejos que ahora viven en js/shell.js --- */

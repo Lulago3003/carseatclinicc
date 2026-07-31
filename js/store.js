@@ -1044,6 +1044,29 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("is-open"), 2400);
   }
 
+  /* ---------- Fotos de la guía por etapas ----------
+     Las rutas viven en js/data.js (GUIA_ETAPAS) para que se cambien sin
+     tocar el HTML de la portada. */
+  function fillGuidePhotos() {
+    if (typeof GUIA_ETAPAS === "undefined") return;
+    $$("#guia-etapas .gstep").forEach((step) => {
+      const cat = step.getAttribute("data-ver-sillas");
+      const src = GUIA_ETAPAS[cat];
+      if (!src || step.querySelector(".gstep__photo")) return;
+      const fig = document.createElement("span");
+      fig.className = "gstep__photo";
+      const img = document.createElement("img");
+      img.src = src;
+      img.alt = "";           // decorativa: el título de la etapa ya la describe
+      img.loading = "lazy";
+      // Si la foto no carga, se quita el marco en vez de dejar un hueco roto.
+      img.addEventListener("error", () => fig.remove(), { once: true });
+      fig.appendChild(img);
+      const link = step.querySelector(".gstep__link");
+      step.insertBefore(fig, link || null);
+    });
+  }
+
   /* ---------- Contacto ---------- */
   function fillContact() {
     const ubi = $("#cInfoUbicacion"); if (ubi) ubi.textContent = CONFIG.ubicacion;
@@ -2041,6 +2064,7 @@
   renderTestimonios();
   renderInstagram();
   fillContact();
+  fillGuidePhotos();
   setupAppointmentPlanner();
   loadProducts();
   maybeShowPopup();

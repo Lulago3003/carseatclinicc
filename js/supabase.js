@@ -529,6 +529,90 @@ const DB = (function () {
     });
   }
 
+  /* ---------- Blog / artículos ---------- */
+  // Convierte un título en la dirección del artículo ("Cómo instalar" ->
+  // "como-instalar"). Sin tildes ni símbolos, que es lo que acepta la tabla.
+  function slugify(texto) {
+    return String(texto || "")
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")   // quita tildes
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 70) || "articulo";
+  }
+
+  function normalizeBlogPost(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      slug: row.slug || "",
+      titulo: row.title || "",
+      resumen: row.excerpt || "",
+      cuerpo: row.body || "",
+      portada: row.cover_url || "",
+      autor: row.author || "",
+      publicado: row.published !== false,
+      fecha: row.published_at || row.created_at || "",
+    };
+  }
+
+  function blogPostRow(post) {
+    return {
+      slug: post.slug || slugify(post.titulo),
+      title: post.titulo || "",
+      excerpt: post.resumen || null,
+      body: post.cuerpo || "",
+      cover_url: post.portada || null,
+      author: post.autor || null,
+      published: post.publicado !== false,
+      published_at: post.fecha || new Date().toISOString(),
+    };
+  }
+
+  // Lista pública: solo lo publicado. Si la tabla aún no existe, devuelve
+  // vacío en vez de romper la página del blog.
+  async function getBlogPosts() {
+    if (!ready) return [];
+    const { data, error } = await client
+      .from("blog_posts").select("*")
+      .eq("published", true)
+      .lte("published_at", new Date().toISOString())
+      .order("published_at", { ascending: false });
+    if (error) {
+      console.warn("[Car Seat Clinic] No se pudieron cargar los artículos.", error.message || error);
+      return [];
+    }
+    return (data || []).map(normalizeBlogPost);
+  }
+
+  async function getBlogPostsAdmin() {
+    if (!ready) return [];
+    const { data, error } = await client
+      .from("blog_posts").select("*")
+      .order("published_at", { ascending: false });
+    if (error) throw error;
+    return (data || []).map(normalizeBlogPost);
+  }
+
+  async function saveBlogPost(post) {
+    if (!ready) throw new Error("Base de datos no conectada");
+    const row = blogPostRow(post);
+    let response;
+    if (post && post.id) {
+      response = await client.from("blog_posts").update(row).eq("id", post.id).select().single();
+    } else {
+      response = await client.from("blog_posts").insert(row).select().single();
+    }
+    if (response.error) throw response.error;
+    return normalizeBlogPost(response.data);
+  }
+
+  async function deleteBlogPost(id) {
+    if (!ready) throw new Error("Base de datos no conectada");
+    const { error } = await client.from("blog_posts").delete().eq("id", id);
+    if (error) throw error;
+  }
+
   return {
     init, get ready() { return ready; },
     getProducts, getProductsAdmin, saveProduct, deleteProduct, uploadImage,
@@ -537,6 +621,7 @@ const DB = (function () {
     guardarLead, getServiceLeads, updateLeadStatus, updateLead,
     getInstagramPosts, getInstagramPostsAdmin, saveInstagramPost, deleteInstagramPost,
     getRentalAvailability, getRentalAvailabilityAdmin, saveRentalAvailability,
+    getBlogPosts, getBlogPostsAdmin, saveBlogPost, deleteBlogPost, slugify,
     signUp, signIn, signInGoogle, signOut, getUser, getProfile, onAuthChange, subscribe,
   };
 })();

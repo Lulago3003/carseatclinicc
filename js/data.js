@@ -141,6 +141,23 @@ const GRUPOS = [
 ];
 
 /* =====================================================================
+   FOTOS DE LA GUÍA POR ETAPAS ("¿Qué silla le toca a tu pequeño?")
+   ---------------------------------------------------------------------
+   Cada etapa de la portada muestra una foto debajo de su descripción.
+   👉 PARA CAMBIARLAS: sube la foto a assets/guia/ y cambia la ruta aquí.
+   Lo ideal son fotos cercanas y reales (un bebé en su silla, un niño en
+   el booster…) porque conectan mucho más que la foto del producto solo.
+   Se ven mejor en horizontal (por ejemplo 800x600).
+   Si dejas una vacía (""), esa etapa simplemente no muestra foto.
+   ===================================================================== */
+const GUIA_ETAPAS = {
+  "recien-nacidos": "assets/productos/inv01-1.jpg",
+  "convertibles":   "assets/productos/inv04-1.jpg",
+  "combinadas":     "assets/productos/inv11-1.jpg",
+  "booster":        "assets/productos/inv12-1.jpg",
+};
+
+/* =====================================================================
    IMÁGENES POR CATEGORÍA (de respaldo)
    ---------------------------------------------------------------------
    Si un producto no tiene foto propia, se usa esta según su categoría.

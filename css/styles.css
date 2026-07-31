@@ -32,7 +32,7 @@
   --ease-out-expo: cubic-bezier(.16, 1, .3, 1);
   /* Alto del encabezado. El menú móvil se posiciona debajo usando esta misma
      medida, así que cambiarla aquí mantiene todo alineado. */
-  --header-h: 86px;
+  --header-h: 94px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1762,6 +1762,17 @@ body.admin [hidden] { display: none !important; }
 }
 .gstep h3 { margin: 2px 0 0; font-size: 1.06rem; }
 .gstep p { margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.5; }
+/* Foto de la etapa: acerca la sección a las familias (lo pidió la clienta).
+   La ruta de cada foto se edita en js/data.js → GUIA_ETAPAS. */
+.gstep__photo {
+  display: block; margin: 10px 0 4px; border-radius: 12px; overflow: hidden;
+  background: var(--brand-soft); aspect-ratio: 4 / 3;
+}
+.gstep__photo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .35s var(--ease-out-quart);
+}
+.gstep:hover .gstep__photo img { transform: scale(1.05); }
 .gstep__link { margin-top: auto; color: var(--accent-dark); font-weight: 700; font-size: .84rem; }
 .gstep:hover .gstep__link { text-decoration: underline; }
 .guide__tip {
@@ -1899,10 +1910,10 @@ body.nav-open { overflow: hidden; }
 .header.is-stuck { border-bottom-color: var(--line); box-shadow: 0 6px 22px rgba(47,62,52,.07); }
 .header__inner { height: var(--header-h); gap: 14px; }
 /* Logo protagonista (lo pidió la clienta: "que se vea más grande").
-   El encabezado creció a 86px para darle cabida, así que 68px lo deja bien
+   El encabezado creció a 94px para darle cabida, así que 76px lo deja bien
    visible con aire. Medido hasta en 320px: no choca con el menú ni corta
    el texto. */
-.brand__logo { width: 68px; height: 68px; }
+.brand__logo { width: 76px; height: 76px; }
 .brand__text strong { font-size: 1.04rem; letter-spacing: .01em; }
 /* Con el logo a 56px el nombre cabía en una línea (112px de 118 libres) pero
    se partía en dos por el encogido del flex. Desde 375px se fuerza una sola
@@ -2520,4 +2531,40 @@ body.nav-open { overflow: hidden; }
   .rental-availability-form__note, .rental-availability-slots, .rental-availability-form__actions { grid-column: auto; }
   .rental-availability-card { align-items: flex-start; flex-direction: column; }
   .rental-availability-card__actions { justify-content: flex-start; }
+}
+
+/* =====================================================================
+   BLOG — lista de artículos y artículo completo
+   ===================================================================== */
+.bloglist { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; margin-top: 8px; }
+.bcard {
+  display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line);
+  border-radius: var(--radius-lg); overflow: hidden; text-decoration: none;
+  transition: transform .2s var(--ease-out-quart), box-shadow .2s ease, border-color .2s ease;
+}
+.bcard:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--sage); }
+.bcard__media { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: var(--brand-soft); }
+.bcard__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bcard__media--empty { background: linear-gradient(135deg, var(--brand-soft), #e4ece4); }
+.bcard__body { display: flex; flex-direction: column; gap: 7px; padding: 18px 18px 20px; }
+.bcard__date { color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+.bcard__title { font-family: "Playfair Display", serif; font-size: 1.22rem; color: var(--ink); line-height: 1.25; }
+.bcard__excerpt { color: var(--muted); font-size: .92rem; line-height: 1.55; }
+.bcard__link { margin-top: 6px; color: var(--accent-dark); font-weight: 700; font-size: .88rem; }
+
+.blogempty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 16px; display: grid; gap: 10px; justify-items: center; }
+.blogempty p { margin: 0; }
+
+.blogpost { max-width: 760px; margin: 0 auto; }
+.blogpost__head { text-align: center; margin-bottom: 22px; }
+.blogpost__head h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 8px 0 0; }
+.blogpost__author { color: var(--muted); font-size: .92rem; margin: 10px 0 0; }
+.blogpost__cover { width: 100%; border-radius: var(--radius-lg); margin-bottom: 26px; display: block; }
+.blogpost__body { color: var(--ink); font-size: 1.04rem; line-height: 1.75; }
+.blogpost__body p { margin: 0 0 18px; }
+.blogpost__back { margin-top: 30px; text-align: center; }
+.blogpost__back a { color: var(--accent-dark); font-weight: 700; }
+@media (max-width: 560px) {
+  .bloglist { grid-template-columns: 1fr; gap: 16px; }
+  .blogpost__body { font-size: .98rem; }
 }
