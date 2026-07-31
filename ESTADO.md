@@ -273,7 +273,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
 - [ ] **Activar pago** (BAC/Tilopay): cuenta de comercio → `supabase secrets set …`
       → `supabase functions deploy crear-pago` → `CONFIG.pago.activo=true`. Ver `PAGOS.md`.
 - [ ] **Activar IA del chat**: API key de Anthropic → secret → `deploy asistente`. Ver `CHATBOT.md`.
-- [ ] **Precios reales**: ponerlos en el panel (hoy dice "Consultar").
+- [x] **Precios reales cargados**: 26 de 27 productos ya tienen precio (queda 1 sin precio y 1 sin foto, ajustables desde el panel).
 - [ ] **Corregir fotos mal asignadas**: el .docx ancla imágenes fuera de orden, algunas no son el modelo exacto → ajustar por producto en el CRM.
 - [x] **Testimonios reales**: 3 reseñas reales de Google (Ivohne Jensen, Ana María Paredes, Gianfranco Lo Medico) en `js/data.js` → `TESTIMONIOS`.
 - [x] **Historia + foto de la fundadora (Emeline Velarde)** y **certificación CPST** visibles en la sección "Quiénes somos" de la portada (30 jul 2026).
@@ -287,7 +287,7 @@ Supabase ref: `fahqjwnwoznaerrwgdmc` · WhatsApp real: 6674-3012
       contraseña quedó en el historial público de git.
 - [x] **Páginas legales**: `terminos.html` y `privacidad.html` (enlazadas en el footer). ✅
 - [x] **SEO + Open Graph**: meta tags + Twitter card + canonical + theme-color en index. ✅
-- [ ] **Dominio + hosting**: comprar dominio en Cloudflare → publicar en **Cloudflare Pages** (gratis) → conectar dominio.
+- [x] **Dominio + hosting (30 jul 2026)**: publicado en **Cloudflare Pages** conectado al repo (cada push actualiza el sitio solo) y con el dominio propio **https://carseatclinic.com.pa** activo y con HTTPS. Falta decidir si se agrega también `www.` (mismo proceso, 1 minuto).
 - [ ] **Correo con dominio**: Cloudflare Email Routing (recibir) + Zoho/Google Workspace (enviar).
 - [ ] **Analítica** (Google Analytics o Meta Pixel).
 
