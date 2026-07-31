@@ -1895,8 +1895,15 @@ body.nav-open { overflow: hidden; }
 }
 .header.is-stuck { border-bottom-color: var(--line); box-shadow: 0 6px 22px rgba(47,62,52,.07); }
 .header__inner { height: 74px; gap: 14px; }
-.brand__logo { width: 42px; height: 42px; }
+/* Logo protagonista (lo pidió la clienta: "que se vea más grande").
+   El encabezado mide 74px, así que 56px lo deja bien visible con aire.
+   Medido hasta en 320px de ancho: no choca con el menú ni corta el texto. */
+.brand__logo { width: 56px; height: 56px; }
 .brand__text strong { font-size: 1.04rem; letter-spacing: .01em; }
+/* Con el logo a 56px el nombre cabía en una línea (112px de 118 libres) pero
+   se partía en dos por el encogido del flex. Desde 375px se fuerza una sola
+   línea; en pantallas más angostas se deja partir para que no choque. */
+@media (min-width: 375px) { .brand__text strong { white-space: nowrap; } }
 .brand__text small { font-size: .64rem; letter-spacing: .1em; color: var(--sage); }
 
 .nav { gap: 4px; align-items: center; }
@@ -1955,7 +1962,7 @@ body.nav-open { overflow: hidden; }
 }
 @media (max-width: 400px) {
   .brand__text small { display: none; }
-  .brand__logo { width: 38px; height: 38px; }
+  /* El logo mantiene su tamaño (56px) también en pantallas angostas. */
 }
 
 /* ---------- Encabezados de sección ---------- */
