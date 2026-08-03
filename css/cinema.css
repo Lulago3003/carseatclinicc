@@ -133,39 +133,6 @@
   100% { opacity: 0;   transform: translate3d(26px, -420px, 0) scale(1.25); }
 }
 
-/* ---------- Etiqueta superior ---------- */
-.cine__badge {
-  position: absolute;
-  top: 16px; left: 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 14px 7px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .93);
-  color: var(--brand);
-  font-size: .74rem;
-  font-weight: 600;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  box-shadow: var(--shadow-sm);
-  z-index: 3;
-}
-.cine__badge img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
-
-/* Punto que late mientras el "video" corre */
-.cine__live {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--accent-dark);
-  animation: cinePulse 1.6s ease-in-out infinite;
-}
-.cine.is-paused .cine__live { animation: none; opacity: .35; }
-@keyframes cinePulse {
-  0%, 100% { transform: scale(1);   opacity: 1; }
-  50%      { transform: scale(1.5); opacity: .45; }
-}
-
 /* ---------- Texto de cada escena ---------- */
 .cine__caption {
   position: absolute;
@@ -589,8 +556,7 @@
   .cine__bokeh span,
   .cine__lane::after,
   .cine__car-body,
-  .cine__hint,
-  .cine__live { animation: none !important; }
+  .cine__hint { animation: none !important; }
   .cine__shot { transition: none; }
   .cine__hint { opacity: 1; }
   .cine__kicker, .cine__title, .cine__line, .cine__word { opacity: 1; transform: none; }
