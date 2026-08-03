@@ -491,7 +491,9 @@
 }
 .bacbanner__logo img {
   width: 100%;
-  max-width: 340px;
+  /* El archivo mide 766px de ancho. En pantallas retina (2x) eso da
+     383px nítidos como máximo, así que no lo estiramos más allá. */
+  max-width: 360px;
   height: auto;
 }
 @media (max-width: 860px) {
@@ -515,7 +517,7 @@
   border: 2px solid var(--brand-vivo);
   box-shadow: var(--shadow-sm);
 }
-.bacnote img { width: 190px; height: auto; flex: 0 0 auto; }
+.bacnote img { width: 200px; height: auto; flex: 0 0 auto; }
 .bacnote span { font-size: 1.02rem; color: var(--ink); }
 .bacnote b { color: var(--brand); }
 @media (max-width: 560px) {

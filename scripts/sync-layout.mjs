@@ -127,7 +127,7 @@ const BRANDSTRIP = `    <div class="brandstrip">
           <img src="assets/marcas/evenflo.png" alt="Evenflo" loading="lazy" />
         </div>
         <div class="brandstrip__pay">
-          <img src="assets/marcas/bac-tasa-cero.jpg" alt="Tasa Cero BAC" loading="lazy" />
+          <img src="assets/marcas/bac-tasa-cero.png" alt="Tasa Cero BAC" loading="lazy" />
           <span>Paga a <b>Tasa Cero</b> (0% interés) con BAC. Escríbenos por WhatsApp para coordinar tu compra.</span>
         </div>
       </div>
@@ -280,7 +280,12 @@ for (const { file, slim } of PAGES) {
   html = html.replace(/(?: *<script[\s\S]*?<\/script>\n?)+(?=<\/body>)/, SCRIPTS(file) + "\n");
 
   // 5. Misma versión para la hoja de estilos
-  html = html.replace(/href="css\/styles\.css(?:\?v=[^"]*)?"/g, `href="css/styles.css?v=${VERSION}"`);
+  //    OJO: hay que versionar TODAS las hojas, no solo styles.css. Las
+  //    nuevas (cinema, familia, anima, competencia) llevaban una versión
+  //    fija que nunca cambiaba, así que a quien ya había entrado al sitio
+  //    el navegador le seguía dando la copia vieja guardada y no veía
+  //    ningún cambio de diseño.
+  html = html.replace(/href="(css\/[a-z-]+\.css)(?:\?v=[^"]*)?"/g, `href="$1?v=${VERSION}"`);
 
   // 5. Limpiar líneas en blanco de más
   html = html.replace(/\n{3,}/g, "\n\n");
