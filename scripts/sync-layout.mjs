@@ -27,6 +27,8 @@ const PAGES = [
   { file: "servicios.html" },
   { file: "faq.html" },
   { file: "blog.html" },
+  { file: "guia.html" },
+  { file: "mesa.html" },
   { file: "terminos.html", slim: true },
   { file: "privacidad.html", slim: true },
 ];
@@ -172,6 +174,7 @@ ${IG_LINKS}
       </div>
       <div class="footer__col">
         <h4>Ayuda</h4>
+        <a href="guia.html">Herramientas para tu familia</a>
         <a href="faq.html">Preguntas frecuentes</a>
         <a href="index.html#contacto">Contacto y ubicación</a>
         <a href="terminos.html">Términos</a>
@@ -203,6 +206,7 @@ ${IG_LINKS}
         <h4>Legal</h4>
         <a href="terminos.html">Términos</a>
         <a href="privacidad.html">Privacidad</a>
+        <a href="guia.html">Herramientas para tu familia</a>
         <a href="faq.html">Preguntas frecuentes</a>
       </div>
     </div>
@@ -215,7 +219,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-07-30o";
+const VERSION = "2026-08-03a";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {
@@ -231,7 +235,8 @@ const SCRIPTS = (page) => {
   <script src="js/shell.js${v}"></script>
   <script src="js/store.js${v}"></script>
   <script src="js/chat-widget.js${v}"></script>
-  <script src="js/servicios.js${v}"></script>${page === "blog.html" ? `\n  <script src="js/blog.js${v}"></script>` : ""}`;
+  <script src="js/servicios.js${v}"></script>
+  <script src="js/competencia.js${v}"></script>${page === "blog.html" ? `\n  <script src="js/blog.js${v}"></script>` : ""}${page === "index.html" ? `\n  <script src="js/cinema.js${v}"></script>\n  <script src="js/anima.js${v}"></script>` : ""}${page === "index.html" || page === "guia.html" ? `\n  <script src="js/familia.js${v}"></script>` : ""}`;
 };
 
 /* --- Bloques viejos que ahora viven en js/shell.js --- */
@@ -255,7 +260,17 @@ for (const { file, slim } of PAGES) {
   html = html.replace(/ *<header[\s\S]*?<\/header>/, HEADER);
 
   // 2. Pie de página
-  html = html.replace(/ *<footer[\s\S]*?<\/footer>/, slim ? FOOTER_SLIM : FOOTER);
+  //    Si la página ya trae uno, se reemplaza. Si NO trae (le pasó a
+  //    blog.html, que nació sin pie), se inserta antes de los scripts:
+  //    antes esas páginas se quedaban sin pie para siempre, porque un
+  //    replace sobre algo que no existe no hace nada.
+  const PIE = slim ? FOOTER_SLIM : FOOTER;
+  if (/<footer[\s\S]*?<\/footer>/.test(html)) {
+    html = html.replace(/ *<footer[\s\S]*?<\/footer>/, PIE);
+  } else {
+    const corte = html.search(/ *<!-- Scripts -->|(?: *<script[\s\S]*?<\/script>\n?)+(?=<\/body>)/);
+    if (corte !== -1) html = html.slice(0, corte) + PIE + "\n\n" + html.slice(corte);
+  }
 
   // 3. Quitar piezas duplicadas que ahora inserta shell.js
   for (const re of LEGACY) html = html.replace(re, "");
@@ -269,6 +284,9 @@ for (const { file, slim } of PAGES) {
 
   // 5. Limpiar líneas en blanco de más
   html = html.replace(/\n{3,}/g, "\n\n");
+
+  // 6. El comentario "<!-- Scripts -->" se venía duplicando en cada pasada
+  html = html.replace(/( *<!-- Scripts -->\n)+/g, "  <!-- Scripts -->\n");
 
   if (html !== original) { writeFileSync(path, html); cambiados++; console.log(`  ✓ ${file}`); }
   else console.log(`  = ${file} (sin cambios)`);

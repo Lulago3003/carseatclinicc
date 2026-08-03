@@ -4,11 +4,23 @@
    ===================================================================== */
 
 :root {
-  /* Paleta oficial Car Seat Clinic Center */
-  --brand: #2f3e34;       /* Verde Bosque (principal) */
+  /* Paleta oficial Car Seat Clinic Center (manual de marca)
+     ---------------------------------------------------------------
+     OJO con el verde vivo: es el color principal de la marca, pero
+     NO se puede usar para texto. Medido: con letra blanca encima da
+     2.71 de contraste y con letra oscura 4.17, cuando el mínimo
+     legible es 4.5. Por eso va solo en detalles (líneas, íconos,
+     bordes, barras, degradados) y el verde oscuro sigue mandando en
+     botones y textos, que sí llega a 11.29. */
+  --brand-vivo: #38b08d;  /* Verde Principal — solo decorativo */
+  --brand-vivo-soft: #d7f0e6; /* su versión suave, para fondos */
+  --brand: #2f3e34;       /* Verde Oscuro — botones y texto */
   --brand-dark: #232e26;  /* más oscuro (hover) */
   --brand-soft: #e7ede7;  /* sage muy claro (fondos suaves) */
   --sage: #7a8f7c;        /* Verde Salvia (secundario) */
+  /* Degradados oficiales */
+  --grad-principal: linear-gradient(135deg, #38b08d, #7a8f7c);
+  --grad-secundario: linear-gradient(135deg, #2f3e34, #7a8f7c);
   --accent: #d8a7a7;      /* Rosa Empolvado (apoyo) */
   --accent-dark: #a9706f; /* rosa oscuro (texto/hover) */
   --ink: #333333;         /* Gris Carbón (texto) */

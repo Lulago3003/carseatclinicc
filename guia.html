@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light" />
+  <title>Herramientas para tu familia | Car Seat Clinic Center</title>
+  <meta name="description" content="Sabe qué silla le toca a tu hijo, revisa tú misma si está bien puesta y ten a mano la lista de antes de arrancar." />
+  <meta property="og:title" content="Herramientas para tu familia | Car Seat Clinic Center" />
+  <meta property="og:description" content="Consejos de seguridad infantil y guías para que tu familia viaje tranquila." />
+  <meta property="og:image" content="https://carseatclinic.com.pa/assets/og/compartir.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_PA" />
+  <meta name="theme-color" content="#2f3e34" />
+  <link rel="canonical" href="https://carseatclinic.com.pa/guia.html" />
+
+  <link rel="icon" href="logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-08-03a" />
+  <link rel="stylesheet" href="css/familia.css?v=v2-lab1" />
+</head>
+<body>
+  <!-- ===================== ENCABEZADO ===================== -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="index.html" class="brand" aria-label="Car Seat Clinic, ir al inicio">
+        <img src="logo.jpg" alt="" class="brand__logo" />
+        <span class="brand__text">
+          <strong>Car Seat Clinic</strong>
+          <small>Seguridad infantil · Panamá</small>
+        </span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Menú principal">
+        <a href="index.html">Inicio</a>
+        <span class="nav__group" id="navShop">
+          <a href="tienda.html">Tienda</a>
+          <button class="nav__caret" type="button" aria-label="Ver categorías de la tienda" aria-expanded="false" aria-controls="shopSubmenu">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="nav__sub" id="shopSubmenu" role="menu" hidden></div>
+        </span>
+        <a href="alquiler.html">Alquiler</a>
+        <a href="servicios.html">Servicios</a>
+        <a href="blog.html">Blog</a>
+        <a href="faq.html">Preguntas</a>
+        <a href="index.html#contacto">Contacto</a>
+        <a href="admin.html" id="adminLink" class="nav__admin" style="display:none">Administrar</a>
+      </nav>
+
+      <div class="header__actions">
+        <button class="account-btn" id="accountBtn" type="button">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span id="accountLabel">Ingresar</span>
+        </button>
+        <button class="cart-btn" id="openCart" type="button" aria-label="Abrir carrito">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span class="cart-btn__count" id="cartCount">0</span>
+        </button>
+        <button class="nav-toggle" id="navToggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== HERRAMIENTAS ===================== -->
+  <section class="section" style="padding-bottom:0">
+    <div class="container">
+      <nav class="crumb" aria-label="Ruta de navegaci&oacute;n">
+        <a href="index.html#inicio">Inicio</a> <span>&rsaquo;</span> <span>Herramientas</span>
+      </nav>
+      <div class="section__head section__head--left">
+        <span class="eyebrow">Herramientas para tu familia</span>
+        <h1>Resuelve tus dudas en un minuto</h1>
+        <p>Todo esto es gratis y queda solo en tu tel&eacute;fono: no pedimos correo ni contrase&ntilde;a, y no guardamos nada en ning&uacute;n lado.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TU PEQUE: ETAPA + AUTO-CHEQUEO ===================== -->
+  <section class="section peque" id="tu-peque" data-whatsapp-label="Etapa de mi hijo" data-whatsapp-message="Hola Car Seat Clinic, quiero confirmar la etapa de silla de mi hijo.">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Hecho para tu familia</span>
+        <h2>¿En qué etapa va tu peque?</h2>
+        <p>Pon su fecha de nacimiento y te decimos qué le toca hoy, qué revisar y cuándo se acerca el próximo cambio. No guardamos nada: queda solo en tu teléfono.</p>
+      </div>
+
+      <div class="peque__grid">
+
+        <!-- ---- 1. Calculadora de etapa ---- -->
+        <div class="pcard">
+          <div class="pcard__head">
+            <h3>La etapa de tu hijo, hoy</h3>
+            <p>Con la edad exacta te decimos qué corresponde y qué viene después.</p>
+          </div>
+
+          <span class="pback" id="pqBack">
+            ¡Qué bueno verte de nuevo con <strong id="pqBackName"></strong>!
+            <button type="button" id="pqOlvidar">Cambiar</button>
+          </span>
+
+          <form class="pform" id="pqForm">
+            <div class="pform__row">
+              <span class="pfield">
+                <label for="pqNombre">Su nombre (opcional)</label>
+                <input type="text" id="pqNombre" placeholder="Ej. Emilia" autocomplete="off" maxlength="30" />
+              </span>
+              <span class="pfield">
+                <label for="pqNace">Fecha de nacimiento</label>
+                <input type="date" id="pqNace" required />
+              </span>
+            </div>
+            <button class="btn btn--primary" type="submit">Ver su etapa</button>
+          </form>
+
+          <div class="presult" id="pqResult" role="status">
+            <span class="presult__hi" id="pqHi"></span>
+            <div class="presult__stage" id="pqStage"></div>
+            <p class="presult__txt" id="pqTxt"></p>
+            <div class="pbar"><span id="pqBar"></span></div>
+            <p class="presult__next" id="pqNext"></p>
+            <div class="presult__cta">
+              <a class="btn btn--primary" id="pqVer" href="tienda.html">Ver sillas de esta etapa</a>
+              <a class="btn btn--whatsapp" id="pqWa" href="#" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---- 2. Auto-chequeo en 3 pasos ---- -->
+        <div class="pcard">
+          <div class="pcard__head">
+            <h3>Revísala tú misma en 30 segundos</h3>
+            <p>Tres cosas que puedes comprobar hoy, sin herramientas y sin salir de casa.</p>
+          </div>
+
+          <div class="chk__tabs" role="tablist" aria-label="Chequeos rápidos">
+            <button class="chk__tab" type="button" role="tab" data-chk="pinza">1 · El pellizco</button>
+            <button class="chk__tab" type="button" role="tab" data-chk="broche">2 · El broche</button>
+            <button class="chk__tab" type="button" role="tab" data-chk="firme">3 · Qué tan firme</button>
+          </div>
+
+          <div class="chk__panel" data-chk="pinza" role="tabpanel">
+            <figure class="chk__art">
+              <img src="assets/chequeo/pellizco.jpg" alt="Manos ajustando el arn&eacute;s de un beb&eacute; en su silla" loading="lazy" decoding="async" />
+            </figure>
+            <div class="chk__t">Intenta pellizcar la correa</div>
+            <p class="chk__d">A la altura del hombro, trata de agarrar la cinta del arn&eacute;s entre dos dedos. Si logras <strong>pellizcar tela sobrante</strong>, est&aacute; floja: hay que apretar m&aacute;s. Bien ajustada, los dedos resbalan y no agarran nada.</p>
+          </div>
+
+          <div class="chk__panel" data-chk="broche" role="tabpanel">
+            <figure class="chk__art">
+              <img src="assets/chequeo/broche.jpg" alt="Arn&eacute;s de cinco puntos de una silla, con el broche del pecho a la vista" loading="lazy" decoding="async" />
+            </figure>
+            <div class="chk__t">El broche, a la altura de las axilas</div>
+            <p class="chk__d">El broche del pecho debe quedar <strong>a la altura de las axilas</strong>, no sobre la barriga ni pegado al cuello. Es lo que mantiene las correas en su sitio sobre los hombros.</p>
+          </div>
+
+          <div class="chk__panel" data-chk="firme" role="tabpanel">
+            <figure class="chk__art">
+              <img src="assets/chequeo/firmeza.jpg" alt="Silla de auto instalada en el asiento del carro" loading="lazy" decoding="async" />
+            </figure>
+            <div class="chk__t">Mueve la silla en su base</div>
+            <p class="chk__d">Ag&aacute;rrala por donde pasa el cintur&oacute;n y mu&eacute;vela de lado a lado. No deber&iacute;a moverse <strong>m&aacute;s de un par de cent&iacute;metros</strong>. Si baila, hay que instalarla de nuevo.</p>
+          </div>
+
+          <p class="chk__d" style="margin-top:16px">
+            ¿Te quedó una duda? <a href="#contacto"><strong>Te la revisamos sin costo</strong></a> — es mejor preguntar que quedarse con la duda.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ANTES DE ARRANCAR ===================== -->
+  <section class="section antes" id="antes-de-arrancar" data-whatsapp-label="Dudas del checklist" data-whatsapp-message="Hola Car Seat Clinic, tengo dudas con uno de los puntos del checklist antes de arrancar.">
+    <div class="container">
+      <div class="section__head">
+        <span class="eyebrow">Para tener a mano</span>
+        <h2>Antes de arrancar</h2>
+        <p>&iquest;Sales de viaje o alguien m&aacute;s va a llevar a tu hijo? Repasa estos seis puntos, los mismos que revisamos nosotros en cada instalaci&oacute;n. Al terminar puedes <strong>mandarle la lista a quien maneja</strong>.</p>
+      </div>
+
+      <div class="antes__grid">
+        <div class="antes__ring" id="antesRingWrap">
+          <svg viewBox="0 0 150 150" aria-hidden="true">
+            <circle class="r-bg" cx="75" cy="75" r="62" />
+            <circle class="r-fg" id="antesRing" cx="75" cy="75" r="62" />
+          </svg>
+          <div class="antes__num">
+            <strong id="antesCount">0/6</strong>
+            <span>revisados</span>
+          </div>
+          <button class="antes__reset" type="button" id="antesReset">Empezar de nuevo</button>
+        </div>
+
+        <div>
+          <div class="antes__list" id="antesList">
+            <label class="acheck">
+              <input type="checkbox" />
+              <span class="acheck__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="acheck__t">La silla no se mueve<small>Muévela donde pasa el cinturón: no más de un par de centímetros.</small></span>
+            </label>
+            <label class="acheck">
+              <input type="checkbox" />
+              <span class="acheck__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="acheck__t">El arnés no se deja pellizcar<small>A la altura del hombro no debe sobrar tela.</small></span>
+            </label>
+            <label class="acheck">
+              <input type="checkbox" />
+              <span class="acheck__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="acheck__t">El broche va a la altura de las axilas<small>Ni sobre la barriga ni pegado al cuello.</small></span>
+            </label>
+            <label class="acheck">
+              <input type="checkbox" />
+              <span class="acheck__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="acheck__t">Sin abrigos gruesos debajo del arnés<small>El abrigo deja un espacio que en un golpe desaparece. Mejor encima, ya abrochado.</small></span>
+            </label>
+            <label class="acheck">
+              <input type="checkbox" />
+              <span class="acheck__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="acheck__t">Nada suelto dentro del carro<small>Termos, juguetes duros y bolsos: en un frenazo salen volando.</small></span>
+            </label>
+            <label class="acheck">
+              <input type="checkbox" />
+              <span class="acheck__box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="acheck__t">Nunca se queda solo en el carro<small>Ni un minuto, ni con el aire puesto. Deja algo tuyo en el asiento de atrás para acordarte siempre.</small></span>
+            </label>
+          </div>
+
+          <div class="antes__done" id="antesDone">
+            <strong>Listo, pueden salir tranquilos 💚</strong>
+            <span>Si algo no te cuadr&oacute;, escr&iacute;benos y lo revisamos contigo sin costo.</span>
+            <div class="antes__acciones">
+              <a class="btn btn--whatsapp" id="antesCompartir" target="_blank" rel="noopener">Mandarle la lista a quien maneja</a>
+              <button class="btn btn--ghost" type="button" id="antesImprimir">Imprimirla para el carro</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="brandstrip">
+      <div class="container">
+        <p class="brandstrip__title">Marcas que distribuimos</p>
+        <div class="brandstrip__logos">
+          <img src="assets/marcas/joie.png" alt="Joie" loading="lazy" />
+          <img src="assets/marcas/graco.png" alt="Graco" loading="lazy" />
+          <img src="assets/marcas/premium-baby.webp" alt="Premium Baby" loading="lazy" />
+          <img src="assets/marcas/evenflo.png" alt="Evenflo" loading="lazy" />
+        </div>
+        <div class="brandstrip__pay">
+          <img src="assets/marcas/bac-tasa-cero.jpg" alt="Tasa Cero BAC" loading="lazy" />
+          <span>Paga a <b>Tasa Cero</b> (0% interés) con BAC. Escríbenos por WhatsApp para coordinar tu compra.</span>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="newsletter">
+        <div class="newsletter__text">
+          <h3>Únete a la comunidad Car Seat Clinic</h3>
+          <p>Promociones, consejos de seguridad y recordatorios para viajar tranquilos con tus hijos.</p>
+        </div>
+        <form class="newsletter__form" id="newsletterForm">
+          <input type="text" name="nombre" placeholder="Tu nombre" required />
+          <input type="email" name="email" placeholder="Tu correo" required />
+          <button class="btn btn--accent" type="submit">Suscribirme</button>
+        </form>
+      </div>
+    </div>
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <div class="brand brand--light">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+              <path d="M25 50 Q50 13 75 50" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
+              <path d="M18 50 Q20 87 50 87 Q80 87 82 50 Q78 43 70 47 Q66 58 50 58 Q34 58 30 47 Q22 43 18 50 Z" fill="#fff"/>
+              <path d="M31 51 Q34 77 50 77 Q66 77 69 51 Q60 61 50 61 Q40 61 31 51 Z" fill="#2f3e34"/>
+            </svg>
+          </span>
+          <span class="brand__text"><strong>Car Seat Clinic</strong></span>
+        </div>
+        <p>Técnicos en seguridad infantil en Panamá. Te ayudamos a elegir, instalar y usar bien la silla de tu hijo.</p>
+        <div class="footer__social">
+          <a href="#" data-ig-shop target="_blank" rel="noopener" aria-label="Instagram de la tienda">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+            <span>@carseatclinic.shop</span>
+          </a>
+          <a href="#" data-ig-main target="_blank" rel="noopener" aria-label="Instagram principal">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+            <span>@carseatclinicc</span>
+          </a>
+          <a href="#" data-facebook target="_blank" rel="noopener" aria-label="Facebook de Car Seat Clinic">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M13.6 21v-8h2.7l.4-3.1h-3.1V8c0-.9.3-1.5 1.6-1.5h1.7V3.7c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2v2.1H8v3.1h2.4v8h3.2Z"/></svg>
+            <span>Facebook</span>
+          </a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h4>Comprar</h4>
+        <a href="tienda.html">Ver toda la tienda</a>
+        <a href="tienda.html?cat=sillas-auto">Sillas de auto</a>
+        <a href="tienda.html?cat=sillas-comer">Sillas de comer</a>
+        <a href="tienda.html?cat=dormir">A dormir</a>
+        <a href="tienda.html?cat=accesorios">Accesorios</a>
+      </div>
+      <div class="footer__col">
+        <h4>Servicios</h4>
+        <a href="alquiler.html">Alquiler para viajes</a>
+        <a href="servicios.html#instalacion">Instalación</a>
+        <a href="servicios.html#limpieza">Limpieza profunda</a>
+        <a href="index.html#citas">Reservar una cita</a>
+      </div>
+      <div class="footer__col">
+        <h4>Ayuda</h4>
+        <a href="guia.html">Herramientas para tu familia</a>
+        <a href="faq.html">Preguntas frecuentes</a>
+        <a href="index.html#contacto">Contacto y ubicación</a>
+        <a href="terminos.html">Términos</a>
+        <a href="privacidad.html">Privacidad</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>© <span data-year></span> Car Seat Clinic Center. Hecho con cuidado para las familias.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/data.js?v=2026-08-03a"></script>
+  <script src="js/supabase.js?v=2026-08-03a"></script>
+  <script src="js/chat-assistant.js?v=2026-08-03a"></script>
+  <script src="js/shell.js?v=2026-08-03a"></script>
+  <script src="js/store.js?v=2026-08-03a"></script>
+  <script src="js/chat-widget.js?v=2026-08-03a"></script>
+  <script src="js/servicios.js?v=2026-08-03a"></script>
+  <script src="js/competencia.js?v=2026-08-03a"></script>
+  <script src="js/familia.js?v=2026-08-03a"></script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+/* =====================================================================
+   ANIMACIONES + MOMENTOS (versión 2, laboratorio)
+   ---------------------------------------------------------------------
+   1. Sistema de aparición al bajar la página (scroll reveal)
+   2. Parallax suave en fotos
+   3. Sección "Momentos": mosaico de fotos de familias
+   4. Cinta de fotos que se desliza sola
+
+   REGLA DE ORO (aprendida a golpes en esta misma versión):
+   nada se esconde con CSS por su cuenta. El contenido solo se oculta
+   cuando el JavaScript confirma que SÍ puede animarlo, poniendo la clase
+   .js-anima en <html>. Si el JS falla o el navegador frena las
+   animaciones, la página se ve completa igual.
+   ===================================================================== */
+
+/* ---------- 1. Aparición al bajar ---------- */
+.js-anima [data-anima] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.js-anima [data-anima="sube"]     { transform: translateY(30px); }
+.js-anima [data-anima="baja"]     { transform: translateY(-24px); }
+.js-anima [data-anima="izq"]      { transform: translateX(-38px); }
+.js-anima [data-anima="der"]      { transform: translateX(38px); }
+.js-anima [data-anima="zoom"]     { transform: scale(.92); }
+.js-anima [data-anima="cortina"]  { clip-path: inset(0 0 100% 0); opacity: 1; }
+
+.js-anima [data-anima].is-in {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 0 0);
+  transition:
+    opacity .8s var(--ease-out-quart),
+    transform .9s var(--ease-out-expo),
+    clip-path 1s var(--ease-out-expo);
+}
+
+/* Seguro final: cuando ya debió terminar la transición, el JS pone esta
+   clase y el estado visible queda fijo sin depender de ninguna animación.
+   Es el mismo criterio que usamos con los contadores: la verdad no puede
+   depender de que el navegador tenga ganas de animar. */
+.js-anima [data-anima].is-done {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  transition: none;
+}
+
+/* ---------- 2. Parallax ---------- */
+[data-parallax] { will-change: transform; }
+
+/* ---------- 3. Momentos: mosaico de fotos ---------- */
+.momentos {
+  background:
+    radial-gradient(760px 320px at 88% 0%, var(--rose-soft), transparent 62%),
+    var(--bg);
+  overflow: hidden;
+}
+
+.mosaico {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 154px;
+  gap: 14px;
+  /* "dense" rellena los huecos que dejan las piezas grandes */
+  grid-auto-flow: dense;
+}
+@media (max-width: 900px) { .mosaico { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 132px; } }
+@media (max-width: 480px) { .mosaico { grid-auto-rows: 112px; gap: 10px; } }
+
+.mo {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--brand-soft);
+  box-shadow: var(--shadow-sm);
+}
+.mo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 1.1s var(--ease-out-expo);
+}
+.mo:hover img { transform: scale(1.09); }
+
+/* Tamaños del mosaico: dos piezas grandes y el resto acompaña */
+.mo--alta   { grid-row: span 2; }
+.mo--ancha  { grid-column: span 2; }
+.mo--grande { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 900px) {
+  .mo--grande { grid-column: span 2; grid-row: span 2; }
+  .mo--ancha  { grid-column: span 2; }
+}
+
+/* Texto que aparece encima al pasar el mouse */
+.mo__cap {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 30px 14px 12px;
+  background: linear-gradient(to top, rgba(35, 46, 38, .82), transparent);
+  color: var(--white);
+  font-size: .82rem;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .4s ease, transform .5s var(--ease-out-expo);
+}
+.mo:hover .mo__cap,
+.mo:focus-within .mo__cap { opacity: 1; transform: translateY(0); }
+
+/* ---------- 4. Cinta de fotos que se desliza sola ---------- */
+.cinta {
+  position: relative;
+  padding: 30px 0 34px;
+  background: var(--brand);
+  overflow: hidden;
+}
+.cinta__t {
+  text-align: center;
+  color: rgba(255, 255, 255, .92);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  margin-bottom: 22px;
+  padding: 0 20px;
+}
+.cinta__pista {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: cintaCorre 46s linear infinite;
+}
+.cinta:hover .cinta__pista { animation-play-state: paused; }
+@keyframes cintaCorre {
+  /* La lista va duplicada, así que al llegar a la mitad vuelve a empezar
+     y el salto no se nota. */
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.cinta__foto {
+  width: 240px;
+  height: 165px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .22);
+}
+.cinta__foto img { width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 560px) { .cinta__foto { width: 172px; height: 122px; } }
+
+/* Difuminado en los bordes para que las fotos no aparezcan de golpe */
+.cinta::before,
+.cinta::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 90px;
+  z-index: 2;
+  pointer-events: none;
+}
+.cinta::before { left: 0;  background: linear-gradient(to right, var(--brand), transparent); }
+.cinta::after  { right: 0; background: linear-gradient(to left,  var(--brand), transparent); }
+
+/* ---------- Menos movimiento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .js-anima [data-anima] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .cinta__pista { animation: none; }
+  .mo:hover img { transform: none; }
+}

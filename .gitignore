@@ -19,3 +19,9 @@ node_modules/
 # Carpetas de trabajo local (PDFs de inventario, etc.) — no van en la web
 output/
 tmp/
+
+# Versión 2 (laboratorio local) — NO se sube a la web
+v2/
+
+# Fotos originales que manda la clienta (fuente, no van a la web)
+fotografias profesionales/

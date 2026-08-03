@@ -1,0 +1,247 @@
+/* =====================================================================
+   LISTA DE DESEOS + MESA DE REGALOS (versión 2, laboratorio)
+   ---------------------------------------------------------------------
+   Dos cosas que sí tienen las tiendas de bebé de Panamá (Azul y Rosa,
+   Poppy's, Carestino) y que aquí faltaban:
+     · Lista de deseos: guardar sillas para después.
+     · Mesa de regalos: la familia arma su lista y la comparte por
+       WhatsApp; quien regala coordina con la tienda por el mismo medio.
+   Todo vive en el navegador de la familia: no hace falta base de datos.
+   ===================================================================== */
+
+/* ---------- Corazón sobre cada tarjeta de producto ---------- */
+.favbtn {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 3;
+  width: 38px; height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  color: var(--muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform .25s var(--ease-out-expo), color .25s ease, background .25s ease;
+}
+.favbtn:hover { transform: scale(1.12); background: var(--white); }
+.favbtn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.favbtn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.9; }
+.favbtn.is-on { color: var(--accent-dark); }
+.favbtn.is-on svg { fill: var(--accent); stroke: var(--accent-dark); }
+.favbtn.is-on { animation: favPop .42s var(--ease-out-expo); }
+@keyframes favPop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.32); }
+  100% { transform: scale(1); }
+}
+
+/* ---------- Botón de la lista en el encabezado ---------- */
+.favtop { position: relative; }
+.favtop__count {
+  position: absolute;
+  top: -4px; right: -4px;
+  min-width: 19px; height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent-dark);
+  color: var(--white);
+  font-size: .68rem;
+  font-weight: 700;
+  line-height: 19px;
+  text-align: center;
+}
+.favtop__count[hidden] { display: none; }
+
+/* ---------- Panel lateral con la lista ---------- */
+.favpanel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(420px, 100%);
+  background: var(--bg);
+  box-shadow: -20px 0 60px rgba(20, 60, 60, .18);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .42s var(--ease-out-expo);
+}
+.favpanel.is-open { transform: translateX(0); }
+
+.favpanel__back {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 30, 24, .42);
+  z-index: 1199;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s ease, visibility .35s;
+}
+.favpanel__back.is-open { opacity: 1; visibility: visible; }
+
+.favpanel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.favpanel__head h3 { font-size: 1.15rem; }
+.favpanel__head p { font-size: .84rem; color: var(--muted); margin-top: 2px; }
+.favpanel__close {
+  border: 0; background: var(--bg-alt); color: var(--ink);
+  width: 36px; height: 36px; border-radius: 50%;
+  cursor: pointer; font-size: 1.1rem; line-height: 1;
+  flex: 0 0 auto;
+}
+.favpanel__close:hover { background: var(--brand-soft); }
+
+.favpanel__list { flex: 1; overflow-y: auto; padding: 16px 22px; display: grid; gap: 12px; align-content: start; }
+
+.favitem {
+  display: grid;
+  grid-template-columns: 62px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-warm);
+}
+.favitem__img {
+  width: 62px; height: 62px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--brand-soft);
+  display: grid; place-items: center;
+}
+.favitem__img img { width: 100%; height: 100%; object-fit: cover; }
+.favitem__t { font-size: .9rem; font-weight: 600; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
+.favitem__p { display: block; font-weight: 400; font-size: .84rem; color: var(--muted); margin-top: 2px; }
+.favitem__del {
+  border: 0; background: none; color: var(--muted);
+  cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 4px 6px;
+}
+.favitem__del:hover { color: var(--accent-dark); }
+
+.favpanel__empty { text-align: center; color: var(--muted); padding: 40px 10px; font-size: .93rem; }
+.favpanel__empty strong { display: block; color: var(--ink); margin-bottom: 6px; font-size: 1rem; }
+
+.favpanel__foot { border-top: 1px solid var(--line); padding: 16px 22px; display: grid; gap: 10px; }
+
+/* ---------- Mesa de regalos ---------- */
+.mesa { background: var(--bg-alt); min-height: 60vh; }
+
+.mesa__grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 26px; align-items: start; }
+@media (max-width: 900px) { .mesa__grid { grid-template-columns: 1fr; } }
+
+.mesa__card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.mesa__card h3 { font-size: 1.2rem; margin-bottom: 4px; }
+.mesa__card > p { color: var(--muted); font-size: .92rem; margin-bottom: 16px; }
+
+.mesa__form { display: grid; gap: 12px; }
+.mesa__form label { display: grid; gap: 5px; font-size: .8rem; font-weight: 600; color: var(--muted); }
+.mesa__form input,
+.mesa__form textarea {
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-warm);
+  font: inherit; font-size: .95rem; color: var(--ink);
+  width: 100%;
+}
+.mesa__form textarea { resize: vertical; min-height: 74px; }
+.mesa__form input:focus-visible,
+.mesa__form textarea:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--sage); }
+
+/* Enlace generado para compartir */
+.mesa__link {
+  display: none;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--brand-soft);
+  border: 1px solid var(--sage);
+}
+.mesa__link.is-on { display: block; }
+.mesa__link strong { display: block; font-size: .95rem; margin-bottom: 8px; color: var(--brand); }
+.mesa__url {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  font-size: .82rem;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.mesa__link .btn { width: 100%; }
+
+/* Lista de regalos elegidos */
+.mesa__items { display: grid; gap: 10px; }
+.mesa__empty { color: var(--muted); font-size: .93rem; padding: 26px 0; text-align: center; }
+
+/* ---------- Vista de quien recibe el enlace ---------- */
+.mesaview__hero {
+  text-align: center;
+  padding: 8px 0 26px;
+}
+.mesaview__baby {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: var(--brand);
+  margin: 6px 0 8px;
+}
+.mesaview__msg {
+  max-width: 60ch;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 1rem;
+  font-style: italic;
+}
+.mesaview__fecha {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: var(--rose-soft);
+  color: var(--accent-dark);
+  font-size: .85rem;
+  font-weight: 600;
+}
+
+.mesaview__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.gift {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform .3s var(--ease-out-expo), box-shadow .3s ease;
+}
+.gift:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.gift__img { aspect-ratio: 4/3; background: var(--brand-soft); }
+.gift__img img { width: 100%; height: 100%; object-fit: cover; }
+.gift__body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.gift__t { font-size: .95rem; font-weight: 600; line-height: 1.3; }
+.gift__p { font-size: .9rem; color: var(--muted); }
+.gift__body .btn { margin-top: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .favbtn.is-on { animation: none; }
+  .favpanel { transition: none; }
+  .gift:hover { transform: none; }
+}

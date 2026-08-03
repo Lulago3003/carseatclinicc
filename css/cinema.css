@@ -1,0 +1,600 @@
+/* =====================================================================
+   CINE — "El viaje" (versión 2, laboratorio)
+   ---------------------------------------------------------------------
+   Una pieza tipo video de ~20 segundos hecha 100% con HTML/CSS/JS:
+   fotos reales de familias, texto por etapa y una carretera interactiva
+   con un carrito que hace de barra de progreso.
+   No usa archivos de video, así que carga al instante y nunca se traba.
+   ===================================================================== */
+
+.cinema {
+  padding: 26px 0 6px;
+  background:
+    radial-gradient(900px 380px at 12% -10%, var(--rose-soft), transparent 60%),
+    var(--bg);
+}
+
+/* ---------- Marco del "cine" ---------- */
+.cine {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  aspect-ratio: 16 / 8.4;
+  /* Nunca más alto que la pantalla: así la carretera y las paradas
+     siempre se ven sin tener que bajar. */
+  max-height: max(340px, min(560px, calc(100dvh - 210px)));
+  background: var(--brand-dark);
+  box-shadow: var(--shadow-lg);
+  isolation: isolate;
+  user-select: none;
+}
+
+@media (max-width: 860px) { .cine { aspect-ratio: 4 / 4.4; max-height: calc(100dvh - 190px); } }
+@media (max-width: 520px) { .cine { aspect-ratio: 4 / 5.2; border-radius: var(--radius); } }
+
+/* ---------- Fotos con movimiento suave (Ken Burns) ---------- */
+.cine__stage { position: absolute; inset: 0; }
+
+.cine__shot {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  /* Además del fundido, la foto que entra se asienta con un respiro:
+     se nota más "de cine" que un simple cambio de opacidad. */
+  transform: scale(1.035);
+  transition: opacity .95s var(--ease-out-quart),
+              transform 1.35s var(--ease-out-expo);
+  will-change: opacity, transform;
+}
+.cine__shot.is-active { opacity: 1; transform: scale(1); }
+
+/* Destello suave que barre la imagen justo al cambiar de escena */
+.cine__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .16) 50%, transparent 62%);
+}
+.cine.is-entering .cine__stage::after { animation: cineDestello 1.15s var(--ease-out-quart); }
+@keyframes cineDestello {
+  from { opacity: .9; transform: translateX(-38%); }
+  to   { opacity: 0;  transform: translateX(38%); }
+}
+
+.cine__shot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.05);
+}
+
+/* El zoom lento solo corre en la escena visible; alterna la dirección
+   para que dos fotos seguidas no se sientan iguales. */
+.cine__shot.is-active img { animation: cineZoomA 5.6s linear forwards; }
+.cine__shot:nth-child(even).is-active img { animation-name: cineZoomB; }
+
+@keyframes cineZoomA {
+  from { transform: scale(1.04) translate3d(0, 0, 0); }
+  to   { transform: scale(1.17) translate3d(-1.8%, -1.6%, 0); }
+}
+@keyframes cineZoomB {
+  from { transform: scale(1.16) translate3d(1.6%, 1.2%, 0); }
+  to   { transform: scale(1.03) translate3d(0, 0, 0); }
+}
+
+/* ---------- Velo de marca (para que el texto siempre se lea) ---------- */
+.cine__veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to top,
+      rgba(35, 46, 38, .92) 0%,
+      rgba(35, 46, 38, .58) 34%,
+      rgba(35, 46, 38, .10) 66%,
+      rgba(35, 46, 38, .22) 100%),
+    linear-gradient(to right, rgba(35, 46, 38, .55), rgba(35, 46, 38, 0) 58%);
+}
+
+/* Viñeta: oscurece apenas las esquinas para que la mirada caiga en el centro. */
+.cine__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 78% at 50% 42%, transparent 52%, rgba(20, 28, 22, .42) 100%);
+}
+
+/* Luces cálidas flotando: da sensación de hogar, no de catálogo. */
+.cine__bokeh { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.cine__bokeh span {
+  position: absolute;
+  bottom: -14%;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 32%, rgba(255, 244, 232, .95), rgba(216, 167, 167, .35) 60%, transparent 72%);
+  filter: blur(.4px);
+  opacity: 0;
+  animation: cineFloat 13s linear infinite;
+}
+.cine__bokeh span:nth-child(1) { left: 12%; animation-delay: 0s;   transform: scale(.7); }
+.cine__bokeh span:nth-child(2) { left: 27%; animation-delay: 2.4s; transform: scale(1.15); }
+.cine__bokeh span:nth-child(3) { left: 44%; animation-delay: 5.1s; transform: scale(.85); }
+.cine__bokeh span:nth-child(4) { left: 63%; animation-delay: 1.3s; transform: scale(1.3); }
+.cine__bokeh span:nth-child(5) { left: 78%; animation-delay: 7.2s; transform: scale(.95); }
+.cine__bokeh span:nth-child(6) { left: 90%; animation-delay: 3.8s; transform: scale(.75); }
+
+@keyframes cineFloat {
+  0%   { opacity: 0;   transform: translate3d(0, 0, 0) scale(.8); }
+  12%  { opacity: .55; }
+  70%  { opacity: .38; }
+  100% { opacity: 0;   transform: translate3d(26px, -420px, 0) scale(1.25); }
+}
+
+/* ---------- Etiqueta superior ---------- */
+.cine__badge {
+  position: absolute;
+  top: 16px; left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .93);
+  color: var(--brand);
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-sm);
+  z-index: 3;
+}
+.cine__badge img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
+
+/* Punto que late mientras el "video" corre */
+.cine__live {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent-dark);
+  animation: cinePulse 1.6s ease-in-out infinite;
+}
+.cine.is-paused .cine__live { animation: none; opacity: .35; }
+@keyframes cinePulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%      { transform: scale(1.5); opacity: .45; }
+}
+
+/* ---------- Texto de cada escena ---------- */
+.cine__caption {
+  position: absolute;
+  left: clamp(18px, 4vw, 44px);
+  right: clamp(18px, 4vw, 44px);
+  bottom: clamp(74px, 11vh, 104px);
+  z-index: 3;
+  color: var(--white);
+  max-width: 620px;
+  pointer-events: none;
+}
+
+/* IMPORTANTE: el estado normal del texto es VISIBLE. La animación solo lo
+   trae desde abajo usando fill "both" (durante el retraso aún se ve oculto).
+   Si por lo que sea las animaciones no corren, el texto igual se lee: nunca
+   queremos un video bonito y sin mensaje. */
+.cine__kicker,
+.cine__line {
+  opacity: 1;
+  transform: none;
+}
+/* La clase se quita y se vuelve a poner en cada cambio de escena,
+   así el texto entra de nuevo con su pequeño retraso escalonado. */
+.cine.is-entering .cine__kicker { animation: cineIn .7s var(--ease-out-expo) .05s both; }
+.cine.is-entering .cine__line   { animation: cineIn .8s var(--ease-out-expo) .34s both; }
+
+@keyframes cineIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* El título entra palabra por palabra: se siente hecho a mano, no automático.
+   El retraso de cada palabra lo pone el JS al armar la escena. */
+.cine__word {
+  display: inline-block;
+  opacity: 1;
+  transform: none;
+}
+.cine.is-entering .cine__word { animation: cineWord .78s var(--ease-out-expo) both; }
+@keyframes cineWord {
+  from { opacity: 0; transform: translateY(24px) rotate(2deg); }
+  to   { opacity: 1; transform: translateY(0) rotate(0); }
+}
+
+.cine__kicker {
+  display: inline-block;
+  font-size: .76rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #e9d3d3;
+  margin-bottom: 10px;
+}
+.cine__title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.7rem, 4.4vw, 3.1rem);
+  line-height: 1.08;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, .3);
+}
+.cine__line {
+  font-size: clamp(.95rem, 1.5vw, 1.1rem);
+  color: rgba(255, 255, 255, .9);
+  max-width: 46ch;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, .35);
+}
+
+/* Botón de WhatsApp: solo aparece en la escena final */
+.cine__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border-radius: 999px;
+  background: var(--whatsapp);
+  color: #06331b;
+  font-weight: 600;
+  font-size: .95rem;
+  white-space: nowrap;
+  pointer-events: auto;
+  /* Mientras no es su escena queda plegado y SIN ocupar espacio: si solo se
+     escondiera con visibility, dejaría un hueco que empuja el texto. */
+  max-height: 0;
+  margin-top: 0;
+  padding: 0 22px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: max-height .45s var(--ease-out-expo), margin-top .45s ease,
+              padding .45s ease, opacity .45s ease,
+              transform .5s var(--ease-out-expo), filter .2s ease;
+}
+.cine[data-scene="4"] .cine__cta {
+  max-height: 52px;
+  margin-top: 18px;
+  padding: 12px 22px;
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: .38s;
+}
+.cine__cta:hover { filter: brightness(1.06); }
+
+/* ---------- Carretera = barra de progreso interactiva ---------- */
+.cine__road {
+  position: absolute;
+  left: clamp(18px, 4vw, 44px);
+  right: clamp(18px, 4vw, 44px);
+  bottom: clamp(22px, 3.4vh, 32px);
+  height: 34px;
+  z-index: 4;
+}
+
+.cine__lane {
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .22);
+  overflow: hidden;
+}
+/* Rayas de la carretera que se mueven mientras "avanza" */
+.cine__lane::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to right,
+    rgba(255, 255, 255, .85) 0 14px,
+    transparent 14px 30px);
+  opacity: .55;
+  animation: cineLane 1.1s linear infinite;
+}
+.cine.is-paused .cine__lane::after { animation-play-state: paused; }
+@keyframes cineLane {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-30px); }
+}
+
+/* Tramo ya recorrido */
+.cine__done {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 999px;
+  background: var(--grad-principal);
+  width: 0;
+}
+
+/* Paradas (una por etapa) */
+.cine__stops {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cine__stop {
+  width: 26px; height: 26px;
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .3);
+  color: var(--brand-dark);
+  font: 600 .72rem/1 "Poppins", sans-serif;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background .25s ease, transform .25s var(--ease-out-expo);
+  backdrop-filter: blur(4px);
+}
+.cine__stop:hover { background: rgba(255, 255, 255, .75); transform: scale(1.12); }
+.cine__stop.is-done { background: rgba(255, 255, 255, .8); }
+.cine__stop.is-current {
+  background: var(--white);
+  transform: scale(1.2);
+  box-shadow: 0 0 0 5px rgba(216, 167, 167, .35);
+}
+.cine__stop:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+
+/* Nombre de la etapa al pasar el mouse por la parada */
+.cine__stop::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translate(-50%, 6px);
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .96);
+  color: var(--brand);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+  text-transform: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s var(--ease-out-expo);
+}
+.cine__stop { position: relative; }
+.cine__stop:hover::after,
+.cine__stop:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
+
+/* El carrito que recorre la carretera */
+.cine__car {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 58px;
+  margin-top: -27px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35));
+  /* Sin transition: la posición ya se actualiza en cada frame desde el JS.
+     Con transition el carrito quedaba siempre atrasado frente a la barra. */
+}
+.cine__car svg { width: 100%; height: auto; display: block; }
+/* Botecito de suspensión mientras rueda */
+.cine__car-body { animation: cineBounce .55s ease-in-out infinite; transform-origin: 50% 100%; }
+.cine.is-paused .cine__car-body { animation-play-state: paused; }
+@keyframes cineBounce {
+  0%, 100% { transform: translateY(0)     rotate(0deg); }
+  50%      { transform: translateY(-1.4px) rotate(-.5deg); }
+}
+
+/* ---------- Control de play / pausa ---------- */
+.cine__play {
+  position: absolute;
+  top: 14px; right: 14px;
+  z-index: 5;
+  width: 44px; height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .9);
+  color: var(--brand);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s var(--ease-out-expo), background .2s ease;
+}
+.cine__play:hover { transform: scale(1.08); background: var(--white); }
+.cine__play:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+.cine__play .i-pause { display: block; }
+.cine__play .i-play  { display: none; }
+.cine.is-paused .cine__play .i-pause { display: none; }
+.cine.is-paused .cine__play .i-play  { display: block; }
+
+/* Anillo de progreso de la escena actual, alrededor del botón */
+.cine__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+.cine__ring circle { fill: none; stroke-width: 2.6; }
+.cine__ring-bg { stroke: rgba(47, 62, 52, .16); }
+.cine__ring-fg {
+  stroke: var(--brand-vivo);
+  stroke-linecap: round;
+  /* 2 · π · 21 ≈ 131.95 — el JS mueve el offset para dibujar el avance */
+  stroke-dasharray: 131.95;
+  stroke-dashoffset: 131.95;
+}
+
+/* Pista de uso: aparece al inicio y se va sola */
+.cine__hint {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: rgba(35, 46, 38, .55);
+  backdrop-filter: blur(6px);
+  color: rgba(255, 255, 255, .95);
+  font-size: .76rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  /* Al revés que el texto: la pista es decorativa, así que si las
+     animaciones no corren se queda escondida en vez de estorbar. */
+  opacity: 0;
+  animation: cineHint 6.5s ease forwards;
+}
+@keyframes cineHint {
+  0%   { opacity: 0; transform: translate(-50%, -8px); }
+  12%  { opacity: 1; transform: translate(-50%, 0); }
+  72%  { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -8px); }
+}
+.cine.is-touched .cine__hint { animation: none; opacity: 0; }
+@media (max-width: 520px) { .cine__hint { font-size: .7rem; padding: 6px 12px; } }
+
+/* ---------- Las 4 etapas debajo del cine ---------- */
+.cinestages {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+@media (max-width: 860px) { .cinestages { grid-template-columns: repeat(2, 1fr); } }
+
+/* En celular no se apilan cuatro tarjetas: se convierten en una fila que se
+   desliza con el dedo, así ocupan poco y se sienten naturales al tocar. */
+@media (max-width: 620px) {
+  .cinestages {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .cinestages::-webkit-scrollbar { display: none; }
+  .cinestage { flex: 0 0 76%; scroll-snap-align: start; }
+}
+
+.cinestage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-warm);
+  transition: border-color .3s ease, background .3s ease,
+              transform .3s var(--ease-out-expo), box-shadow .3s ease;
+}
+.cinestage:hover { transform: translateY(-3px); box-shadow: var(--shadow-sm); border-color: var(--sage); }
+
+.cinestage__n {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: .82rem;
+  font-weight: 700;
+  transition: background .3s ease, color .3s ease, transform .3s var(--ease-out-expo);
+}
+.cinestage__t {
+  /* min-width:0 es lo que permite que el texto se acomode dentro de la
+     tarjeta en vez de desbordarse y quedar cortado. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.cinestage__t small {
+  display: block;
+  font-size: .76rem;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* La etapa que va sonando en el video se ilumina sola */
+.cinestage.is-live {
+  border-color: var(--accent);
+  background: var(--rose-soft);
+  box-shadow: 0 0 0 3px rgba(216, 167, 167, .22);
+}
+.cinestage.is-live .cinestage__n {
+  background: var(--brand);
+  color: var(--white);
+  transform: scale(1.08);
+}
+
+/* ---------- Texto de apoyo debajo del cine ---------- */
+.cinelede {
+  display: grid;
+  grid-template-columns: 1.25fr .95fr;
+  gap: 30px;
+  align-items: center;
+  padding: 30px 0 8px;
+}
+@media (max-width: 860px) {
+  .cinelede { grid-template-columns: 1fr; gap: 20px; padding-top: 24px; }
+}
+.cinelede h1 {
+  font-size: clamp(1.6rem, 3.4vw, 2.5rem);
+  margin-bottom: 12px;
+}
+.cinelede p { color: var(--muted); margin-bottom: 18px; }
+.cinelede__cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.cinelede__trust {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.cinelede__trust li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-warm);
+  font-size: .92rem;
+  color: var(--muted);
+}
+.cinelede__trust strong { display: block; color: var(--ink); font-size: .98rem; }
+.cinelede__trust svg { flex: 0 0 auto; color: var(--sage); margin-top: 2px; }
+
+/* ---------- Respeta a quien prefiere menos movimiento ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .cine__shot.is-active img,
+  .cine__bokeh span,
+  .cine__lane::after,
+  .cine__car-body,
+  .cine__hint,
+  .cine__live { animation: none !important; }
+  .cine__shot { transition: none; }
+  .cine__hint { opacity: 1; }
+  .cine__kicker, .cine__title, .cine__line, .cine__word { opacity: 1; transform: none; }
+  .cine.is-entering .cine__kicker,
+  .cine.is-entering .cine__line,
+  .cine.is-entering .cine__word { animation: none; }
+}

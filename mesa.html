@@ -4,18 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="light" />
-  <title>Tienda | Car Seat Clinic Panamá</title>
-  <meta name="description" content="Sillas de carro para bebé, bases ISOFIX, boosters y accesorios en Panamá. Agrega al carrito y te confirmamos precio y disponibilidad por WhatsApp." />
-  <meta property="og:title" content="Tienda | Car Seat Clinic" />
-  <meta property="og:description" content="Sillas de carro, boosters y accesorios con asesoría antes de comprar." />
+  <title>Mesa de regalos | Car Seat Clinic Center</title>
+  <meta name="description" content="Arma la mesa de regalos de tu bebé con sillas y equipos seguros, y compártela con tu familia." />
+  <meta property="og:title" content="Mesa de regalos | Car Seat Clinic Center" />
+  <meta property="og:description" content="Consejos de seguridad infantil y guías para que tu familia viaje tranquila." />
   <meta property="og:image" content="https://carseatclinic.com.pa/assets/og/compartir.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:url" content="https://carseatclinic.com.pa/tienda.html" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="es_PA" />
   <meta name="theme-color" content="#2f3e34" />
-  <link rel="canonical" href="https://carseatclinic.com.pa/tienda.html" />
+  <link rel="canonical" href="https://carseatclinic.com.pa/mesa.html" />
 
   <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,8 +24,6 @@
   <link rel="stylesheet" href="css/competencia.css?v=v2-lab1" />
 </head>
 <body>
-  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
-
   <!-- ===================== ENCABEZADO ===================== -->
   <header class="header" id="header">
     <div class="container header__inner">
@@ -76,86 +73,61 @@
     </div>
   </header>
 
-  <!-- ===================== PORTADA DE LA TIENDA ===================== -->
-  <section class="pagehead" data-whatsapp-label="Asesoría de compra" data-whatsapp-message="Hola Car Seat Clinic, estoy viendo la tienda y quiero asesoría para elegir una silla.">
+  <!-- ===================== MESA DE REGALOS ===================== -->
+  <section class="section mesa" id="mesa" data-whatsapp-label="Mesa de regalos" data-whatsapp-message="Hola Car Seat Clinic, quiero ayuda con la mesa de regalos de mi bebé.">
     <div class="container">
-      <nav class="crumb" aria-label="Ruta de navegación">
-        <a href="index.html">Inicio</a> <span>›</span> <span>Tienda</span>
-      </nav>
-      <div class="pagehead__inner">
-        <div class="pagehead__text">
-          <span class="eyebrow">Tienda</span>
-          <h1>Sillas, boosters y accesorios.</h1>
-          <p>Agrega al carrito lo que te interese. Antes de cobrarte confirmamos precio, disponibilidad y que la silla sea compatible con tu auto y la etapa de tu hijo.</p>
-          <div class="pagehead__cta">
-            <a href="index.html#encuentra" class="btn btn--primary">No sé cuál elegir</a>
-            <a href="alquiler.html" class="btn btn--ghost">Prefiero alquilar</a>
-          </div>
-        </div>
-        <ul class="pagehead__points">
-          <li><strong>Asesoría antes de comprar</strong><span>Te decimos si ese modelo sirve para tu caso.</span></li>
-          <li><strong>Envío a todo Panamá</strong><span>Coordinamos entrega o retiro en tienda.</span></li>
-          <li><strong>Instalación opcional</strong><span>Te la dejamos puesta y te enseñamos a usarla.</span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
 
-  <!-- ===================== CATÁLOGO ===================== -->
-  <section class="section" id="productos" data-whatsapp-label="Cotizar producto" data-whatsapp-message="Hola Car Seat Clinic, estoy viendo productos y quiero cotizar una silla.">
-    <div class="container">
-      <div class="shop">
-        <aside class="shop__filters" id="shopFilters">
-          <button class="shop__filtersToggle" id="filtersToggle" type="button">Filtros</button>
-          <div class="shop__filtersBody" id="filtersBody">
-            <div class="fgroup"><h4>Tipo de producto</h4><ul class="flist" id="fTypes"></ul></div>
-            <div class="fgroup"><h4>Marca</h4><ul class="flist" id="fBrands"></ul></div>
-            <div class="fgroup"><h4>Precio</h4><ul class="flist" id="fPrices"></ul></div>
-            <div class="fgroup fgroup--help">
-              <h4>¿Necesitas ayuda?</h4>
-              <p>Te decimos qué silla le toca a tu hijo según edad, peso y tu auto.</p>
-              <a href="index.html#encuentra" class="btn btn--ghost btn--block">Hacer el test</a>
+      <!-- Vista de quien recibe el enlace (se llena desde el JS) -->
+      <div id="mesaView" hidden></div>
+
+      <!-- Armador de la mesa -->
+      <div id="mesaBuild">
+        <nav class="crumb" aria-label="Ruta de navegación">
+          <a href="index.html#inicio">Inicio</a> <span>&rsaquo;</span> <span>Mesa de regalos</span>
+        </nav>
+
+        <div class="section__head section__head--left">
+          <span class="eyebrow">Para tu baby shower</span>
+          <h1>La mesa de regalos de tu bebé</h1>
+          <p>Elige en la tienda lo que te gustaría recibir, arma tu lista y compártela con tu familia por WhatsApp. Quien quiera regalarte coordina directo con nosotros, y tú te olvidas de los regalos repetidos.</p>
+        </div>
+
+        <div class="mesa__grid">
+          <div class="mesa__card">
+            <h3>Datos de tu mesa</h3>
+            <p>Solo esto. No pedimos correo ni contraseña.</p>
+            <form class="mesa__form" id="mesaForm">
+              <label>Nombre del bebé o de la familia
+                <input type="text" id="mesaBebe" placeholder="Ej. Emilia · Familia Lasso" maxlength="40" required />
+              </label>
+              <label>Fecha del baby shower o de nacimiento
+                <input type="date" id="mesaFecha" />
+              </label>
+              <label>Un mensaje para quien te regale (opcional)
+                <textarea id="mesaMensaje" maxlength="220" placeholder="Gracias por acompañarnos en esta etapa…"></textarea>
+              </label>
+              <button class="btn btn--primary" type="submit">Crear el enlace para compartir</button>
+            </form>
+
+            <div class="mesa__link" id="mesaLink">
+              <strong>¡Lista! Este es el enlace de tu mesa:</strong>
+              <input class="mesa__url" id="mesaUrl" readonly />
+              <button class="btn btn--ghost" type="button" id="mesaCopiar">Copiar el enlace</button>
+              <a class="btn btn--whatsapp" id="mesaShare" target="_blank" rel="noopener">Compartir por WhatsApp</a>
             </div>
           </div>
-        </aside>
-        <div class="shop__main">
-          <div class="shop__bar">
-            <input type="search" id="shopSearch" class="shop__search" placeholder="Buscar silla, marca o etapa…" aria-label="Buscar productos" />
-            <span class="shop__count" id="shopCount"></span>
-            <label class="shop__sortwrap">Ordenar:
-              <select id="sortSelect" class="shop__sort">
-                <option value="destacados">Destacados</option>
-                <option value="precio-asc">Precio: menor a mayor</option>
-                <option value="precio-desc">Precio: mayor a menor</option>
-                <option value="nombre">Nombre (A–Z)</option>
-              </select>
-            </label>
+
+          <div class="mesa__card">
+            <h3>Lo que pediste</h3>
+            <p>Son los productos que guardaste con el corazón en la tienda.</p>
+            <div class="mesa__items" id="mesaItems"></div>
+            <a class="btn btn--ghost" href="tienda.html" style="margin-top:16px">Agregar más desde la tienda</a>
           </div>
-          <div class="shop__notice">
-            <strong>Los precios se confirman por WhatsApp.</strong>
-            <span>Agrega al carrito lo que te guste y te enviamos la cotización con disponibilidad al momento.</span>
-          </div>
-          <div class="grid" id="productGrid"><!-- productos generados por JS --></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===================== AYUDA FINAL ===================== -->
-  <section class="section section--alt" data-whatsapp-label="Hablar con un asesor" data-whatsapp-message="Hola Car Seat Clinic, quiero que me ayuden a elegir la silla correcta.">
-    <div class="container helpstrip">
-      <div class="helpstrip__text">
-        <h2>¿Dudas entre dos modelos?</h2>
-        <p>Escríbenos con la edad, el peso y el auto. Te decimos cuál conviene y por qué, sin venderte de más.</p>
-      </div>
-      <div class="helpstrip__actions">
-        <a class="btn btn--whatsapp" data-wa="Hola Car Seat Clinic, dudo entre dos sillas y quiero su recomendación.">Hablar con un asesor</a>
-        <a class="btn btn--ghost" href="faq.html">Ver preguntas frecuentes</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== PIE DE PÁGINA ===================== -->
   <footer class="footer">
     <div class="brandstrip">
       <div class="container">

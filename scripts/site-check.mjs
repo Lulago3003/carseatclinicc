@@ -15,7 +15,7 @@ import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PAGES = ["index.html", "tienda.html", "alquiler.html", "servicios.html", "faq.html", "terminos.html", "privacidad.html", "admin.html"];
-const MENU = ["Inicio", "Tienda", "Alquiler", "Servicios", "Preguntas", "Contacto"];
+const MENU = ["Inicio", "Tienda", "Alquiler", "Servicios", "Blog", "Preguntas", "Contacto"];
 const SCRIPTS = ["js/data.js", "js/supabase.js", "js/chat-assistant.js", "js/shell.js", "js/store.js", "js/chat-widget.js"];
 
 const problemas = [];
