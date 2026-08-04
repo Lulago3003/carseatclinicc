@@ -44,7 +44,10 @@
   --ease-out-expo: cubic-bezier(.16, 1, .3, 1);
   /* Alto del encabezado. El menú móvil se posiciona debajo usando esta misma
      medida, así que cambiarla aquí mantiene todo alineado. */
-  --header-h: 104px;
+  /* Alto del encabezado: lo manda el logo, que va grande a pedido de la
+     clienta. Si cambias el tamaño del logo, cambia también esto o el logo
+     queda pegado a los bordes. */
+  --header-h: 136px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1935,19 +1938,60 @@ body.nav-open { overflow: hidden; }
 }
 .header.is-stuck { border-bottom-color: var(--line); box-shadow: 0 6px 22px rgba(47,62,52,.07); }
 .header__inner { height: var(--header-h); gap: 14px; }
-/* Logo protagonista (lo pidió la clienta: "que destaque en la principal").
-   El encabezado creció a 104px para darle cabida, así que 88px lo deja bien
-   visible con aire. Verificado hasta en 320px: no choca con el menú ni
-   corta el nombre. */
-/* En celular 88px se come el ancho y el nombre queda tapado por los
-     botones de cuenta y carrito. Ahí baja a 66px, que sigue siendo
-     grande pero deja leer "Car Seat Clinic". */
-  .brand__logo { width: 66px; height: 66px; }
-.brand__text strong { font-size: 1.04rem; letter-spacing: .01em; }
+/* Con el logo grande el ancho quedó justo y el flex empezó a comprimir el
+   menú: "Preguntas", "Contacto" e "Ingresar" salían cortados por unos
+   pocos píxeles. El menú y los botones no se encogen; si falta espacio,
+   el que cede es el nombre de al lado del logo (que además está escrito
+   dentro del logo). */
+.nav, .header__actions { flex-shrink: 0; }
+.nav a, .header__actions .btn { white-space: nowrap; }
+/* El logo nunca se deforma: sin esto el flex lo apretaba de ancho pero le
+   dejaba el alto, y quedaba el círculo aplastado (75x112). Si falta
+   espacio, el que cede es el nombre de al lado. */
+.brand__logo { flex-shrink: 0; max-width: none; }
+.brand__text { min-width: 0; overflow: hidden; }
+/* Logo protagonista: la clienta lo pidió lo más grande posible.
+   El archivo es de 1080x1080, así que aguanta este tamaño sin verse
+   borroso. El encabezado crece con él (--header-h) para que no quede
+   apretado contra los bordes. */
+.brand__logo { width: 112px; height: 112px; }
+.brand__text strong { font-size: 1.14rem; letter-spacing: .01em; }
 /* Con el logo a 56px el nombre cabía en una línea (112px de 118 libres) pero
    se partía en dos por el encogido del flex. Desde 375px se fuerza una sola
    línea; en pantallas más angostas se deja partir para que no choque. */
 @media (min-width: 375px) { .brand__text strong { white-space: nowrap; } }
+
+/* En celular el ancho no alcanza para el logo grande Y el nombre escrito al
+   lado: los botones de cuenta y carrito los empujan. Como el logo ya trae
+   "Car Seat Clinic" dibujado adentro, en celular dejamos solo el logo y el
+   nombre pasa a visually-hidden: se sigue viendo (dentro del logo) y los
+   lectores de pantalla lo siguen leyendo, pero libera todo el ancho para
+   que el logo sea lo que manda. */
+/* Tamaños del logo según lo que quepa al lado:
+   - Hasta 1000px el menú es hamburguesa, así que sobra ancho y el logo
+     puede ir bien grande.
+   - Entre 1001 y 1199px el menú completo está desplegado y compite por el
+     espacio; ahí el logo baja o se comen las palabras del menú.
+   - Desde 1200px cabe todo y el logo va al máximo. */
+@media (max-width: 1199px) {
+  :root { --header-h: 112px; }
+  .brand__logo { width: 88px; height: 88px; }
+}
+@media (max-width: 1000px) {
+  :root { --header-h: 128px; }
+  .brand__logo { width: 104px; height: 104px; }
+}
+/* En celular el ancho no alcanza para el logo grande Y el nombre escrito al
+   lado: los botones de cuenta y carrito los empujan. Como el logo ya trae
+   "Car Seat Clinic" dibujado adentro, en celular dejamos solo el logo y el
+   nombre pasa a oculto-accesible: se sigue viendo (dentro del logo) y los
+   lectores de pantalla lo siguen leyendo, pero libera todo el ancho. */
+@media (max-width: 640px) {
+  :root { --header-h: 120px; }
+  .brand__text { position: absolute; width: 1px; height: 1px; overflow: hidden;
+                 clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+  .brand__logo { width: 96px; height: 96px; }
+}
 .brand__text small { font-size: .64rem; letter-spacing: .1em; color: var(--sage); }
 
 .nav { gap: 4px; align-items: center; }
