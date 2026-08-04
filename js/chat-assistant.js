@@ -178,7 +178,7 @@
       confidence: 0.9,
       action: "whatsapp",
       capture: { service: "Cotizacion", priority: "media" },
-      answer: "Para precios prefiero no inventarte nada. Agrega el producto que te interesa al carrito de la tienda y te confirmamos precio, disponibilidad y si necesitas instalación, todo por WhatsApp antes de cobrarte nada.",
+      answer: "Agrega el producto que te interesa al carrito de la tienda y te confirmamos precio, disponibilidad y si necesitas instalación, todo por WhatsApp antes de cobrarte nada.",
     });
   }
 

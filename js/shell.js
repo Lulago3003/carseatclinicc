@@ -28,6 +28,24 @@
   const pageHeader = document.querySelector("header");
   if (pageHeader) pageHeader.insertAdjacentElement("afterend", instagramNotice);
 
+  // Barra de marca: es lo que se ve normalmente debajo del menú. Si la
+  // administradora destaca una publicación de Instagram desde el CRM,
+  // aquella pasa al frente y esta se esconde sola (lo maneja store.js).
+  const brandBar = document.createElement("section");
+  brandBar.id = "brandBar";
+  brandBar.className = "brandbar";
+  brandBar.innerHTML = `
+    <div class="container brandbar__inner">
+      <div class="brandbar__txt">
+        <strong>Primer Centro Especializado en Seguridad Infantil Vehicular en Panam\u00e1</strong>
+        <span>Instalaci\u00f3n &middot; Limpieza &middot; Venta &middot; Alquiler &middot; Asesor\u00eda CPST certificada</span>
+      </div>
+      <a class="brandbar__cta" href="index.html#citas">Agenda tu cita</a>
+    </div>`;
+  // Va antes del aviso de Instagram: el mensaje de marca se ve siempre,
+  // y si hay una publicación destacada, esa aparece debajo.
+  if (pageHeader) pageHeader.insertAdjacentElement("afterend", brandBar);
+
   const shell = document.createElement("div");
   shell.id = "cscShell";
   shell.innerHTML = `

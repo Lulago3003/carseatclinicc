@@ -44,7 +44,7 @@
   --ease-out-expo: cubic-bezier(.16, 1, .3, 1);
   /* Alto del encabezado. El menú móvil se posiciona debajo usando esta misma
      medida, así que cambiarla aquí mantiene todo alineado. */
-  --header-h: 94px;
+  --header-h: 104px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1586,8 +1586,12 @@ body.admin [hidden] { display: none !important; }
 
 /* ---------- Asistente / chat ---------- */
 .chat { position: fixed; left: 20px; bottom: 20px; z-index: 86; }
-.chat__launch { display: inline-flex; align-items: center; gap: 8px; background: var(--brand); color: #fff; border: none; border-radius: 999px; padding: 12px 18px; font-weight: 700; font-family: inherit; cursor: pointer; box-shadow: var(--shadow-lg); transition: transform .2s var(--ease-out-quint), background .2s ease, box-shadow .2s ease; }
-.chat__launch:hover { background: var(--brand-dark); transform: translateY(-2px); box-shadow: 0 18px 42px rgba(47,62,52,.24); }
+/* Más grande y con el verde vivo de la marca: en verde oscuro se perdía
+   contra el fondo de la página. El texto va oscuro porque sobre este
+   verde el blanco no se lee bien (2.71 de contraste). */
+.chat__launch { display: inline-flex; align-items: center; gap: 10px; background: var(--brand-vivo); color: #10352a; border: 2px solid #fff; border-radius: 999px; padding: 15px 24px; font-size: 1.02rem; font-weight: 700; font-family: inherit; cursor: pointer; box-shadow: 0 14px 34px rgba(56,176,141,.42); transition: transform .2s var(--ease-out-quint), background .2s ease, box-shadow .2s ease; }
+.chat__launch:hover { background: #2fa07f; transform: translateY(-3px); box-shadow: 0 20px 44px rgba(56,176,141,.5); }
+.chat__launch svg { width: 24px; height: 24px; }
 .chat__panel { position: absolute; left: 0; bottom: 60px; width: 390px; max-width: calc(100vw - 40px); height: 540px; max-height: calc(100vh - 120px); background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; overflow: hidden; }
 .chat__panel[hidden] { display: none; }
 .chat__head { background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: #fff; padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; }
@@ -1931,11 +1935,14 @@ body.nav-open { overflow: hidden; }
 }
 .header.is-stuck { border-bottom-color: var(--line); box-shadow: 0 6px 22px rgba(47,62,52,.07); }
 .header__inner { height: var(--header-h); gap: 14px; }
-/* Logo protagonista (lo pidió la clienta: "que se vea más grande").
-   El encabezado creció a 94px para darle cabida, así que 76px lo deja bien
-   visible con aire. Medido hasta en 320px: no choca con el menú ni corta
-   el texto. */
-.brand__logo { width: 76px; height: 76px; }
+/* Logo protagonista (lo pidió la clienta: "que destaque en la principal").
+   El encabezado creció a 104px para darle cabida, así que 88px lo deja bien
+   visible con aire. Verificado hasta en 320px: no choca con el menú ni
+   corta el nombre. */
+/* En celular 88px se come el ancho y el nombre queda tapado por los
+     botones de cuenta y carrito. Ahí baja a 66px, que sigue siendo
+     grande pero deja leer "Car Seat Clinic". */
+  .brand__logo { width: 66px; height: 66px; }
 .brand__text strong { font-size: 1.04rem; letter-spacing: .01em; }
 /* Con el logo a 56px el nombre cabía en una línea (112px de 118 libres) pero
    se partía en dos por el encogido del flex. Desde 375px se fuerza una sola
@@ -2652,3 +2659,56 @@ body.nav-open { overflow: hidden; }
 .borrador-aviso span { display: block; font-size: .85rem; color: var(--muted); margin-top: 2px; }
 .borrador-aviso__btns { display: flex; gap: 8px; flex-wrap: wrap; }
 .borrador-nota { margin-top: 10px; font-size: .82rem; color: var(--sage); }
+
+/* =====================================================================
+   BARRA DE MARCA (debajo del menú)
+   ---------------------------------------------------------------------
+   Reemplaza al aviso de Instagram como estado normal. Si se destaca una
+   publicación desde el CRM, aquella pasa al frente y esta se esconde.
+   ===================================================================== */
+.brandbar {
+  background: var(--grad-secundario);
+  color: var(--white);
+  padding: 14px 0;
+}
+.brandbar[hidden] { display: none; }
+.brandbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.brandbar__txt { min-width: 0; }
+.brandbar__txt strong {
+  display: block;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.02rem, 2vw, 1.32rem);
+  line-height: 1.25;
+}
+.brandbar__txt span {
+  display: block;
+  margin-top: 3px;
+  font-size: .86rem;
+  color: rgba(255, 255, 255, .82);
+}
+/* Botón en verde vivo con texto oscuro: sobre este verde el blanco no
+   alcanza el contraste mínimo para leerse bien. */
+.brandbar__cta {
+  flex: 0 0 auto;
+  display: inline-block;
+  padding: 12px 26px;
+  border-radius: 999px;
+  background: var(--brand-vivo);
+  color: #10352a;
+  font-weight: 700;
+  font-size: .98rem;
+  box-shadow: 0 8px 22px rgba(56, 176, 141, .35);
+  transition: transform .2s var(--ease-out-expo), background .2s ease;
+}
+.brandbar__cta:hover { background: #2fa07f; transform: translateY(-2px); }
+
+@media (max-width: 700px) {
+  .brandbar__inner { gap: 12px; }
+  .brandbar__cta { width: 100%; text-align: center; }
+}
