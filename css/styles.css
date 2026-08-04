@@ -1950,6 +1950,33 @@ body.nav-open { overflow: hidden; }
    espacio, el que cede es el nombre de al lado. */
 .brand__logo { flex-shrink: 0; max-width: none; }
 .brand__text { min-width: 0; overflow: hidden; }
+/* Arriba del todo hay un `* { min-width: 0 }` que deja encoger cualquier
+   caja por debajo de su contenido. Sin este flex-shrink, el bloque de la
+   marca colapsaba a 27px mientras el logo seguía midiendo 112: el logo se
+   salía de su caja y el menú se dibujaba encima (se veía "Inicio" pegado
+   al logo al entrar como administradora, que es cuando el menú suma
+   "Administrar" y el nombre). Ahora la marca reserva el ancho real del
+   logo y el menú arranca después. */
+.brand { flex-shrink: 0; }
+
+/* El nombre escrito al lado del logo sale del encabezado.
+   Medido: con ese texto puesto, el logo grande sólo cabía junto al menú
+   desde 1600px de ancho; en un portátil normal (1280-1440) faltaban
+   138px y el menú terminaba montado encima del logo. Antes no se notaba
+   porque el texto se recortaba solo, en silencio.
+   No se pierde nada: el logo trae "Car Seat Clinic" y "Center" escritos
+   adentro y se leen bien a este tamaño; el enlace conserva su
+   aria-label para los lectores de pantalla, y el nombre sigue estando en
+   el título de la página, en el encabezado principal y en el pie. */
+.brand__text {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+/* Con sesión de administradora el menú suma "Administrar" y el nombre de
+   la persona. Sólo ahí hace falta apretar un poco los enlaces para que
+   entre todo sin que aparezca la barra de scroll horizontal. */
+body.sesion-admin .nav a { padding-left: 9px; padding-right: 9px; }
 /* Logo protagonista: la clienta lo pidió lo más grande posible.
    El archivo es de 1080x1080, así que aguanta este tamaño sin verse
    borroso. El encabezado crece con él (--header-h) para que no quede
@@ -1961,36 +1988,23 @@ body.nav-open { overflow: hidden; }
    línea; en pantallas más angostas se deja partir para que no choque. */
 @media (min-width: 375px) { .brand__text strong { white-space: nowrap; } }
 
-/* En celular el ancho no alcanza para el logo grande Y el nombre escrito al
-   lado: los botones de cuenta y carrito los empujan. Como el logo ya trae
-   "Car Seat Clinic" dibujado adentro, en celular dejamos solo el logo y el
-   nombre pasa a visually-hidden: se sigue viendo (dentro del logo) y los
-   lectores de pantalla lo siguen leyendo, pero libera todo el ancho para
-   que el logo sea lo que manda. */
-/* Tamaños del logo según lo que quepa al lado:
-   - Hasta 1000px el menú es hamburguesa, así que sobra ancho y el logo
-     puede ir bien grande.
-   - Entre 1001 y 1199px el menú completo está desplegado y compite por el
-     espacio; ahí el logo baja o se comen las palabras del menú.
-   - Desde 1200px cabe todo y el logo va al máximo. */
+/* Tamaños del logo:
+   - Desde 1200px el menú va desplegado y compite por el ancho: 112px.
+   - Por debajo el menú es de hamburguesa y sobra espacio: 104px.
+   - En teléfono baja a 96px, que es lo que deja el ancho. */
 @media (max-width: 1199px) {
-  :root { --header-h: 112px; }
-  .brand__logo { width: 88px; height: 88px; }
-}
-@media (max-width: 1000px) {
   :root { --header-h: 128px; }
   .brand__logo { width: 104px; height: 104px; }
 }
-/* En celular el ancho no alcanza para el logo grande Y el nombre escrito al
-   lado: los botones de cuenta y carrito los empujan. Como el logo ya trae
-   "Car Seat Clinic" dibujado adentro, en celular dejamos solo el logo y el
-   nombre pasa a oculto-accesible: se sigue viendo (dentro del logo) y los
-   lectores de pantalla lo siguen leyendo, pero libera todo el ancho. */
 @media (max-width: 640px) {
   :root { --header-h: 120px; }
-  .brand__text { position: absolute; width: 1px; height: 1px; overflow: hidden;
-                 clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
   .brand__logo { width: 96px; height: 96px; }
+}
+/* Teléfonos angostos (iPhone SE y parecidos): a 96px el logo más los tres
+   botones se pasaban 6px del ancho y aparecía la barra de scroll lateral. */
+@media (max-width: 360px) {
+  :root { --header-h: 112px; }
+  .brand__logo { width: 88px; height: 88px; }
 }
 .brand__text small { font-size: .64rem; letter-spacing: .1em; color: var(--sage); }
 
@@ -2018,7 +2032,7 @@ body.nav-open { overflow: hidden; }
 
 /* En pantallas medianas el menú pasa a hamburguesa: se ve limpio y no se
    amontonan las 6 pestañas con los botones de cuenta y carrito. */
-@media (max-width: 1000px) {
+@media (max-width: 1199px) {
   .nav {
     position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 79;
     background: #fff; flex-direction: column; align-items: stretch; gap: 2px;
@@ -2263,7 +2277,7 @@ body.nav-open { overflow: hidden; }
 .rental-panel__grid .rental-panel__install { grid-column: 1 / -1; }
 
 /* Separador suave entre pestañas del menú móvil */
-@media (max-width: 1000px) {
+@media (max-width: 1199px) {
   .nav a + a { border-top: 1px solid var(--line); border-radius: 0; }
   .nav a:first-child { border-radius: 12px 12px 0 0; }
   .nav a:last-of-type { border-radius: 0 0 12px 12px; }

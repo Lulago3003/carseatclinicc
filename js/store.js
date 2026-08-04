@@ -1002,9 +1002,14 @@
       const admin = isAdminUser(currentUser, currentProfile);
       $("#adminLink").style.display = admin ? "inline-block" : "none";
       $("#accountAdmin").style.display = admin ? "block" : "none";
+      /* Con sesión de administradora el menú suma "Administrar" y el nombre
+         de la persona, y deja de caber al lado del logo grande. La clase
+         avisa al CSS para que apriete el encabezado sólo en ese caso. */
+      document.body.classList.toggle("sesion-admin", admin);
     } else {
       label.textContent = "Ingresar";
       $("#adminLink").style.display = "none";
+      document.body.classList.remove("sesion-admin");
     }
   }
 
