@@ -2631,3 +2631,24 @@ body.nav-open { overflow: hidden; }
 
 /* No estorba al imprimir */
 @media print { .cookieaviso { display: none !important; } }
+
+/* =====================================================================
+   CRM — aviso de borrador del blog
+   ===================================================================== */
+.borrador-aviso {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  background: var(--brand-vivo-soft);
+  border: 1px solid var(--brand-vivo);
+}
+.borrador-aviso strong { display: block; color: var(--brand); font-size: .96rem; }
+/* En bloque: si no, el texto queda pegado al título. */
+.borrador-aviso span { display: block; font-size: .85rem; color: var(--muted); margin-top: 2px; }
+.borrador-aviso__btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.borrador-nota { margin-top: 10px; font-size: .82rem; color: var(--sage); }

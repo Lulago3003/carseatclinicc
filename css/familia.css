@@ -543,3 +543,15 @@
   .antes { background: #fff; }
   .acheck { break-inside: avoid; border-color: #999; }
 }
+
+/* Acceso a las herramientas al pie del test: una línea, no un bloque.
+   Antes esto era una sección entera que solo servía de índice. */
+.finder__mas {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: .92rem;
+  color: var(--muted);
+  text-align: center;
+}
+.finder__mas a { color: var(--brand); font-weight: 600; text-decoration: underline; }
