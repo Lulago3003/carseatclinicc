@@ -15,7 +15,7 @@ const CONFIG = {
   /* --- Contacto --- */
   // WhatsApp en formato internacional, SIN signos. Panamá = 507.
   whatsapp: "50766743012",
-  email: "hola@carseatclinic.com",
+  email: "info@carseatclinic.com.pa",
   // Cuenta principal (servicios, educación, comunidad)
   instagram: "https://www.instagram.com/carseatclinicc",
   // Cuenta de la tienda (productos a la venta)

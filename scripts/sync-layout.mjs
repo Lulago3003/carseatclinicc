@@ -29,6 +29,7 @@ const PAGES = [
   { file: "blog.html" },
   { file: "guia.html" },
   { file: "mesa.html" },
+  { file: "cookies.html", slim: true },
   { file: "terminos.html", slim: true },
   { file: "privacidad.html", slim: true },
 ];
@@ -179,6 +180,7 @@ ${IG_LINKS}
         <a href="index.html#contacto">Contacto y ubicación</a>
         <a href="terminos.html">Términos</a>
         <a href="privacidad.html">Privacidad</a>
+        <a href="cookies.html">Cookies</a>
       </div>
     </div>
     <div class="container footer__bottom">
@@ -206,6 +208,7 @@ ${IG_LINKS}
         <h4>Legal</h4>
         <a href="terminos.html">Términos</a>
         <a href="privacidad.html">Privacidad</a>
+        <a href="cookies.html">Cookies</a>
         <a href="guia.html">Herramientas para tu familia</a>
         <a href="faq.html">Preguntas frecuentes</a>
       </div>
@@ -236,7 +239,8 @@ const SCRIPTS = (page) => {
   <script src="js/store.js${v}"></script>
   <script src="js/chat-widget.js${v}"></script>
   <script src="js/servicios.js${v}"></script>
-  <script src="js/competencia.js${v}"></script>${page === "blog.html" ? `\n  <script src="js/blog.js${v}"></script>` : ""}${page === "index.html" ? `\n  <script src="js/cinema.js${v}"></script>\n  <script src="js/anima.js${v}"></script>` : ""}${page === "index.html" || page === "guia.html" ? `\n  <script src="js/familia.js${v}"></script>` : ""}`;
+  <script src="js/competencia.js${v}"></script>
+  <script src="js/cookies.js${v}"></script>${page === "blog.html" ? `\n  <script src="js/blog.js${v}"></script>` : ""}${page === "index.html" ? `\n  <script src="js/cinema.js${v}"></script>\n  <script src="js/anima.js${v}"></script>` : ""}${page === "index.html" || page === "guia.html" ? `\n  <script src="js/familia.js${v}"></script>` : ""}`;
 };
 
 /* --- Bloques viejos que ahora viven en js/shell.js --- */
