@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 56" role="img" aria-label="American Express">
+  <title>American Express</title>
+  <rect x="12" y="6" width="96" height="44" rx="4" fill="#006FCF"/>
+  <text x="60" y="27" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="700"
+        letter-spacing="0.2" fill="#FFFFFF">AMERICAN</text>
+  <text x="60" y="41" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="700"
+        letter-spacing="0.2" fill="#FFFFFF">EXPRESS</text>
+</svg>

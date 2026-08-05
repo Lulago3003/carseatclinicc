@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 56" role="img" aria-label="Sistema Clave">
+  <title>Sistema Clave</title>
+  <rect x="16" y="8" width="88" height="40" rx="3" fill="#D6202A"/>
+  <rect x="20" y="12" width="80" height="32" rx="2" fill="none" stroke="#FFFFFF" stroke-width="1.4"/>
+  <text x="60" y="25" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="7.5" font-weight="700"
+        letter-spacing="1.4" fill="#FFFFFF">SISTEMA</text>
+  <text x="60" y="40" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="16" font-weight="700"
+        fill="#FFFFFF">Clave</text>
+</svg>

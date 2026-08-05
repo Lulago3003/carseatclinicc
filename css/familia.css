@@ -501,6 +501,52 @@
   .bacbanner__logo img { max-width: 280px; }
 }
 
+/* ---------- Formas de pago que acepta el negocio ----------
+   Los logos son SVG dibujados a mano, no capturas: se ven nítidos en
+   cualquier pantalla y a cualquier tamaño, y entre los cinco pesan menos
+   que una sola foto. Cada uno va en su tarjeta blanca para que se
+   despeguen del fondo verde del bloque. */
+.pagos {
+  margin-top: 34px;
+  padding-top: 26px;
+  border-top: 1px solid rgba(56, 176, 141, .3);
+}
+.pagos__txt {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: .96rem;
+}
+.pagos__txt b { color: var(--ink); }
+.pagos__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.pagos__lista li {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 14px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  place-items: center;
+}
+.pagos__lista img {
+  display: block;
+  height: 34px;
+  width: auto;
+}
+@media (max-width: 540px) {
+  .pagos { margin-top: 26px; padding-top: 20px; }
+  .pagos__lista { gap: 9px; }
+  .pagos__lista li { padding: 6px 11px; }
+  .pagos__lista img { height: 27px; }
+}
+
 /* Botón más grande para que acompañe al bloque */
 .btn--lg { padding: 15px 30px; font-size: 1.02rem; }
 

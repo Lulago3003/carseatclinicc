@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 56" role="img" aria-label="Yappy">
+  <title>Yappy</title>
+  <!-- Las dos burbujas de chat de la marca: la azul grande abajo y la
+       naranja chica arriba a la derecha. Se dibujan grandes a propósito
+       para que el logo pese lo mismo que Visa o Mastercard cuando van
+       todos en la misma fila. -->
+  <path fill="#00A9E0" d="M32 8h34a13 13 0 0 1 13 13v6a13 13 0 0 1-13 13H50l-10 8v-8h-8A13 13 0 0 1 19 27v-6A13 13 0 0 1 32 8z"/>
+  <circle cx="90" cy="15" r="11" fill="#F58220"/>
+  <text x="60" y="54" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700"
+        fill="#0B3C5D">yappy</text>
+</svg>

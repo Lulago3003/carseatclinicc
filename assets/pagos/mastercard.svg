@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 56" role="img" aria-label="Mastercard">
+  <title>Mastercard</title>
+  <!-- Los dos círculos entrelazados: rojo a la izquierda, naranja a la
+       derecha, y la zona donde se cruzan en el naranja intenso de la marca. -->
+  <circle cx="49" cy="22" r="16" fill="#EB001B"/>
+  <circle cx="71" cy="22" r="16" fill="#F79E1B"/>
+  <path fill="#FF5F00" d="M60 10.2a16 16 0 0 0 0 23.6 16 16 0 0 0 0-23.6z"/>
+  <text x="60" y="51" text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="600"
+        fill="#231F20">mastercard</text>
+</svg>
