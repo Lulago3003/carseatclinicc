@@ -709,6 +709,27 @@
       ? `<div class="detail__thumbs">${imgs.map((u, i) => `<img class="${i === 0 ? "is-active" : ""}" data-thumb="${u}" src="${u}" alt="" />`).join("")}</div>` : "";
     const feats = (p.caracteristicas && p.caracteristicas.length)
       ? `<ul class="detail__feats">${p.caracteristicas.map((f) => `<li>${f}</li>`).join("")}</ul>` : "";
+    /* Video del fabricante. No se incrusta el reproductor de entrada: se
+       muestra la portada que da YouTube y el reproductor sólo se carga si
+       la familia toca "Ver". Así la ficha abre rápido y no se le cuelan
+       cookies de YouTube a quien no pidió ver el video. */
+    const vid = idDeYouTube(p.video);
+    const video = vid ? `
+      <div class="provideo">
+        <h4 class="provideo__tit">Video del fabricante</h4>
+        <button class="provideo__play" type="button" data-video="${esc(vid)}"
+                aria-label="Ver el video de ${esc(p.nombre)}">
+          <!-- Si la portada no carga (red lenta, bloqueador de anuncios) el
+               onerror la saca y queda el fondo oscuro con el botón y el
+               texto, que se entienden igual. Nunca un cuadro negro vacío. -->
+          <img src="https://i.ytimg.com/vi/${esc(vid)}/hqdefault.jpg" alt="" loading="lazy"
+               onerror="this.remove()" />
+          <span class="provideo__btn">
+            <svg viewBox="0 0 68 48" width="52" height="37" aria-hidden="true"><path d="M66.5 7.7c-.8-2.9-2.5-5.4-5.4-6.2C55.8.1 34 0 34 0S12.2.1 6.9 1.5C4 2.3 2.3 4.8 1.5 7.7.1 13 0 24 0 24s.1 11 1.5 16.3c.8 2.9 2.5 5.4 5.4 6.2C12.2 47.9 34 48 34 48s21.8-.1 27.1-1.5c2.9-.8 4.6-3.3 5.4-6.2C67.9 35 68 24 68 24s-.1-11-1.5-16.3z" fill="#f00"/><path d="M45 24 27 14v20" fill="#fff"/></svg>
+            <b>Ver video</b>
+          </span>
+        </button>
+      </div>` : "";
     const agotado = p.stock <= 0;
     const sinPrecio = !isPriced(p);
     const sale = saleInfo(p);
@@ -732,6 +753,7 @@
         <div class="detail__price">${sale ? `<s>${money(sale.before)}</s>` : ""}<b>${precioTxt(p)}</b>${sale ? `<span class="detail__saving">Ahorras ${money(sale.saving)} · ${sale.percent}% menos</span>` : ""}</div>
         <p class="detail__desc">${p.descripcion || ""}</p>
         ${feats}
+        ${video}
         ${agotado
           ? `<button class="btn btn--primary btn--block" disabled>Agotado</button>`
           : `<div class="detail__buy">
@@ -1942,6 +1964,20 @@
     const consult = t.closest("[data-consult]"); if (consult) { consultProduct(productById(consult.getAttribute("data-consult"))); return; }
     const a = t.closest("[data-add]"); if (a && !a.disabled) { add(a.getAttribute("data-add")); closeDetail(); return; }
     const th = t.closest("[data-thumb]"); if (th) { const m = $("#detailMain"); if (m) m.src = th.getAttribute("data-thumb"); $$("#detailModal [data-thumb]").forEach((x) => x.classList.remove("is-active")); th.classList.add("is-active"); return; }
+    /* Al tocar la portada del video recién ahí se trae el reproductor.
+       Se usa youtube-nocookie: YouTube no deja rastro de seguimiento
+       mientras la familia solo está mirando cómo se instala una silla. */
+    const vb = t.closest("[data-video]");
+    if (vb) {
+      const vid = vb.getAttribute("data-video");
+      const caja = document.createElement("div");
+      caja.className = "provideo__frame";
+      caja.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${vid}?autoplay=1&rel=0"
+        title="Video del producto" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+      vb.replaceWith(caja);
+      return;
+    }
     const dq = t.closest("[data-detqty]"); if (dq) { const el = $("#detQty"); let q = (parseInt(el.textContent) || 1) + parseInt(dq.getAttribute("data-detqty")); el.textContent = Math.max(1, Math.min(q, detailStock || 1)); return; }
     if (t.closest("#detailAdd")) { const q = parseInt(($("#detQty") || {}).textContent) || 1; add(detailPid, q); closeDetail(); return; }
     if (t.closest("#detailRent")) { startRentalForProduct(productById(detailPid)); closeDetail(); return; }

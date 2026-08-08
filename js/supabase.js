@@ -101,6 +101,9 @@ const DB = (function () {
       imagenes: imagenes,
       caracteristicas: toArr(row.features),
       descripcion: row.description || "",
+      // Enlace del video del fabricante. Guardamos el enlace, nunca el
+      // archivo: así no ocupa almacenamiento ni frena la página.
+      video: row.video_url || "",
       stock: Number(row.stock ?? 0),
       activo: row.active !== false,
     };
@@ -138,6 +141,7 @@ const DB = (function () {
       features: Array.isArray(p.caracteristicas) ? p.caracteristicas : [],
       description: p.descripcion || null, stock: p.stock, active: p.activo, sort: p.sort || 0,
       brand: p.marca || null, fit: p.recomendado || null,
+      video_url: p.video || null,
     };
     const { error } = await client.from("products").upsert(row);
     if (error) throw error;

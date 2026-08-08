@@ -262,3 +262,38 @@ const PRODUCTOS_DEMO = [
   { id: "p9", nombre: "Gift Card Car Seat Clinic", categoria: "gift-cards", marca: "", recomendado: "Ideal para regalar", precio: 50, antes: 0, badge: "", imagen: "", stock: 99,
     descripcion: "Tarjeta de regalo para usar en productos o servicios. El regalo perfecto para una familia." },
 ];
+
+/* =====================================================================
+   VIDEO DEL FABRICANTE
+   ---------------------------------------------------------------------
+   Guardamos el ENLACE del video, nunca el archivo. Un video de producto
+   pesa cientos de megas: subirlo llenaría el almacenamiento y haría
+   lenta la página. Con el enlace se ve igual dentro de la ficha, no
+   ocupa nada y lo sigue sirviendo el fabricante desde YouTube.
+
+   Esta función saca el código del video de cualquiera de las formas en
+   que YouTube reparte sus enlaces, porque la administradora va a copiar
+   y pegar lo que le salga y no tiene por qué saber cuál es cuál:
+     youtube.com/watch?v=CODIGO      (el de la barra del navegador)
+     youtu.be/CODIGO                 (el del botón Compartir)
+     youtube.com/embed/CODIGO        (el de "insertar")
+     youtube.com/shorts/CODIGO       (los verticales)
+   Devuelve null si no reconoce el enlace, y ahí el CRM avisa en vez de
+   dejar un video roto en la ficha.
+   ===================================================================== */
+function idDeYouTube(url) {
+  if (!url) return null;
+  const t = String(url).trim();
+  const patrones = [
+    /(?:youtube\.com|youtube-nocookie\.com)\/(?:watch\?(?:[^#]*&)?v=)([A-Za-z0-9_-]{11})/,
+    /youtu\.be\/([A-Za-z0-9_-]{11})/,
+    /(?:youtube\.com|youtube-nocookie\.com)\/(?:embed|shorts|v|live)\/([A-Za-z0-9_-]{11})/,
+  ];
+  for (const p of patrones) {
+    const m = t.match(p);
+    if (m) return m[1];
+  }
+  /* Por si pega solo el código suelto */
+  if (/^[A-Za-z0-9_-]{11}$/.test(t)) return t;
+  return null;
+}

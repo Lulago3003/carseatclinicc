@@ -1906,6 +1906,7 @@
     $("#f-activo").checked = p ? p.activo !== false : true;
     $("#f-oferta").checked = Boolean(saleInfo(p));
     set("#f-descripcion", p ? p.descripcion : "");
+    set("#f-video", p && p.video ? p.video : "");
     $("#imgStatus").textContent = "";
     renderImgList(); renderFeatList(); updateOfferEditor();
     $("#editModal").classList.add("is-open");
@@ -2043,10 +2044,17 @@
       sort: parseInt(v("#f-sort")) || 0,
       activo: $("#f-activo").checked,
       descripcion: v("#f-descripcion").trim(),
+      video: v("#f-video").trim(),
       imagenes: editorImages.slice(),
       caracteristicas: editorFeatures.slice(),
     };
     if (!p.nombre) { toast("Ponle un nombre al producto"); return; }
+    /* Si el enlace no es de YouTube no se guarda: se avisa en vez de dejar
+       un video roto en la ficha, que es peor que no tener video. */
+    if (p.video && !idDeYouTube(p.video)) {
+      toast("Ese enlace no parece de YouTube. Copia el de la barra del navegador.");
+      return;
+    }
     const btn = $("#editSave"); btn.disabled = true; btn.textContent = "Guardando…";
     try { await DB.saveProduct(p); toast("Producto guardado"); closeEditor(true); await renderProducts(); renderDashboard(); }
     catch (err) { toast(errorAlGuardar(err, "el producto")); }
