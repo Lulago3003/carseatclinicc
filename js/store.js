@@ -180,10 +180,15 @@
   }
 
   function catImage(cat) { return (typeof IMAGENES_CATEGORIA !== "undefined" && IMAGENES_CATEGORIA[cat]) || ""; }
+  /* La foto de respaldo por categoría es una silla real de alguna marca.
+     Ponerla en un producto de OTRA marca es engañar: pasó con el Graco
+     Extend2Fit, que salía con la foto de una Joie. Si el producto dice de
+     qué marca es, sin foto propia se muestra el dibujo neutro y no la
+     silla de un competidor. */
   function productImageList(p) {
     const list = Array.isArray(p.imagenes) ? p.imagenes.filter(Boolean) : [];
     if (p.imagen && !list.includes(p.imagen)) list.unshift(p.imagen);
-    const fallback = catImage(p.categoria);
+    const fallback = (p.marca || "").trim() ? "" : catImage(p.categoria);
     if (!list.length && fallback) list.push(fallback);
     return [...new Set(list)];
   }
@@ -700,8 +705,10 @@
   function openDetail(id) {
     const p = productById(id); if (!p) return;
     detailPid = id; detailStock = p.stock;
-    let imgs = (p.imagenes && p.imagenes.length) ? p.imagenes : (p.imagen ? [p.imagen] : []);
-    if (!imgs.length && catImage(p.categoria)) imgs = [catImage(p.categoria)];
+    /* Se usa la misma lista que las tarjetas para que la ficha no decida
+       distinto. Antes tenía su propia copia y por eso el Graco sin foto
+       terminaba mostrando una Joie aquí adentro. */
+    const imgs = productImageList(p);
     const main = imgs.length
       ? `<div class="detail__main"><img id="detailMain" src="${imgs[0]}" alt="${p.nombre}" /></div>`
       : `<div class="detail__main">${svgFor(p.categoria)}</div>`;
