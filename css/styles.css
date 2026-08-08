@@ -1526,6 +1526,11 @@ body.admin [hidden] { display: none !important; }
 .detail__feats li { position: relative; padding-left: 24px; font-size: .9rem; }
 .detail__feats li::before { content: "✓"; position: absolute; left: 0; top: -1px; color: var(--brand); font-weight: 800; }
 
+/* Botón de compartir la silla. Va discreto, debajo del de WhatsApp: es
+   útil pero no debe competir con el botón que cierra la venta. */
+.detail__share { margin-top: 8px; gap: 9px; }
+.detail__share svg { flex: 0 0 auto; }
+
 /* ---------- Video del fabricante en la ficha ----------
    Sólo se ve la portada. El reproductor de YouTube entra al tocar, no
    antes: así la ficha abre rápido y no se cargan cookies de YouTube a

@@ -702,7 +702,10 @@
   function closeCart() { $("#cart").classList.remove("is-open"); $("#overlay").classList.remove("is-open"); }
 
   /* ---------- Ficha de producto ---------- */
-  function openDetail(id) {
+  /* sinHistorial = true cuando la ficha se abre por el botón "atrás":
+     ahí el navegador ya movió la dirección y volver a empujarla dejaría
+     al usuario atrapado, sin poder salir de la ficha. */
+  function openDetail(id, sinHistorial) {
     const p = productById(id); if (!p) return;
     detailPid = id; detailStock = p.stock;
     /* Se usa la misma lista que las tarjetas para que la ficha no decida
@@ -769,6 +772,16 @@
             </div>
             ${rentable ? `<button class="btn btn--ghost btn--block detail__rentbtn" id="detailRent">${icon("calendar")}Ver fechas de alquiler</button>` : ""}`}
         <a class="btn btn--whatsapp btn--block detail__wabtn" href="${waProd}" target="_blank" rel="noopener">${icon("chat")}Comprar por WhatsApp</a>
+        <!-- Compartir la silla con quien decide en casa: pareja, abuela,
+             quien sea. En el teléfono abre el menú de compartir de siempre
+             (WhatsApp incluido); en la computadora copia el enlace. -->
+        <button class="btn btn--ghost btn--block detail__share" id="detailShare" type="button">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>
+          </svg>
+          <span>Compartir esta silla</span>
+        </button>
         <p class="detail__hint">${agotado
           ? "Escríbenos por WhatsApp y te avisamos cuando vuelva a estar disponible."
           : sinPrecio
@@ -776,8 +789,70 @@
             : "¿Tienes dudas? Escríbenos por WhatsApp y te ayudamos a comprar."}</p>
       </div>`;
     $("#detailModal").classList.add("is-open");
+    /* La dirección pasa a apuntar a este producto. Así quien quiera
+       mandarle la silla a alguien puede copiar lo que ve en la barra del
+       navegador, y el botón "atrás" del teléfono cierra la ficha en vez
+       de sacarte de la tienda. */
+    try {
+      document.title = `${p.nombre} | ${CONFIG.nombre}`;
+      if (sinHistorial) return;
+      const u = new URL(window.location.href);
+      u.searchParams.set("producto", id);
+      history.pushState({ producto: id }, "", u);
+    } catch (_) {}
   }
-  function closeDetail() { $("#detailModal").classList.remove("is-open"); }
+  function closeDetail() {
+    $("#detailModal").classList.remove("is-open");
+    try {
+      const u = new URL(window.location.href);
+      if (u.searchParams.has("producto")) {
+        u.searchParams.delete("producto");
+        history.pushState({}, "", u);
+      }
+      document.title = tituloOriginal;
+    } catch (_) {}
+  }
+  const tituloOriginal = document.title;
+
+  /* ---------- Compartir una silla ----------
+     En el teléfono usa el menú de compartir del propio sistema, que ya
+     trae WhatsApp, mensajes y correo. En la computadora no existe ese
+     menú, así que copia el enlace y avisa que quedó copiado. */
+  async function compartirProducto(btn) {
+    const p = productById(detailPid); if (!p) return;
+    const u = new URL(window.location.href);
+    u.searchParams.set("producto", p.id);
+    const enlace = u.toString();
+    const texto = `${p.nombre}${isPriced(p) ? " — " + money(p.precio) : ""} · Car Seat Clinic`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: p.nombre, text: texto, url: enlace });
+        return;
+      }
+    } catch (_) { /* si cancela el menú, no pasa nada */ return; }
+    const avisar = (msg) => {
+      const s = btn.querySelector("span"); if (!s) return;
+      const antes = s.textContent; s.textContent = msg;
+      setTimeout(() => { s.textContent = antes; }, 2200);
+    };
+    try {
+      await navigator.clipboard.writeText(enlace);
+      avisar("¡Enlace copiado!");
+    } catch (_) {
+      /* Navegadores viejos o sin permiso: se muestra para copiar a mano. */
+      window.prompt("Copia este enlace para compartir la silla:", enlace);
+    }
+  }
+  /* El botón "atrás" cierra la ficha, que es lo que espera cualquiera en
+     el teléfono después de abrir una silla desde un enlace compartido. */
+  window.addEventListener("popstate", () => {
+    const hay = new URLSearchParams(window.location.search).get("producto");
+    if (hay) { if (productById(hay)) openDetail(hay, true); }
+    else if ($("#detailModal")) {
+      $("#detailModal").classList.remove("is-open");
+      document.title = tituloOriginal;
+    }
+  });
 
   /* ---------- Checkout ----------
      El cliente siempre pasa por el mismo paso: llena sus datos y el pedido
@@ -1988,6 +2063,7 @@
     const dq = t.closest("[data-detqty]"); if (dq) { const el = $("#detQty"); let q = (parseInt(el.textContent) || 1) + parseInt(dq.getAttribute("data-detqty")); el.textContent = Math.max(1, Math.min(q, detailStock || 1)); return; }
     if (t.closest("#detailAdd")) { const q = parseInt(($("#detQty") || {}).textContent) || 1; add(detailPid, q); closeDetail(); return; }
     if (t.closest("#detailRent")) { startRentalForProduct(productById(detailPid)); closeDetail(); return; }
+    if (t.closest("#detailShare")) { compartirProducto(t.closest("#detailShare")); return; }
     const det = t.closest("[data-detail]"); if (det) { openDetail(det.getAttribute("data-detail")); return; }
     const inc = t.closest("[data-inc]"); if (inc) { const id = inc.getAttribute("data-inc"); setQty(id, (cart[id] || 0) + 1); return; }
     const dec = t.closest("[data-dec]"); if (dec) { const id = dec.getAttribute("data-dec"); setQty(id, (cart[id] || 0) - 1); return; }
@@ -2092,6 +2168,24 @@
     const params = new URLSearchParams(window.location.search);
     const cat = params.get("cat");
     if (cat && $("#productGrid")) { fCat = cat; }
+    /* ?producto=... abre esa ficha directamente. Es lo que hace que se
+       pueda pasar una silla por WhatsApp: quien recibe el enlace cae en
+       el producto, no en la tienda entera teniendo que buscarlo. */
+    const prod = params.get("producto");
+    if (prod) {
+      const abrir = () => {
+        if (productById(prod)) { openDetail(prod); return true; }
+        return false;
+      };
+      if (!abrir()) {
+        /* Los productos llegan de la base, así que puede que todavía no
+           estén cuando se lee la dirección. Se reintenta un rato corto. */
+        let intentos = 0;
+        const reloj = setInterval(() => {
+          if (abrir() || ++intentos > 20) clearInterval(reloj);
+        }, 250);
+      }
+    }
     const equipo = params.get("equipo");
     const modelo = params.get("modelo");
     if (equipo || modelo) {
