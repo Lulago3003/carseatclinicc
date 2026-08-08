@@ -2018,12 +2018,25 @@
      enlace correcto sin tener que ir a la tienda a mirar. */
   function pintarVideoPrev() {
     const caja = $("#videoPrev"); if (!caja) return;
-    const id = idDeYouTube(($("#f-video") || {}).value || "");
-    if (!id) { caja.hidden = true; caja.innerHTML = ""; return; }
+    const url = (($("#f-video") || {}).value || "").trim();
+    const id = idDeYouTube(url);
+    if (!url) { caja.hidden = true; caja.innerHTML = ""; caja.classList.remove("is-bad"); return; }
     caja.hidden = false;
-    caja.innerHTML =
-      '<img src="https://i.ytimg.com/vi/' + id + '/mqdefault.jpg" alt="" onerror="this.remove()" />' +
-      '<span>Video reconocido. Así se verá en la ficha del producto.</span>';
+    if (id) {
+      caja.classList.remove("is-bad");
+      caja.innerHTML =
+        '<img src="https://i.ytimg.com/vi/' + id + '/mqdefault.jpg" alt="" onerror="this.remove()" />' +
+        '<span>Video reconocido. Así se verá en la ficha del producto.</span>';
+      return;
+    }
+    /* El aviso se queda a la vista mientras el enlace esté mal. El mensaje
+       flotante se va solo y ella no alcanzaba a leer por qué falló. */
+    caja.classList.add("is-bad");
+    const esYouTube = /youtube\.com|youtu\.be/i.test(url);
+    caja.innerHTML = "<span>" + (esYouTube
+      ? "Ese enlace es de un canal o una lista, no de un video. Abre el video y copia el enlace de la barra de arriba."
+      : "Por ahora solo funcionan videos de YouTube. Busca el video del fabricante en YouTube y copia ese enlace.")
+      + "</span>";
   }
   // Imágenes: quitar / hacer principal
   $("#imgList").addEventListener("click", (e) => {
@@ -2082,10 +2095,14 @@
       caracteristicas: editorFeatures.slice(),
     };
     if (!p.nombre) { toast("Ponle un nombre al producto"); return; }
-    /* Si el enlace no es de YouTube no se guarda: se avisa en vez de dejar
-       un video roto en la ficha, que es peor que no tener video. */
+    /* Si el enlace no sirve no se guarda, pero el aviso dice QUÉ pasó.
+       "No parece de YouTube" confunde cuando el enlace sí es de YouTube
+       pero apunta a un canal o a una lista en vez de a un video. */
     if (p.video && !idDeYouTube(p.video)) {
-      toast("Ese enlace no parece de YouTube. Copia el de la barra del navegador.");
+      const esYouTube = /youtube\.com|youtu\.be/i.test(p.video);
+      toast(esYouTube
+        ? "Ese enlace es de un canal o una lista, no de un video. Abre el video y copia el enlace de la barra de arriba."
+        : "Por ahora solo funcionan videos de YouTube. Busca el video del fabricante en YouTube y copia ese enlace.");
       return;
     }
     const btn = $("#editSave"); btn.disabled = true; btn.textContent = "Guardando…";

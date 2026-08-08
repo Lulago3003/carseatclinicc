@@ -1278,7 +1278,11 @@ body.admin [hidden] { display: none !important; }
   background: var(--brand-soft); border: 1px solid var(--line);
 }
 .video-prev img { width: 96px; height: 54px; object-fit: cover; border-radius: 7px; flex: 0 0 auto; }
-.video-prev span { font-size: .82rem; color: var(--brand); font-weight: 600; }
+.video-prev span { font-size: .82rem; color: var(--brand); font-weight: 600; line-height: 1.45; }
+/* Enlace que no sirve: el aviso se queda a la vista, en rojo, hasta que
+   lo corrija. El mensaje flotante se iba antes de que alcanzara a leerlo. */
+.video-prev.is-bad { background: #fdf1f1; border-color: #e7b9b9; }
+.video-prev.is-bad span { color: #a4343a; }
 .img-or { color: var(--muted); font-size: .85rem; }
 .btn--file { cursor: pointer; }
 .feat-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; padding: 0; }
