@@ -8,7 +8,7 @@
   <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=2026-08-07b" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-08-07c" />
 </head>
 <body class="admin">
 
@@ -39,9 +39,24 @@
             Continuar con Google
           </button>
           <div class="auth-divider"><span>o con tu correo</span></div>
+          <!-- Los atributos autocomplete son los que hacen que el navegador
+               ofrezca guardar la contraseña y la rellene sola la próxima
+               vez. Sin ellos, Chrome ni siquiera pregunta, y había que
+               escribirla a mano cada vez. La contraseña la guarda el
+               navegador cifrada; la página nunca la almacena. -->
           <form id="loginForm">
-            <label>Correo <input type="email" name="email" required placeholder="admin@email.com" /></label>
-            <label>Contraseña <input type="password" name="password" required placeholder="••••••" /></label>
+            <label>Correo
+              <input id="loginEmail" type="email" name="email" required
+                     placeholder="admin@email.com" autocomplete="username" />
+            </label>
+            <label>Contraseña
+              <input id="loginPass" type="password" name="password" required
+                     placeholder="••••••" autocomplete="current-password" />
+            </label>
+            <label class="check-inline check--recordar">
+              <input type="checkbox" id="recordarCorreo" checked />
+              <span>Recordar mi correo en esta computadora</span>
+            </label>
             <button class="btn btn--primary btn--block" type="submit">Ingresar</button>
             <p class="auth-error" id="loginError"></p>
           </form>
@@ -586,9 +601,9 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=2026-08-07b"></script>
-  <script src="js/supabase.js?v=2026-08-07b"></script>
-  <script src="js/admin.js?v=2026-08-07b"></script>
+  <script src="js/data.js?v=2026-08-07c"></script>
+  <script src="js/supabase.js?v=2026-08-07c"></script>
+  <script src="js/admin.js?v=2026-08-07c"></script>
   <script src="js/admin-borrador.js?v=2026-08-03a"></script>
 </body>
 </html>

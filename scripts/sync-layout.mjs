@@ -222,7 +222,7 @@ ${IG_LINKS}
    Se pega al final de css/js (?v=...) para que el navegador del cliente
    cargue los cambios enseguida y no una copia vieja guardada en caché.
    SUBE ESTE NÚMERO cada vez que cambies el CSS o el JS. */
-const VERSION = "2026-08-07b";
+const VERSION = "2026-08-07c";
 
 /* --- Scripts al final del body (mismo orden en todas las páginas) --- */
 const SCRIPTS = (page) => {

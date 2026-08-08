@@ -166,13 +166,37 @@
     updateConvBadge();
   }
 
-  /* ---------- Login ---------- */
+  /* ---------- Login ----------
+     Se recuerda SOLO el correo. La contraseña no se guarda nunca aquí:
+     de eso se encarga el navegador, que la cifra. Guardarla en la página
+     dejaría el CRM abierto a cualquiera que use esta computadora, y ahí
+     están los datos de las familias. */
+  const CLAVE_CORREO = "csc_admin_correo";
+  (function recordarCorreoGuardado() {
+    try {
+      const guardado = localStorage.getItem(CLAVE_CORREO);
+      const campo = $("#loginEmail"), check = $("#recordarCorreo");
+      if (guardado && campo) {
+        campo.value = guardado;
+        /* Si ya sabemos el correo, el cursor va directo a la contraseña. */
+        const pass = $("#loginPass");
+        if (pass) setTimeout(() => pass.focus(), 220);
+      }
+      if (check) check.checked = guardado !== null ? true : true;
+    } catch (_) {}
+  })();
+
   $("#loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const err = $("#loginError"); err.textContent = "";
     const d = Object.fromEntries(new FormData(e.target).entries());
     const { error } = await DB.signIn(d.email, d.password);
     if (error) { err.textContent = /Invalid login/i.test(error.message) ? "Correo o contraseña incorrectos." : error.message; return; }
+    try {
+      const check = $("#recordarCorreo");
+      if (check && check.checked) localStorage.setItem(CLAVE_CORREO, d.email);
+      else localStorage.removeItem(CLAVE_CORREO);
+    } catch (_) {}
     await gate();
   });
   $("#googleBtn").addEventListener("click", () => DB.signInGoogle());
