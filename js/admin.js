@@ -1907,6 +1907,7 @@
     $("#f-oferta").checked = Boolean(saleInfo(p));
     set("#f-descripcion", p ? p.descripcion : "");
     set("#f-video", p && p.video ? p.video : "");
+    pintarVideoPrev();
     $("#imgStatus").textContent = "";
     renderImgList(); renderFeatList(); updateOfferEditor();
     $("#editModal").classList.add("is-open");
@@ -1990,8 +1991,40 @@
   // Imágenes: por enlace
   $("#imgUrlAdd").addEventListener("click", () => {
     const inp = $("#imgUrl"); const u = inp.value.trim();
-    if (!u) return; editorImages.push(u); inp.value = ""; renderImgList();
+    if (!u) return;
+    /* Si lo que pegó es un video de YouTube, se guarda como video en vez
+       de intentar meterlo como foto. Es lo que quería hacer: pasó de
+       verdad, pegó el enlace del video aquí porque es el campo que tenía
+       a la vista. Mejor entenderlo que devolverle un error. */
+    if (idDeYouTube(u)) {
+      $("#f-video").value = u;
+      pintarVideoPrev();
+      inp.value = "";
+      $("#imgStatus").textContent = "Eso era un video: lo puse abajo, en «Video del fabricante».";
+      $("#f-video").scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
+    editorImages.push(u); inp.value = ""; renderImgList();
   });
+
+  /* Se actualiza sola mientras escribe o pega. */
+  (function () {
+    const cv = document.getElementById("f-video");
+    if (cv) ["input", "change", "paste"].forEach((ev) =>
+      cv.addEventListener(ev, () => setTimeout(pintarVideoPrev, 30)));
+  })();
+
+  /* Vista previa del video dentro del CRM: así ella confirma que pegó el
+     enlace correcto sin tener que ir a la tienda a mirar. */
+  function pintarVideoPrev() {
+    const caja = $("#videoPrev"); if (!caja) return;
+    const id = idDeYouTube(($("#f-video") || {}).value || "");
+    if (!id) { caja.hidden = true; caja.innerHTML = ""; return; }
+    caja.hidden = false;
+    caja.innerHTML =
+      '<img src="https://i.ytimg.com/vi/' + id + '/mqdefault.jpg" alt="" onerror="this.remove()" />' +
+      '<span>Video reconocido. Así se verá en la ficha del producto.</span>';
+  }
   // Imágenes: quitar / hacer principal
   $("#imgList").addEventListener("click", (e) => {
     const rm = e.target.closest("[data-imgrm]");

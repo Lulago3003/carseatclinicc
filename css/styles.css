@@ -1268,6 +1268,17 @@ body.admin [hidden] { display: none !important; }
 .img-chip__set { display: block; width: 100%; margin-top: 3px; background: none; border: none; color: var(--muted); font-size: .68rem; cursor: pointer; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
 .img-add { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .img-add input { margin-top: 0; flex: 1; min-width: 150px; }
+
+/* Video del producto, dentro del mismo bloque que las fotos */
+.edit-video { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
+.edit-video .edit-hint { font-size: .8rem; margin: 4px 0 0; line-height: 1.45; }
+.video-prev {
+  display: flex; align-items: center; gap: 12px; margin-top: 10px;
+  padding: 10px 12px; border-radius: 12px;
+  background: var(--brand-soft); border: 1px solid var(--line);
+}
+.video-prev img { width: 96px; height: 54px; object-fit: cover; border-radius: 7px; flex: 0 0 auto; }
+.video-prev span { font-size: .82rem; color: var(--brand); font-weight: 600; }
 .img-or { color: var(--muted); font-size: .85rem; }
 .btn--file { cursor: pointer; }
 .feat-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; padding: 0; }

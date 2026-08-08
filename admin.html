@@ -8,7 +8,7 @@
   <link rel="icon" href="logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=2026-08-05c" />
+  <link rel="stylesheet" href="css/styles.css?v=2026-08-06a" />
 </head>
 <body class="admin">
 
@@ -546,6 +546,22 @@
           <button class="btn btn--ghost" id="imgUrlAdd" type="button">Agregar</button>
         </div>
         <p class="muted" id="imgStatus"></p>
+
+        <!-- El video va aquí, pegado a las fotos: las dos cosas son "lo
+             que se ve del producto". Estaba al final del formulario y la
+             administradora terminó pegando el enlace del video en el
+             campo de fotos, que era lo que tenía a la vista. -->
+        <div class="edit-video">
+          <label>Video del fabricante <small class="muted">(opcional)</small>
+            <input id="f-video" type="url" placeholder="https://www.youtube.com/watch?v=..." />
+          </label>
+          <p class="muted edit-hint" id="videoHint">
+            Pega aquí el enlace del video de YouTube y aparecerá en la
+            ficha del producto. El video no se sube: con el enlace basta y
+            la página carga más rápido.
+          </p>
+          <div class="video-prev" id="videoPrev" hidden></div>
+        </div>
       </div>
 
       <div class="edit-block">
@@ -559,16 +575,6 @@
 
       <label>Descripción <textarea id="f-descripcion" rows="3" placeholder="Texto del producto"></textarea></label>
 
-      <!-- Video: se guarda el ENLACE, nunca el archivo. Así no ocupa
-           almacenamiento y la ficha no se pone lenta. -->
-      <label>Video del fabricante <small class="muted">(opcional)</small>
-        <input id="f-video" type="url" placeholder="https://www.youtube.com/watch?v=..." />
-      </label>
-      <p class="muted edit-hint" id="videoHint">
-        Pega el enlace del video de YouTube y en la ficha del producto
-        aparecerá para que la familia lo vea. No subas el archivo del
-        video: con el enlace basta y la página carga más rápido.
-      </p>
 
       <div class="edit-actions">
         <button class="btn btn--primary" id="editSave">Guardar producto</button>
@@ -580,9 +586,9 @@
   <div class="toast" id="toast"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/data.js?v=2026-08-05c"></script>
-  <script src="js/supabase.js?v=2026-08-05c"></script>
-  <script src="js/admin.js?v=2026-08-05c"></script>
+  <script src="js/data.js?v=2026-08-06a"></script>
+  <script src="js/supabase.js?v=2026-08-06a"></script>
+  <script src="js/admin.js?v=2026-08-06a"></script>
   <script src="js/admin-borrador.js?v=2026-08-03a"></script>
 </body>
 </html>
