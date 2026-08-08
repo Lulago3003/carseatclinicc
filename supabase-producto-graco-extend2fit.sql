@@ -22,6 +22,11 @@
 --  Cómo se corre: Supabase -> SQL Editor -> pegar -> RUN.
 -- =====================================================================
 
+-- La columna del video se crea aquí también, por si este archivo se corre
+-- primero. Si ya existe no hace nada, y así el orden deja de importar.
+alter table public.products
+  add column if not exists video_url text;
+
 insert into public.products
   (id, name, category, brand, fit, price, image_url, images,
    features, description, stock, active, sort, video_url)
