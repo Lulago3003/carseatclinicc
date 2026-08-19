@@ -35,10 +35,10 @@ where images::text like '%lulago3003.github.io%';
 
 -- ---------- Blog: portada y cuerpo ----------
 update public.blog_posts
-set cover = replace(cover,
+set cover_url = replace(cover_url,
       'https://lulago3003.github.io/carseatclinicc/',
       'https://carseatclinic.com.pa/')
-where cover like '%lulago3003.github.io%';
+where cover_url like '%lulago3003.github.io%';
 
 update public.blog_posts
 set body = replace(body,
@@ -53,4 +53,4 @@ select 'productos' as tabla, id, name from public.products
 where image_url like '%github.io%' or images::text like '%github.io%'
 union all
 select 'blog', id::text, title from public.blog_posts
-where cover like '%github.io%' or body like '%github.io%';
+where cover_url like '%github.io%' or body like '%github.io%';
