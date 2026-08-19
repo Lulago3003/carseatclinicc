@@ -51,11 +51,40 @@ if (!existsSync("robots.txt")) {
 } else {
   const txt = readFileSync("robots.txt", "utf8");
   if (!txt.includes(`Sitemap: ${BASE}/sitemap.xml`)) mal("robots.txt no apunta al sitemap");
-  const bloqueos = [...txt.matchAll(/^Disallow:\s*(\S+)/gm)].map((m) => m[1]);
-  if (bloqueos.includes("/")) mal("robots.txt bloquea TODO el sitio");
-  for (const [, ruta] of Object.entries(PAGINAS)) {
-    if (bloqueos.some((b) => b !== "/" && ruta.startsWith(b))) mal(`robots.txt bloquea ${ruta}`);
+  /* Hay que leerlo por grupos de User-agent, no de corrido: Cloudflare
+     antepone su propio bloque con "Disallow: /" para varios bots de IA
+     (GPTBot, ClaudeBot, Amazonbot...). Eso no afecta a Google, y mirar
+     las líneas sueltas hacía saltar una alarma falsa. */
+  const grupos = [];
+  let actual = null;
+  for (let linea of txt.split("\n")) {
+    linea = linea.split("#")[0].trim();
+    if (!linea) continue;
+    const ua = linea.match(/^user-agent:\s*(.+)$/i);
+    if (ua) {
+      if (!actual || actual.reglas.length) { actual = { uas: [], reglas: [] }; grupos.push(actual); }
+      actual.uas.push(ua[1].trim());
+      continue;
+    }
+    const rg = linea.match(/^(allow|disallow):\s*(\S*)$/i);
+    if (rg && actual) actual.reglas.push([rg[1].toLowerCase(), rg[2]]);
   }
+  const puedeEntrar = (ruta) => {
+    const suyos = grupos.filter((g) => g.uas.includes("*"));
+    let largo = -1, permitido = true;
+    for (const g of suyos) {
+      for (const [tipo, patron] of g.reglas) {
+        if (patron && ruta.startsWith(patron) && patron.length > largo) {
+          largo = patron.length; permitido = tipo === "allow";
+        }
+      }
+    }
+    return permitido;
+  };
+  for (const ruta of Object.values(PAGINAS)) {
+    if (!puedeEntrar(ruta)) mal(`robots.txt le cierra ${ruta} a Google`);
+  }
+  if (puedeEntrar("/admin")) mal("robots.txt deja el panel de administración abierto a Google");
 }
 
 /* ---- 3. Cada página se apunta a sí misma con su dirección final ---- */
@@ -70,14 +99,21 @@ for (const [archivo, ruta] of Object.entries(PAGINAS)) {
   if (og && og !== BASE + ruta) mal(`${archivo} comparte como ${og} en vez de ${BASE + ruta}`);
 }
 
-/* ---- 4. www manda a la dirección oficial ---- */
-if (!existsSync("_redirects")) {
-  mal("no existe _redirects (www quedaría como sitio duplicado)");
-} else {
-  const r = readFileSync("_redirects", "utf8");
-  if (!/www\.carseatclinic\.com\.pa.*carseatclinic\.com\.pa.*301/.test(r)) {
-    mal("_redirects no manda www a la dirección sin www con 301");
+/* ---- 4. www manda a la dirección oficial ----
+   Esto NO se puede comprobar leyendo archivos: la redirección vive en una
+   regla del panel de Cloudflare, porque _redirects no distingue el dominio
+   de entrada. Así que se pregunta al sitio de verdad. Si no hay internet
+   se avisa y no se falla, para no trabar el trabajo sin conexión. */
+try {
+  const r = await fetch("https://www.carseatclinic.com.pa/", { redirect: "manual" });
+  const destino = r.headers.get("location") || "";
+  if (r.status !== 301) {
+    mal(`www responde ${r.status} en vez de redirigir con 301 (queda como sitio duplicado)`);
+  } else if (!destino.startsWith(BASE)) {
+    mal(`www redirige a ${destino} en vez de a ${BASE}`);
   }
+} catch (_) {
+  console.log("  · sin conexión: no se pudo comprobar la redirección de www");
 }
 
 const total = Object.keys(PAGINAS).length;

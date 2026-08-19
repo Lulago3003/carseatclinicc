@@ -1,6 +1,11 @@
-# Redirecciones del sitio (Cloudflare Pages las aplica antes de servir).
+# Cloudflare Pages usa este archivo para redirecciones POR RUTA.
 #
-# www a sin www: sin esto las dos versiones respondían igual y Google las
-# trataba como dos sitios distintos, repartiendo el posicionamiento entre
-# ambas. Ahora www manda a la dirección oficial con un 301.
-https://www.carseatclinic.com.pa/* https://carseatclinic.com.pa/:splat 301
+# La redirección de www a la dirección sin www NO se puede hacer aquí:
+# Pages sirve el mismo sitio en todos sus dominios y este archivo no
+# distingue el dominio de entrada. Se probó y devolvía 200 igual.
+# Quedó resuelta con una regla en el panel de Cloudflare:
+#   carseatclinic.com.pa -> Rules -> Redirect Rules
+#   "Redirect from WWW to root", 301, conservando la cadena de consulta.
+#
+# Las redirecciones de /pagina.html a /pagina las hace Cloudflare Pages
+# sola, no hay que declararlas.
