@@ -47,6 +47,19 @@ function fotoAbsoluta(u) {
   return SITIO + "/" + String(u).replace(/^\/+/, "");
 }
 
+/* WhatsApp y Facebook solo muestran JPEG, PNG y GIF en la vista previa.
+   Con .webp o .avif dejan el recuadro vacío, y varias sillas del
+   catálogo están guardadas en esos formatos. Así que de todas las fotos
+   del producto se elige la primera que sí se pueda mostrar. */
+function esCompatible(u) {
+  return /\.(jpe?g|png|gif)(\?|$)/i.test(u || "");
+}
+function fotoParaCompartir(prod) {
+  const galeria = Array.isArray(prod.images) ? prod.images.filter(Boolean) : [];
+  const todas = [prod.image_url, ...galeria].filter(Boolean).map(fotoAbsoluta);
+  return todas.find(esCompatible) || null;
+}
+
 function precioBonito(p) {
   const n = Number(p);
   if (!n || n <= 0) return null;
@@ -98,8 +111,7 @@ export async function onRequest(context) {
     const prod = Array.isArray(datos) ? datos[0] : null;
     if (!prod) return respuesta;
 
-    const galeria = Array.isArray(prod.images) ? prod.images.filter(Boolean) : [];
-    const foto = fotoAbsoluta(prod.image_url || galeria[0]);
+    const foto = fotoParaCompartir(prod);
     const titulo = `${prod.name} | ${MARCA} Panamá`;
     const texto = resumen(prod);
     const enlace = `${SITIO}/tienda?producto=${encodeURIComponent(prod.id)}`;
@@ -113,8 +125,8 @@ export async function onRequest(context) {
       .on('meta[name="twitter:title"]', new PonerContenido(titulo))
       .on('meta[name="twitter:description"]', new PonerContenido(texto));
 
-    /* Si el producto no tiene foto propia se deja la del sitio: es mejor
-       una imagen de la marca que un hueco en la vista previa. */
+    /* Si no hay ninguna foto que WhatsApp sepa mostrar, se deja la del
+       sitio: es mejor una imagen de la marca que un hueco. */
     if (foto) {
       rw = rw
         .on('meta[property="og:image"]', new PonerContenido(foto))
