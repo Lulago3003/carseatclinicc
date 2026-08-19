@@ -526,7 +526,17 @@
 }
 .cinelede h1 {
   font-size: clamp(1.6rem, 3.4vw, 2.5rem);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+}
+/* "La silla correcta, instalada con confianza" dejo de ser el encabezado
+   principal, pero sigue siendo la frase de la marca. Va debajo del titulo,
+   destacada, para que no se pierda entre el texto comun. */
+.cinelede__lema {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: var(--brand) !important;
+  font-style: italic;
+  margin-bottom: 14px !important;
 }
 .cinelede p { color: var(--muted); margin-bottom: 18px; }
 .cinelede__cta { display: flex; flex-wrap: wrap; gap: 12px; }
