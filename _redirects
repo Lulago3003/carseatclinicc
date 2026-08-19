@@ -1,0 +1,6 @@
+# Redirecciones del sitio (Cloudflare Pages las aplica antes de servir).
+#
+# www a sin www: sin esto las dos versiones respondían igual y Google las
+# trataba como dos sitios distintos, repartiendo el posicionamiento entre
+# ambas. Ahora www manda a la dirección oficial con un 301.
+https://www.carseatclinic.com.pa/* https://carseatclinic.com.pa/:splat 301

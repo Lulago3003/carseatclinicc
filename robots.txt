@@ -1,0 +1,10 @@
+# Car Seat Clinic Center — Panamá
+# Todo el contenido público es rastreable. Solo se cierra el panel de
+# administración, que no es contenido y no debe salir en Google.
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin.html
+
+Sitemap: https://carseatclinic.com.pa/sitemap.xml
