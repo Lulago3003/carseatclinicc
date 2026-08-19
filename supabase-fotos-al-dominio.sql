@@ -1,28 +1,26 @@
 -- =====================================================================
---  LAS FOTOS DE LOS PRODUCTOS PASAN AL DOMINIO PROPIO
+--  TODO LO PUBLICO PASA AL DOMINIO DE LA CLIENTA
 --  ---------------------------------------------------------------------
---  24 de 35 productos tenían la foto apuntando a
---  lulago3003.github.io, que es la copia vieja del sitio en GitHub
---  Pages. Funcionaba, pero deja el catálogo colgando de una dirección
---  que no es de la clienta: el día que se apague esa copia (que es lo
---  que conviene hacer, porque Google la ve como sitio duplicado), todas
---  esas fotos se caen.
+--  Varios productos tenian sus fotos apuntando a
+--  lulago3003.github.io, que es nuestra copia de trabajo. Las fotos son
+--  las mismas y ya estan en carseatclinic.com.pa: lo unico que cambia
+--  es por que puerta se piden.
 --
---  Los archivos son los mismos y ya están en el dominio, así que solo
---  hay que cambiar la dirección.
+--  Esto NO borra ninguna foto ni ningun producto. Solo reemplaza un
+--  texto por otro dentro de la direccion. Se puede correr las veces que
+--  haga falta.
 --
 --  Cómo se corre: Supabase -> SQL Editor -> pegar -> RUN.
---  Se puede correr varias veces sin problema.
 -- =====================================================================
 
--- Foto principal
+-- ---------- Productos: foto principal ----------
 update public.products
 set image_url = replace(image_url,
       'https://lulago3003.github.io/carseatclinicc/',
       'https://carseatclinic.com.pa/')
-where image_url like 'https://lulago3003.github.io/carseatclinicc/%';
+where image_url like '%lulago3003.github.io%';
 
--- Galería de fotos (es una lista, hay que recorrerla)
+-- ---------- Productos: galeria de fotos ----------
 update public.products
 set images = (
   select jsonb_agg(
@@ -35,8 +33,24 @@ set images = (
 )
 where images::text like '%lulago3003.github.io%';
 
--- Comprobación: debe devolver 0 filas
-select id, name
-from public.products
-where image_url like '%github.io%'
-   or images::text like '%github.io%';
+-- ---------- Blog: portada y cuerpo ----------
+update public.blog_posts
+set cover = replace(cover,
+      'https://lulago3003.github.io/carseatclinicc/',
+      'https://carseatclinic.com.pa/')
+where cover like '%lulago3003.github.io%';
+
+update public.blog_posts
+set body = replace(body,
+      'https://lulago3003.github.io/carseatclinicc/',
+      'https://carseatclinic.com.pa/')
+where body like '%lulago3003.github.io%';
+
+-- =====================================================================
+--  COMPROBACION: las tres consultas deben devolver 0 filas
+-- =====================================================================
+select 'productos' as tabla, id, name from public.products
+where image_url like '%github.io%' or images::text like '%github.io%'
+union all
+select 'blog', id::text, title from public.blog_posts
+where cover like '%github.io%' or body like '%github.io%';

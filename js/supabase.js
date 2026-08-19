@@ -130,13 +130,26 @@ const DB = (function () {
     return data.map((r) => ({ ...normalize(r), activo: r.active !== false, sort: r.sort }));
   }
 
+  /* Todo lo que ve el público va con el dominio de la clienta.
+     lulago3003.github.io es nuestra copia de trabajo: sirve para probar
+     cambios antes de publicarlos, pero no debe quedar guardada en la
+     base ni salir en un enlace que se comparte. Si alguien pega una
+     dirección de esa copia, aquí se corrige sola. Es el mismo archivo:
+     solo cambia por qué puerta se pide. */
+  const COPIA_INTERNA = "https://lulago3003.github.io/carseatclinicc/";
+  const DOMINIO = "https://carseatclinic.com.pa/";
+  function alDominio(u) {
+    if (!u || typeof u !== "string") return u;
+    return u.split(COPIA_INTERNA).join(DOMINIO);
+  }
+
   async function saveProduct(p) {
     if (!ready) throw new Error("Base de datos no conectada");
-    const imagenes = Array.isArray(p.imagenes) ? p.imagenes : [];
+    const imagenes = (Array.isArray(p.imagenes) ? p.imagenes : []).map(alDominio);
     const row = {
       id: p.id, name: p.nombre, category: p.categoria, price: p.precio,
       compare_at: p.antes || null, badge: p.badge || null,
-      image_url: imagenes[0] || p.imagen || null,
+      image_url: imagenes[0] || alDominio(p.imagen) || null,
       images: imagenes,
       features: Array.isArray(p.caracteristicas) ? p.caracteristicas : [],
       description: p.descripcion || null, stock: p.stock, active: p.activo, sort: p.sort || 0,
@@ -565,8 +578,10 @@ const DB = (function () {
       slug: post.slug || slugify(post.titulo),
       title: post.titulo || "",
       excerpt: post.resumen || null,
-      body: post.cuerpo || "",
-      cover_url: post.portada || null,
+      /* Igual que en los productos: lo que se publica va con el dominio
+         de la clienta, no con nuestra copia de trabajo. */
+      body: alDominio(post.cuerpo || ""),
+      cover_url: alDominio(post.portada) || null,
       author: post.autor || null,
       published: post.publicado !== false,
       published_at: post.fecha || new Date().toISOString(),
