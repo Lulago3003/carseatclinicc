@@ -594,6 +594,20 @@ select:focus { outline: none; border-color: var(--brand); }
   display: grid; grid-template-columns: minmax(300px, 1fr) minmax(280px, .82fr);
   gap: clamp(28px, 5vw, 60px); align-items: center;
 }
+/* Frases de marca de los servicios ("De vuelta a como el primer día",
+   "Te la instalamos y te enseñamos a usarla"). Dejaron de ser el titulo
+   de la seccion, que ahora dice el servicio con todas las letras, pero
+   siguen siendo la frase de la casa: van debajo, destacadas, para que no
+   se confundan con el texto explicativo. */
+.svc-lema {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.02rem, 1.9vw, 1.24rem);
+  font-style: italic;
+  color: var(--brand) !important;
+  margin: -4px 0 12px !important;
+  max-width: none !important;
+}
+
 .cleanshow__content .eyebrow { color: var(--accent-dark); }
 .cleanshow__content h2 {
   max-width: 12em; font-size: clamp(2rem, 4.2vw, 3.2rem); color: var(--brand-dark); margin-bottom: 14px;
